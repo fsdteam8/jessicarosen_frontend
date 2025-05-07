@@ -1,14 +1,16 @@
 import Image from "next/image"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
 import { ArrowRight, Phone } from "lucide-react"
+import { getFeaturedProducts, getNewArrivalProducts } from "@/lib/data"
 
 export default function Home() {
+  const featuredProducts = getFeaturedProducts().slice(0, 6)
+  // const bestSellerProducts = getBestSellerProducts().slice(0, 6)
+  const popularProducts = getNewArrivalProducts().slice(0, 6)
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
 
       <main>
         {/* Hero Section */}
@@ -74,9 +76,10 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {topSellingProducts.map((product) => (
+              {featuredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
+                  id={product.id}
                   title={product.title}
                   image={product.image}
                   price={product.price}
@@ -144,6 +147,7 @@ export default function Home() {
               {popularProducts.map((product) => (
                 <ProductCard
                   key={product.id}
+                  id={product.id}
                   title={product.title}
                   image={product.image}
                   price={product.price}
@@ -184,128 +188,6 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer />
     </div>
   )
 }
-
-// Mock data for products
-const topSellingProducts = [
-  {
-    id: "1",
-    title: "Starting the Professional Engagement",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 95,
-    discountPrice: 10,
-    rating: 4.8,
-    reviews: 176,
-  },
-  {
-    id: "2",
-    title: "Facilitating the Collaborative Relationship",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 75,
-    discountPrice: 10,
-    rating: 4.6,
-    reviews: 93,
-  },
-  {
-    id: "3",
-    title: "Terminating the Professional Engagement",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 120,
-    discountPrice: 10,
-    rating: 4.9,
-    reviews: 128,
-  },
-  {
-    id: "4",
-    title: "Securing Organizational Objectives",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 165,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 156,
-  },
-  {
-    id: "5",
-    title: "Commercial Transactions Objective",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 118,
-    discountPrice: 10,
-    rating: 4.8,
-    reviews: 201,
-  },
-  {
-    id: "6",
-    title: "Admissibility of evidence in civil proceedings",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 135,
-    discountPrice: 10,
-    rating: 4.9,
-    reviews: 184,
-  },
-]
-
-const popularProducts = [
-  {
-    id: "7",
-    title: "Innovation Financing Action",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 85,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-  {
-    id: "8",
-    title: "Non-Governmental Organization (NGO)",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 128,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-  {
-    id: "9",
-    title: "Corporate Restructuring",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 167,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-  {
-    id: "10",
-    title: "Requests for Relief & In-Chambers Hearings",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 142,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-  {
-    id: "11",
-    title: "Community Benefit Organization",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 148,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-  {
-    id: "12",
-    title: "Non-Disclosure Agreement",
-    image: "/placeholder.svg?height=200&width=300",
-    price: 96,
-    discountPrice: 10,
-    rating: 4.7,
-    reviews: 1500,
-    description: "Breaking an NDA can result in legal consequences, including financial penalties or lawsuits",
-  },
-]
