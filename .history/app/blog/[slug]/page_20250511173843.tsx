@@ -46,11 +46,11 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             { label: post.title },
           ]}
         />
-        <div>
 
+        <SectionContainer>
           <BlogContent post={post} />
           <RelatedPosts posts={relatedPosts} isLoading={isLoading} />
-        </div>
+        </SectionContainer>
       </main>
 
       <Footer />

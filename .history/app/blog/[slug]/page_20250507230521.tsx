@@ -5,7 +5,7 @@ import { notFound } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { HeroSection } from "@/components/hero-section"
-// import { SectionContainer } from "@/components/ui/section-container"
+import { SectionContainer } from "@/components/ui/section-container"
 import { BlogContent } from "@/components/blog/blog-content"
 import { RelatedPosts } from "@/components/blog/related-posts"
 import { getBlogPostBySlug, getRelatedBlogPosts } from "@/lib/blog-data"
@@ -46,11 +46,11 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             { label: post.title },
           ]}
         />
-        <div>
 
+        <SectionContainer>
           <BlogContent post={post} />
           <RelatedPosts posts={relatedPosts} isLoading={isLoading} />
-        </div>
+        </SectionContainer>
       </main>
 
       <Footer />
