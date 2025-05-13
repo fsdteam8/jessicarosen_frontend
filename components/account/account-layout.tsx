@@ -1,18 +1,20 @@
-import type React from "react"
-import Link from "next/link"
-import { LogOut } from "lucide-react"
-import { HeroSection } from "@/components/hero-section"
-import { cn } from "@/lib/utils"
+import type React from "react";
+import Link from "next/link";
+import { LogOut } from "lucide-react";
+import { HeroSection } from "@/components/hero-section";
+import { cn } from "@/lib/utils";
 
 interface AccountLayoutProps {
-  children: React.ReactNode
-  activeTab?: "profile" | "settings" | "orders" | "privacy" | "terms"
+  children: React.ReactNode;
+  activeTab?: "profile" | "settings" | "orders" | "privacy" | "terms";
 }
 
-export function AccountLayout({ children, activeTab = "profile" }: AccountLayoutProps) {
+export function AccountLayout({
+  children,
+  activeTab = "profile",
+}: AccountLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
-
       <main className="flex-1">
         {/* Hero Section */}
         <HeroSection
@@ -31,14 +33,14 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
 
           {/* Account Navigation */}
           <div className="border-b mb-8">
-            <nav className="flex flex-wrap -mb-px">
+            <nav className="flex justify-between">
               <Link
                 href="/account/profile"
                 className={cn(
                   "inline-block py-4 px-4 border-b-2 font-medium text-sm",
                   activeTab === "profile"
                     ? "border-[#2c5d7c] text-[#2c5d7c]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 )}
               >
                 My Profile
@@ -49,7 +51,7 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
                   "inline-block py-4 px-4 border-b-2 font-medium text-sm",
                   activeTab === "settings"
                     ? "border-[#2c5d7c] text-[#2c5d7c]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 )}
               >
                 Setting
@@ -60,7 +62,7 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
                   "inline-block py-4 px-4 border-b-2 font-medium text-sm",
                   activeTab === "orders"
                     ? "border-[#2c5d7c] text-[#2c5d7c]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 )}
               >
                 Order History
@@ -71,7 +73,7 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
                   "inline-block py-4 px-4 border-b-2 font-medium text-sm",
                   activeTab === "privacy"
                     ? "border-[#2c5d7c] text-[#2c5d7c]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 )}
               >
                 Privacy Policy
@@ -82,20 +84,18 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
                   "inline-block py-4 px-4 border-b-2 font-medium text-sm",
                   activeTab === "terms"
                     ? "border-[#2c5d7c] text-[#2c5d7c]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300",
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 )}
               >
                 Terms & Conditions
               </Link>
-              <div className="ml-auto">
-                <Link
-                  href="/auth/logout"
-                  className="inline-flex items-center py-4 px-4 text-sm font-medium text-red-600 hover:text-red-800"
-                >
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Log out
-                </Link>
-              </div>
+              <Link
+                href="/auth/logout"
+                className="inline-flex items-center py-4 px-4 text-sm font-medium text-red-600 hover:text-red-800"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Log out
+              </Link>
             </nav>
           </div>
 
@@ -103,7 +103,6 @@ export function AccountLayout({ children, activeTab = "profile" }: AccountLayout
           {children}
         </div>
       </main>
-
     </div>
-  )
+  );
 }

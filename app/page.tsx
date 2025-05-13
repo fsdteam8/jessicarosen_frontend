@@ -2,10 +2,13 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ProductCard } from "@/components/product-card"
 import { ArrowRight, Phone } from "lucide-react"
-import { getFeaturedProducts, getNewArrivalProducts } from "@/lib/data"
+import {  getNewArrivalProducts } from "@/lib/data"
+import ExploreTopCart from "@/components/HomePage/ExploreTopCart"
+import BestSellers from "@/components/HomePage/BestSellers"
+import LegalDoc from "@/components/HomePage/LegalDoc"
 
 export default function Home() {
-  const featuredProducts = getFeaturedProducts().slice(0, 6)
+  // const featuredProducts = getFeaturedProducts().slice(0, 6)
   // const bestSellerProducts = getBestSellerProducts().slice(0, 6)
   const popularProducts = getNewArrivalProducts().slice(0, 6)
 
@@ -64,42 +67,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Top Selling Products */}
-        <section className="py-16 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl font-bold mb-2">Explore Top Selling Products</h2>
-              <p className="text-sm text-gray-600 max-w-2xl mx-auto">
-                Tested and proven forms and documents, created by experienced researchers, understand and apply legal
-                principles.
-              </p>
-            </div>
+        
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.id}
-                  title={product.title}
-                  image={product.image}
-                  price={product.price}
-                  discountPrice={product.discountPrice}
-                  rating={product.rating}
-                  reviews={product.reviews}
-                />
-              ))}
-            </div>
-
-            <div className="text-center mt-8">
-              <Button variant="link" className="text-[#2c5d7c] flex items-center mx-auto">
-                See More <ArrowRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </section>
+        <ExploreTopCart />
 
         {/* Best Sellers */}
-        <section className="py-16 bg-[#f8e3a3]">
+        {/* <section className="py-16 bg-[#f8e3a3]">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="max-w-md mb-8 md:mb-0">
@@ -130,7 +103,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
+        <BestSellers />
 
         {/* Popular Products */}
         <section className="py-16">
@@ -169,23 +143,7 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-10 bg-[#2c5d7c] text-white">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div>
-                <h2 className="text-2xl font-bold mb-2">Looking For Legal Documents?</h2>
-                <p className="text-sm">Thousands of templates to choose from, professionally crafted.</p>
-              </div>
-              <div className="mt-4 md:mt-0 flex items-center space-x-4">
-                <Button className="bg-white text-[#2c5d7c] hover:bg-gray-100">Buy Now</Button>
-                <div className="flex flex-col">
-                  <span className="font-bold">EMAIL US</span>
-                  <span className="text-xs">SUPPORT@LAWFIRM.COM</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <LegalDoc />
       </main>
 
     </div>

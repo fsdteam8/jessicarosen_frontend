@@ -40,25 +40,25 @@ export default function OrderHistoryPage() {
 
   return (
     <AccountLayout activeTab="orders">
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden border-2 border-black">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
-              <tr>
-                <th className="py-4 px-6 text-left font-medium text-gray-700">Resource Name</th>
-                <th className="py-4 px-6 text-left font-medium text-gray-700">Price</th>
-                <th className="py-4 px-6 text-left font-medium text-gray-700">Date</th>
-                <th className="py-4 px-6 text-left font-medium text-gray-700">Status</th>
-                <th className="py-4 px-6 text-left font-medium text-gray-700">Action</th>
+              <tr className="">
+                <th className="py-4 px-6 text-center font-medium text-gray-700">Resource Name</th>
+                <th className="py-4 px-6 text-center font-medium text-gray-700">Price</th>
+                <th className="py-4 px-6 text-center font-medium text-gray-700">Date</th>
+                <th className="py-4 px-6 text-center font-medium text-gray-700">Status</th>
+                <th className="py-4 px-6 text-center font-medium text-gray-700">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {paginatedOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-6">{order.name}</td>
-                  <td className="py-4 px-6">${order.price.toFixed(2)}</td>
-                  <td className="py-4 px-6">{order.date}</td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-6 text-center">{order.name}</td>
+                  <td className="py-4 px-6 text-center">${order.price.toFixed(2)}</td>
+                  <td className="py-4 px-6 text-center">{order.date}</td>
+                  <td className="py-4 px-6 text-center">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         order.status === "Delivered" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
@@ -67,7 +67,7 @@ export default function OrderHistoryPage() {
                       {order.status}
                     </span>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-6 flex justify-center">
                     <div className="flex space-x-2">
                       <Button
                         variant="outline"
