@@ -1,62 +1,190 @@
-import { AccountLayout } from "@/components/account/account-layout"
+import { AccountLayout } from "@/components/account/account-layout";
 
 export default function PrivacyPolicyPage() {
   return (
     <AccountLayout activeTab="privacy">
-      <div className="bg-white rounded-lg shadow-sm p-8">
-        <h2 className="text-2xl font-bold mb-6">Privacy Policy</h2>
-
-        <div className="prose max-w-none">
-          <p className="mb-4">Last updated: May 1, 2025</p>
-
-          <h3 className="text-xl font-bold mb-4">1. Introduction</h3>
-
-          <p className="mb-4">
-            At Lawbie, we respect your privacy and are committed to protecting your personal data. This privacy policy
-            will inform you about how we look after your personal data when you visit our website and tell you about
-            your privacy rights and how the law protects you.
+      <div className="space-y-7">
+        <div className="mb-6">
+          <h2 className="font-semibold text-[32px] text-[#131313] mb-10">
+            Privacy Policy
+          </h2>
+          <p className="text-sm">
+            Your use of the Site is also governed by our [Privacy Policy], which Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vero quae dolores odit saepe fugiat reiciendis magnam quas ducimus voluptas! Accusamus blanditiis accusantium facere consequatur praesentium commodi error quasi? Animi, explicabo? Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dolores rerum voluptatum maiores repellendus quo vel, recusandae tempora, harum mollitia amet temporibus. Excepturi corporis exercitationem quae nostrum tempora iste fuga assumenda!Lorem Lorem ipsum dolor, sit amet consectetur adipisicing elit. Necessitatibus quia sequi, itaque explicabo iusto ut voluptatum fuga rerum dolorum ea quis optio, dolore debitis. Obcaecati eum harum quis quaerat maxime?  Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi blanditiis ducimus consectetur eveniet ut facilis magni autem! Repudiandae eum, harum accusamus architecto dignissimos non labore dolores provident error repellat eius, minus ducimus nulla tempora cupiditate. Repudiandae fugit iste explicabo cumque qui odio, quaerat iusto numquam itaque debitis pariatur repellendus, aliquid ratione, suscipit dolorum similique eius facilis? Ipsa minus soluta maxime eligendi rerum perspiciatis iste cupiditate quia quibusdam aliquam adipisci voluptate ea accusantium quas ratione porro cum excepturi molestiae, iure facere tempore. Architecto, ipsam voluptatum. Necessitatibus id, voluptates, accusantium fugit totam nemo repudiandae illum odit non optio error ea adipisci soluta fuga quam nisi quas harum deserunt maxime quia maiores ducimus sapiente? Sed, deserunt. Blanditiis repellendus officia perferendis, molestias dicta iste dolorem culpa odit natus. Quo modi adipisci fugiat quasi maiores quas perspiciatis provident reiciendis! Vitae voluptatum modi eum tenetur, aspernatur, in unde dolorem eveniet, eius possimus ab nesciunt non. Eius sunt amet magnam magni quos similique architecto sed nulla veniam tempora culpa voluptatem quisquam sint, officiis vitae porro labore dicta, ad ullam odio, consectetur perspiciatis eaque quasi! Earum quos facere est laudantium voluptas fugit cumque optio molestias vero, enim iste exercitationem sapiente provident explicabo hic soluta veritatis repudiandae quia? Quibusdam.
+            indicates how we collect, use, and protect your personal
+            information.
           </p>
+        </div>
 
-          <h3 className="text-xl font-bold mb-4">2. The Data We Collect About You</h3>
-
-          <p className="mb-4">
-            Personal data, or personal information, means any information about an individual from which that person can
-            be identified. We may collect, use, store and transfer different kinds of personal data about you which we
-            have grouped together as follows:
+        <div className="">
+          <h2 className="font-semibold text-[24px] text-[#131313]">
+            Information we collect
+          </h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
+            aliquam animi placeat minima soluta distinctio!
           </p>
-
-          <ul className="list-disc pl-6 mb-4">
-            <li>Identity Data includes first name, last name, username or similar identifier.</li>
-            <li>Contact Data includes billing address, delivery address, email address and telephone numbers.</li>
-            <li>Financial Data includes payment card details.</li>
+          <ul className="list-disc list-inside text-base mb-2">
             <li>
-              Transaction Data includes details about payments to and from you and other details of products you have
-              purchased from us.
+              To the extent permitted by law, [Our Website Name] shall not be
+              liable for:
+            </li>
+            <li>Any direct damages arising from your use of the Site</li>
+            <li>Any indirect damages resulting from your use of the Site</li>
+            <li>
+              Any incidental or special damages related to transactions through
+              the Site
             </li>
             <li>
-              Technical Data includes internet protocol (IP) address, browser type and version, time zone setting and
-              location, browser plug-in types and versions, operating system and platform, and other technology on the
-              devices you use to access this website.
+              Any consequential damages from your use of or interaction with the
+              Site
             </li>
           </ul>
+        </div>
 
-          <h3 className="text-xl font-bold mb-4">3. How We Use Your Personal Data</h3>
-
-          <p className="mb-4">
-            We will only use your personal data when the law allows us to. Most commonly, we will use your personal data
-            in the following circumstances:
+        <div className="">
+          <h2 className="font-semibold text-[24px] text-[#131313]">
+            How we use your information
+          </h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
+            aliquam animi placeat minima soluta distinctio!
           </p>
-
-          <ul className="list-disc pl-6 mb-4">
-            <li>Where we need to perform the contract we are about to enter into or have entered into with you.</li>
+          <ul className="list-disc list-inside text-base mb-2">
             <li>
-              Where it is necessary for our legitimate interests and your interests and fundamental rights do not
-              override those interests.
+              To the extent permitted by law, [Our Website Name] shall not be
+              liable for:
             </li>
-            <li>Where we need to comply with a legal obligation.</li>
+            <li>Any direct damages arising from your use of the Site</li>
+            <li>Any indirect damages resulting from your use of the Site</li>
+            <li>
+              Any incidental or special damages related to transactions through
+              the Site
+            </li>
+            <li>
+              Any consequential damages from your use of or interaction with the
+              Site
+            </li>
           </ul>
+        </div>
+
+        <div className="">
+          <h2 className="font-semibold text-[24px] text-[#131313]">
+            How we shear your information
+          </h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
+            aliquam animi placeat minima soluta distinctio!
+          </p>
+          <ul className="list-disc list-inside text-base mb-2">
+            <li>
+              To the extent permitted by law, [Our Website Name] shall not be
+              liable for:
+            </li>
+            <li>Any direct damages arising from your use of the Site</li>
+            <li>Any indirect damages resulting from your use of the Site</li>
+            <li>
+              Any incidental or special damages related to transactions through
+              the Site
+            </li>
+            <li>
+              Any consequential damages from your use of or interaction with the
+              Site
+            </li>
+          </ul>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="font-semibold text-[20px] text-[#131313]">
+            Date security
+          </h2>
+          <p className="text-base mb-2">
+            We reserve the right to modify these Terms at any time. The most
+            current version will always be available on this page. By continuing
+            to use the Site after changes are posted, you agree to be bound by
+            the updated Terms. Lorem ipsum, dolor sit amet consectetur
+            adipisicing elit. Repudiandae itaque, unde necessitatibus corrupti
+            impedit explicabo soluta aperiam officiis et eum numquam. Officiis a
+            accusantium officia temporibus tempora sed eaque ipsa qui doloribus
+            repellendus incidunt debitis enim excepturi natus unde quae nobis
+            quod quam, architecto recusandae sapiente? Veniam quod eveniet
+            voluptates?
+          </p>
+        </div>
+
+        <div className="">
+          <h2 className="font-semibold text-[24px] text-[#131313]">
+            Your Data Right
+          </h2>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat
+            aliquam animi placeat minima soluta distinctio!
+          </p>
+          <ul className="list-disc list-inside text-base mb-2">
+            <li>
+              To the extent permitted by law, [Our Website Name] shall not be
+              liable for:
+            </li>
+            <li>Any direct damages arising from your use of the Site</li>
+            <li>Any indirect damages resulting from your use of the Site</li>
+            <li>
+              Any incidental or special damages related to transactions through
+              the Site
+            </li>
+            <li>
+              Any consequential damages from your use of or interaction with the
+              Site
+            </li>
+          </ul>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="font-semibold text-[20px] text-[#131313]">
+            Date Retention
+          </h2>
+          <p className="text-base mb-2">
+            We reserve the right to modify these Terms at any time. The most
+            current version will always be available on this page. By continuing
+            to use the Site after changes are posted, you agree to be bound by
+            the updated Terms. Lorem ipsum, dolor sit amet consectetur
+            adipisicing elit. Repudiandae itaque, unde necessitatibus corrupti
+          </p>
+        </div>
+        <div className="mb-6">
+          <h2 className="font-semibold text-[20px] text-[#131313]">Cookis</h2>
+          <p className="text-base mb-2">
+            We reserve the right to modify these Terms at any time. The most
+            current version will always be available on this page. By continuing
+            to use the Site after changes are posted, you agree to be bound by
+            the updated Terms. Lorem ipsum, dolor sit amet consectetur
+            adipisicing elit. Repudiandae itaque, unde necessitatibus corrupti
+          </p>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="font-semibold text-[20px] text-[#131313]">
+            Childern&apos;s Privacy
+          </h2>
+          <p className="text-base mb-2">
+            We reserve the right to modify these Terms at any time. The most
+            current version will always be available on this page. By continuing
+            to use the Site after changes are posted, you agree to be bound by
+            the updated Terms. Lorem ipsum, dolor sit amet consectetur
+            adipisicing elit. Repudiandae itaque, unde necessitatibus corrupti
+          </p>
+        </div>
+        <div className="mb-6">
+          <h2 className="font-semibold text-[20px] text-[#131313]">
+            Chnages To This Privacy Policy
+          </h2>
+          <p className="text-base mb-2">
+            We reserve the right to modify these Terms at any time. The most
+            current version will always be available on this page. By continuing
+            to use the Site after changes are posted, you agree to be bound by
+            the updated Terms. Lorem ipsum, dolor sit amet consectetur
+            adipisicing elit. Repudiandae itaque, unde necessitatibus corrupti
+          </p>
         </div>
       </div>
     </AccountLayout>
-  )
+  );
 }
