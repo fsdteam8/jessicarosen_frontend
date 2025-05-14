@@ -45,7 +45,7 @@ const validateTerms = (value: boolean) => {
   return true;
 };
 
-export default function CreateAccountForm() {
+export default function SignUpFrom() {
   const {
     register,
     handleSubmit,
