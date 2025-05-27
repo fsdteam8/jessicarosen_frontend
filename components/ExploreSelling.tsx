@@ -1,6 +1,5 @@
 import React from 'react'
 import ProductCard from './ProductCard'
-import { Button } from './ui/button'
 import { ArrowRight } from 'lucide-react'
 
 const ExploreSelling = () => {
