@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useCart } from "@/hooks/use-cart"
 import { useAuth } from "@/hooks/use-auth"
 import { CartSheet } from "@/components/cart-sheet"
+import Image from "next/image"
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -114,8 +115,12 @@ export function Header() {
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center">
               <Link href="/" className="text-3xl font-bold mr-10">
-                <span className="text-[#2c5d7c]">L</span>
-                <span className="text-[#f0a500]">B</span>
+                  <Image
+                               src="/assets/logo.png"
+                               alt="Lawbie Logo"
+                               width={150}
+                               height={50}
+                               className="h-10 w-auto mb-2"/>
               </Link>
 
               {/* Desktop Navigation */}
