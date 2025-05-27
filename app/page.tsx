@@ -1,9 +1,8 @@
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { ProductCard } from "@/components/product-card"
-import { ArrowRight, Phone } from "lucide-react"
+
 import { getFeaturedProducts, getNewArrivalProducts } from "@/lib/data"
 import HomeHero from "@/components/HomeHero"
+import ProductCard from "@/components/ProductCard"
+import ExploreSelling from "@/components/ExploreSelling"
 
 export default function Home() {
   const featuredProducts = getFeaturedProducts().slice(0, 6)
@@ -14,6 +13,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
 
      <HomeHero/>
+     <ExploreSelling/>
 
     </div>
   )
