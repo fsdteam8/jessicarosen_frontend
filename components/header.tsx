@@ -188,7 +188,7 @@ export function Header() {
                 </div>
               ) : (
                 <Button asChild className="bg-[#2c5d7c] hover:bg-[#1e4258] hidden sm:flex">
-                  <Link href="/auth/login">Login</Link>
+                  <Link href="/sign-in">Login</Link>
                 </Button>
               )}
 
