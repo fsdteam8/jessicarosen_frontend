@@ -1,8 +1,11 @@
+"use client";
 import type React from "react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
 import { HeroSection } from "@/components/hero-section";
 import { cn } from "@/lib/utils";
+import LogoutConfirmationModal from "../LogoutConfirmationModal";
+import { useState } from "react";
 
 interface AccountLayoutProps {
   children: React.ReactNode;
@@ -13,6 +16,17 @@ export function AccountLayout({
   children,
   activeTab = "profile",
 }: AccountLayoutProps) {
+
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const confirmLogout = () => {
+    // logout();
+    setIsLogoutModalOpen(false);
+  };
+
+
+  const handleLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
@@ -89,13 +103,13 @@ export function AccountLayout({
               >
                 Terms & Conditions
               </Link>
-              <Link
-                href="/auth/logout"
+              <button
+              onClick={handleLogout} // Call the logout function when the link is clicked(true)}
                 className="inline-flex items-center justify-center py-2 px-4 text-sm font-medium text-red-600 hover:text-red-800"
               >
                 <LogOut className="h-4 w-4 mr-1" />
                 Log out
-              </Link>
+              </button>
             </nav>
           </div>
 
@@ -103,6 +117,11 @@ export function AccountLayout({
           {children}
         </div>
       </main>
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout}
+      />
     </div>
   );
 }
