@@ -9,8 +9,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <Link href="/" className="text-3xl font-bold mb-4 block">
-              <span className="text-[#2c5d7c]">L</span>
-              <span className="text-[#f0a500]">B</span>
+              {/* <span className="text-[#2c5d7c]">L</span>
+              <span className="text-[#f0a500]">B</span> */}
+
+              <Image
+                src="/assets/logo.png"
+                alt="Lawbie Logo"
+                width={150}
+                height={50}
+                className="h-10 w-auto mb-2"/>
             </Link>
             <p className="text-sm text-gray-600 mb-4">
               &apos;Connecting hearts through meaningful dedications, fostering deeper bonds, creating lasting memories, and
@@ -97,6 +104,7 @@ export function Footer() {
 }
 
 import { ReactNode } from "react"
+import Image from "next/image"
 
 function SocialButton({ icon }: { icon: ReactNode }) {
   return (

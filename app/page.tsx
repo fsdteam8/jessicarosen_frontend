@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/product-card";
@@ -200,6 +201,22 @@ export default function Home() {
         {/* CTA Section */}
         <LegalDoc />
       </main>
+=======
+
+
+import HomeHero from "@/components/HomeHero"
+import ExploreSelling from "@/components/ExploreSelling"
+import BestSellesrs from "@/components/BestSellesrs"
+
+export default function Home() {
+
+  return (
+    <div className="min-h-screen flex flex-col">
+
+     <HomeHero/>
+     <ExploreSelling/>
+<BestSellesrs/>
+>>>>>>> a0c8382b917cca835038364234caaad74eaf10a3
     </div>
   );
 }
