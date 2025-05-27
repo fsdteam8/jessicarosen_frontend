@@ -3,6 +3,7 @@ import { getFeaturedProducts, getNewArrivalProducts } from "@/lib/data"
 import HomeHero from "@/components/HomeHero"
 import ProductCard from "@/components/ProductCard"
 import ExploreSelling from "@/components/ExploreSelling"
+import BestSellesrs from "@/components/BestSellesrs"
 
 export default function Home() {
   const featuredProducts = getFeaturedProducts().slice(0, 6)
@@ -14,7 +15,7 @@ export default function Home() {
 
      <HomeHero/>
      <ExploreSelling/>
-
+<BestSellesrs/>
     </div>
   )
 }
