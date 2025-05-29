@@ -1,34 +1,100 @@
-"use client"
+"use client";
+
+import { LabelList, RadialBar, RadialBarChart } from "recharts";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "./ui/chart";
+import { TrendingUp } from "lucide-react";
 
 export function ProductSellChart() {
-  const categories = [
-    { name: "Categories name", percentage: 39, color: "bg-teal-500" },
-    { name: "Categories name", percentage: 38, color: "bg-blue-500" },
-    { name: "Categories name", percentage: 27, color: "bg-purple-500" },
-    { name: "Categories name", percentage: 22, color: "bg-orange-500" },
-  ]
+  const chartData = [
+    { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
+    { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
+    { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
+    { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
+    { browser: "other", visitors: 90, fill: "var(--color-other)" },
+  ];
+  const chartConfig = {
+    visitors: {
+      label: "Visitors",
+    },
+    chrome: {
+      label: "Chrome",
+      color: "hsl(var(--chart-1))",
+    },
+    safari: {
+      label: "Safari",
+      color: "hsl(var(--chart-2))",
+    },
+    firefox: {
+      label: "Firefox",
+      color: "hsl(var(--chart-3))",
+    },
+    edge: {
+      label: "Edge",
+      color: "hsl(var(--chart-4))",
+    },
+    other: {
+      label: "Other",
+      color: "hsl(var(--chart-5))",
+    },
+  } satisfies ChartConfig;
 
   return (
     <div className="space-y-4">
-      {categories.map((category, index) => (
-        <div key={index} className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className={`w-3 h-3 rounded-full ${category.color}`}></div>
-            <span className="text-sm text-gray-600">{category.name}</span>
-          </div>
-          <span className="text-sm font-medium">{category.percentage}%</span>
-        </div>
-      ))}
-
       {/* Donut chart representation */}
-      <div className="relative w-32 h-32 mx-auto mt-6">
-        <div className="w-full h-full rounded-full border-8 border-gray-200 relative">
-          <div className="absolute inset-0 rounded-full border-8 border-teal-500 border-t-transparent transform rotate-0"></div>
-          <div className="absolute inset-1 rounded-full border-6 border-blue-500 border-t-transparent transform rotate-45"></div>
-          <div className="absolute inset-2 rounded-full border-4 border-purple-500 border-t-transparent transform rotate-90"></div>
-          <div className="absolute inset-3 rounded-full border-2 border-orange-500 border-t-transparent transform rotate-135"></div>
-        </div>
-      </div>
+      <Card className="flex flex-col h-[473px] shadow-[0px_2px_6px_0px_#00000014] border-none">
+        <CardHeader className="items-center pb-0">
+          <CardTitle>Product Sell</CardTitle>
+          <CardDescription>January - June 2024</CardDescription>
+        </CardHeader>
+        <CardContent className="flex-1 pb-0">
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto aspect-square max-h-[250px]"
+          >
+            <RadialBarChart
+              data={chartData}
+              startAngle={-90}
+              endAngle={380}
+              innerRadius={30}
+              outerRadius={110}
+            >
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel nameKey="browser" />}
+              />
+              <RadialBar dataKey="visitors" background>
+                <LabelList
+                  position="insideStart"
+                  dataKey="browser"
+                  className="fill-white capitalize mix-blend-luminosity"
+                  fontSize={11}
+                />
+              </RadialBar>
+            </RadialBarChart>
+          </ChartContainer>
+        </CardContent>
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          </div>
+          <div className="leading-none text-muted-foreground">
+            Showing total visitors for the last 6 months
+          </div>
+        </CardFooter>
+      </Card>
     </div>
-  )
+  );
 }

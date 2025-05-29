@@ -16,9 +16,9 @@ const data = [
 
 export function RevenueChart() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Revenue Report</CardTitle>
+    <Card className="flex flex-col h-[473px] shadow-[0px_2px_6px_0px_#00000014] border-none">
+      <CardHeader className="mb-3">
+        <CardTitle className="text-lg font-semibold">Own Revenue Ratio</CardTitle>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm">
             Day
@@ -33,7 +33,7 @@ export function RevenueChart() {
             Year
           </Button>
         </div>
-        <div className="flex items-center space-x-4 text-sm">
+        <div className="flex items-center space-x-4 text-sm py-3">
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
             <span>This Month</span>
@@ -45,7 +45,7 @@ export function RevenueChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={200}>
+        <ResponsiveContainer width="100%" height={300}>
           <LineChart data={data}>
             <XAxis dataKey="date" axisLine={false} tickLine={false} />
             <YAxis axisLine={false} tickLine={false} />

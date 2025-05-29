@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { TrendingUp, Package, ExternalLink } from "lucide-react"
-import { RevenueChart } from "./revenue-chart"
-import { ProductChart } from "./product-chart"
-import { ProductSellChart } from "./product-sell-chart"
+import { Card, CardContent } from "@/components/ui/card";
+import { TrendingUp, Package } from "lucide-react";
+import { RevenueChart } from "./revenue-chart";
+import { ProductChart } from "./product-chart";
+import { ProductSellChart } from "./product-sell-chart";
+// import { RevenueReport } from "./Revenue_report";
 
 export function DashboardOverview() {
   return (
@@ -19,11 +19,13 @@ export function DashboardOverview() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="py-[24px] px-[32px]">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-[20px] font-bold text-[#131313] ">
+                  Total Revenue
+                </p>
+                <p className="text-[18px] font-medium text-[#424242]">
                   <span className="text-green-500">●</span> 132,570
                 </p>
               </div>
@@ -38,7 +40,9 @@ export function DashboardOverview() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Live Product</p>
+                <p className="text-sm font-medium text-gray-600">
+                  Live Product
+                </p>
                 <p className="text-2xl font-bold text-gray-900">
                   <span className="text-orange-500">●</span> 132,570
                 </p>
@@ -60,19 +64,12 @@ export function DashboardOverview() {
           <ProductChart />
         </div>
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Product Sell</CardTitle>
-              <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                View Details <ExternalLink className="w-4 h-4 ml-1" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <ProductSellChart />
-            </CardContent>
-          </Card>
+          <ProductSellChart />
         </div>
       </div>
+      {/* <div>
+        <RevenueReport/>
+      </div> */}
     </div>
-  )
+  );
 }

@@ -121,12 +121,14 @@ export function ResourceList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-14 ">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col mx-[50px] mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Resource List</h1>
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <h1 className="text-2xl font-bold mb-[14px] text-[#131313]">
+            Resource List
+          </h1>
+          <div className="flex items-center space-x-2 text-[16px] font-medium text-[#929292]">
             <span>Dashboard</span>
             <span>›</span>
             <span>resource List</span>
@@ -134,8 +136,8 @@ export function ResourceList() {
             <span>List</span>
           </div>
         </div>
-        <Link href="/resources/add">
-          <Button className="bg-slate-700 hover:bg-slate-800">
+        <Link href="/dashboard/resources/add">
+          <Button className="bg-[#525773] py-[15px] hover:bg-slate-800">
             <Plus className="w-4 h-4 mr-2" />
             Add Resource
           </Button>
@@ -143,79 +145,79 @@ export function ResourceList() {
       </div>
 
       {/* Table */}
-      <Card>
-        <div className="overflow-x-auto">
+      <Card className="shadow-none border-none">
+        <div className="overflow-x-auto bg-[#EDEEF1]">
           <table className="w-full">
-            <thead className="border-b">
-              <tr>
+            <thead className="border-b ">
+              <tr className="hover:bg-gray-50">
                 <th
-                  className="text-left p-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50"
+                  className="text-left px-[50px] py-[15px] font-medium text-gray-900 cursor-pointer "
                   onClick={() => handleSort("name")}
                 >
                   Resource Name
                 </th>
                 <th
-                  className="text-left p-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50"
+                  className="text-left p-4 py-[15px] font-medium text-gray-900 cursor-pointer "
                   onClick={() => handleSort("id")}
                 >
                   ID
                 </th>
                 <th
-                  className="text-left p-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50"
+                  className="text-left p-4 py-[15px] font-medium text-gray-900 cursor-pointer "
                   onClick={() => handleSort("price")}
                 >
                   Price
                 </th>
-                <th className="text-left p-4 font-medium text-gray-900">
+                <th className="text-left p-4 py-[15px] font-medium text-gray-900">
                   Discount Price
                 </th>
                 <th
-                  className="text-left p-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50"
+                  className="text-left p-4 py-[15px] font-medium text-gray-900 cursor-pointer "
                   onClick={() => handleSort("quantity")}
                 >
                   Quantity
                 </th>
-                <th className="text-left p-4 font-medium text-gray-900">
+                <th className="text-left p-4 py-[15px] font-medium text-gray-900">
                   Format
                 </th>
                 <th
-                  className="text-left p-4 font-medium text-gray-900 cursor-pointer hover:bg-gray-50"
+                  className="text-left p-4 py-[15px] font-medium text-gray-900 cursor-pointer "
                   onClick={() => handleSort("date")}
                 >
                   Date
                 </th>
-                <th className="text-left p-4 font-medium text-gray-900">
+                <th className="text-left p-4 py-[15px] font-medium text-gray-900">
                   Action
                 </th>
               </tr>
             </thead>
             <tbody>
               {paginatedResources.map((resource) => (
-                <tr key={resource.id} className="border-b hover:bg-gray-50">
-                  <td className="p-4">
-                    <div className="flex items-center space-x-3">
+                <tr key={resource.id} className="border-b-[#B6B6B6] border hover:bg-gray-50">
+                  <td className="px-[50px] ">
+                    <div className="flex items-center space-x-3 ">
                       <Image
-                        src={resource.image || "/placeholder.svg"}
+                        src={"/images/image.png"}
                         alt="Resource"
                         width={60}
                         height={60}
                         className="rounded-lg object-cover"
                       />
-                      <span className="font-medium text-gray-900 max-w-xs truncate">
+                      <span className="font-medium text-[#424242] text-[16px] max-w-xs truncate">
                         {resource.name}
                       </span>
                     </div>
                   </td>
-                  <td className="p-4 text-gray-600">{resource.id}</td>
-                  <td className="p-4 text-gray-600">
+                  <td className="font-medium text-[#424242] text-[16px]">{resource.id}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">
                     ${resource.price.toFixed(2)}
                   </td>
-                  <td className="p-4 text-gray-600">
+                  <td className="font-medium text-[#424242] text-[16px]">
                     ${resource.discountPrice.toFixed(2)}
                   </td>
-                  <td className="p-4 text-gray-600">{resource.quantity}</td>
-                  <td className="p-4 text-gray-600">{resource.format}</td>
-                  <td className="p-4 text-gray-600 text-sm">{resource.date}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">{resource.quantity}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">{resource.format}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">{resource.date}</td>
                   <td className="p-4">
                     <Button
                       variant="ghost"
@@ -223,7 +225,7 @@ export function ResourceList() {
                       onClick={() => handleDelete(resource.id)}
                       className="text-gray-400 hover:text-red-600"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4 text-[#424242]" />
                     </Button>
                   </td>
                 </tr>
