@@ -9,7 +9,7 @@ import { ProductSellChart } from "./product-sell-chart";
 
 export function DashboardOverview() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-[32px]">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
@@ -19,10 +19,10 @@ export function DashboardOverview() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
-          <CardContent className="py-[24px] px-[32px]">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[20px] font-bold text-[#131313] ">
+          <CardContent className="pt-[24px] pb-[42px] px-[32px]">
+            <div className="flex items-center ">
+              <div className="mr-10">
+                <p className="text-[20px] mb-[8px] font-bold text-[#131313] ">
                   Total Revenue
                 </p>
                 <p className="text-[18px] font-medium text-[#424242]">
@@ -38,12 +38,12 @@ export function DashboardOverview() {
 
         <Card>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">
+            <div className="flex items-center ">
+              <div className="mr-10">
+                <p className="text-[20px] mb-[8px] font-bold text-[#131313] ">
                   Live Product
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-[18px] font-medium text-[#424242]">
                   <span className="text-orange-500">●</span> 132,570
                 </p>
               </div>

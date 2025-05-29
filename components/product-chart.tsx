@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -15,7 +8,6 @@ import {
   ChartTooltipContent,
 } from "./ui/chart";
 import { RadialBar, RadialBarChart } from "recharts";
-import { TrendingUp } from "lucide-react";
 
 export function ProductChart() {
   const chartData = [
@@ -53,12 +45,42 @@ export function ProductChart() {
   } satisfies ChartConfig;
 
   return (
-    <div className="space-y-4 ">
+    <div className="">
       {/* Circular progress chart placeholder */}
       <Card className="flex flex-col h-[473px]  shadow-[0px_2px_6px_0px_#00000014] border-none">
-        <CardHeader className="items-center pb-0">
-          <CardTitle>Radial Chart</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
+        <CardHeader>
+          <div className="flex  justify-between">
+            <div className="flex flex-col justify-between items-start ">
+              <CardTitle className="text-lg font-semibold">
+                Total New Products Report
+              </CardTitle>
+              <div className="flex mt-[12px]">
+                <div className="flex space-x-[29px] bg-[#E7E7E7] py-[13px] px-[16px] rounded-lg">
+                  <button>Day</button>
+                  <button>Week</button>
+                  <button className="bg-[#525773] text-white py-[8px] px-[14px] rounded-md">
+                    Month
+                  </button>
+                  <button>Year</button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col ">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span> This day</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-[#C6D2FD] rounded-full"></div>
+                <span> This Week</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
+                <span>Last Month</span>
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex-1 pb-0 ">
           <ChartContainer
@@ -74,14 +96,6 @@ export function ProductChart() {
             </RadialBarChart>
           </ChartContainer>
         </CardContent>
-        <CardFooter className="flex-col gap-2 text-sm">
-          <div className="flex items-center gap-2 font-medium leading-none">
-            Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-          </div>
-          <div className="leading-none text-muted-foreground">
-            Showing total visitors for the last 6 months
-          </div>
-        </CardFooter>
       </Card>
     </div>
   );
