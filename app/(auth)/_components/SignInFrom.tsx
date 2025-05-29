@@ -1,18 +1,19 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
-import authImg from "@/public/images/authImg.svg";
-import googleIcon from "@/public/images/googleIcon.png";
+import Image from "next/image"
+import Link from "next/link"
+import { useForm } from "react-hook-form"
+import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react"
+import { signIn } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import authImg from "@/public/images/authImg.svg"
 
 type FormData = {
-  email: string;
-  password: string;
-  rememberMe: boolean;
-};
+  email: string
+  password: string
+}
 
 const validateLogin = {
   email: {
@@ -25,29 +26,51 @@ const validateLogin = {
   password: {
     required: "Password is required",
     minLength: {
-      value: 8,
-      message: "Password must be at least 8 characters long",
+      value: 6,
+      message: "Password must be at least 6 characters long",
     },
   },
-};
+}
 
 export default function SignInForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
-  const [showPassword, setShowPassword] = useState(false);
+  } = useForm<FormData>()
+  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
-  const onSubmit = (data: FormData) => {
-    console.log("Login Data:", data);
-  };
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Login successful! Welcome back.")
+        router.push("/dashboard")
+        router.refresh()
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      toast.error("An error occurred during login")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-center lg:gap-[100px] gap-10 min-h-screen bg-gray-100 px-4 py-8">
       <div className="w-full max-w-md">
         <Image
-          src={authImg}
+          src={authImg || "/placeholder.svg"}
           width={600}
           height={700}
           alt="Login Illustration"
@@ -76,9 +99,7 @@ export default function SignInForm() {
               }`}
               placeholder="Enter your email..."
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
           </div>
 
           {/* Password */}
@@ -104,67 +125,35 @@ export default function SignInForm() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.password.message}
-              </p>
-            )}
+            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
           </div>
 
-          {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                {...register("rememberMe")}
-                className="accent-blue-600"
-              />
-              Remember me
-            </label>
-            <Link href="/forgetPassword" className="text-red-900 hover:underline">
+          {/* Forgot Password */}
+          <div className="flex items-center justify-end text-sm">
+            <Link href="/forget-password" className="text-red-900 hover:underline">
               Forgot password?
             </Link>
           </div>
 
+          {/* General Error Message */}
+
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#23547B] hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+            disabled={isLoading}
+            className="w-full bg-[#23547B] hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-70"
           >
-            Login
+            {isLoading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        {/* Divider */}
-        <div className="flex items-center my-6">
-          <div className="flex-grow border-t border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">or login with</span>
-          <div className="flex-grow border-t border-gray-300" />
-        </div>
-
-        {/* Google Login */}
-        <button
-          type="button"
-          onClick={() => console.log("Login with Google")}
-          className="w-full flex items-center justify-center gap-3 border border-gray-300 hover:border-gray-400 rounded-lg py-2 transition duration-200"
-        >
-          <Image
-            src={googleIcon}
-            alt="Google"
-            width={20}
-            height={20}
-            className="w-5 h-5"
-          />
-          <span className="text-sm font-medium text-gray-700">Login with Google</span>
-        </button>
-
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don’t have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/sign-up" className="text-[#23547B] hover:underline">
             Register
           </Link>
         </p>
       </div>
     </div>
-  );
+  )
 }

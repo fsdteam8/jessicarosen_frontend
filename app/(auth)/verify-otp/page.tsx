@@ -1,10 +1,10 @@
 import React from 'react'
-import OtpFrom from '../_components/OtpFrom'
+import VerifyOtpPage from '../_components/OtpFrom'
 
 const OtpPage = () => {
   return (
     <div>
-        <OtpFrom />
+        <VerifyOtpPage />
     </div>
   )
 }
