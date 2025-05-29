@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
   return (
     <AccountLayout activeTab="settings">
-      <div className="bg-[#6459491A] rounded-lg p-8">
+      <div className="bg-[#6459491A] rounded-lg p-8 mb-10">
         <div className="mb-6">
           <h3 className="text-xl font-bold mb-4">Change password</h3>
         </div>

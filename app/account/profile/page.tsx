@@ -43,7 +43,7 @@ export default function ProfilePage() {
   return (
     <div>
       <AccountLayout activeTab="profile">
-        <div className=" rounded-lg lg:p-8">
+        <div className=" rounded-lg mb-10">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px]">
             <div className="relative">
               <div className="w-32 h-32 rounded-full overflow-hidden border">

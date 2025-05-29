@@ -122,37 +122,52 @@ export default function AllProducts() {
 
   return (
     <div className="flex min-h-screen flex-col">
-
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="text-sm text-gray-500 mb-2">15,000,000+ Results</div>
-        <h1 className="text-2xl font-bold mb-4">Filter Resources</h1>
+      <main className="flex-1 container mx-auto px-4 lg:mt-[100px]">
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <div className="text-sm text-gray-500 mb-2">
+              15,000,000+ Results
+            </div>
+            <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
+              Resources
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-base font-medium leading-[120%] whitespace-nowrap">
+              Short By:
+            </span>
+            <SortDropdown options={sortOptions} defaultValue="best-reviewed" />
+
+            <ViewToggle
+              defaultView={viewMode}
+              onChange={(mode) => setViewMode(mode)}
+            />
+          </div>
+        </div>
 
         {/* Filter Bar */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2 mb-4 justify-between">
-            <div className="flex flex-wrap gap-2">
-              <FilterDropdown title="Practice Areas" options={practiceAreas} />
-              <FilterDropdown title="Resource Types" options={resourceTypes} />
-              <FilterDropdown title="Prices" options={prices} />
-              <FilterDropdown title="Format" options={formats} />
-              <CountryDropdown title="Country" options={countries} />
-              <FilterDropdown title="Province/State" options={provinces} />
+        <div className="mb-[100px]">
+          <div className="">
+            <div className="flex justify-between items-center">
+              <div className="flex flex-wrap gap-2">
+                <FilterDropdown
+                  title="Practice Areas"
+                  options={practiceAreas}
+                />
+                <FilterDropdown
+                  title="Resource Types"
+                  options={resourceTypes}
+                />
+                <FilterDropdown title="Prices" options={prices} />
+                <FilterDropdown title="Format" options={formats} />
+                <CountryDropdown title="Country" options={countries} />
+                <FilterDropdown title="Province/State" options={provinces} />
+              </div>
 
-              <AllFiltersDrawer categories={filterCategories} />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm whitespace-nowrap">Short By:</span>
-              <SortDropdown
-                options={sortOptions}
-                defaultValue="best-reviewed"
-              />
-
-              <ViewToggle
-                defaultView={viewMode}
-                onChange={(mode) => setViewMode(mode)}
-              />
+              <div>
+                <AllFiltersDrawer categories={filterCategories} />
+              </div>
             </div>
           </div>
         </div>
@@ -164,11 +179,11 @@ export default function AllProducts() {
           </Suspense>
 
           <Pagination className="mt-8">
-            <PaginationContent>
+            <PaginationContent className="">
               <PaginationItem>
                 <PaginationPrevious href="#" />
               </PaginationItem>
-              <PaginationItem>
+              <PaginationItem className="">
                 <PaginationLink href="#" isActive>
                   1
                 </PaginationLink>

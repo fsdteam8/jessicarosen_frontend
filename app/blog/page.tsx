@@ -2,9 +2,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Header } from "@/components/header"
+// import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { HeroSection } from "@/components/hero-section"
+// import { HeroSection } from "@/components/hero-section"
 // import { SectionContainer } from "@/components/ui/section-container"
 import { BlogCard } from "@/components/blog/blog-card"
 import { BlogCardSkeleton } from "@/components/blog/blog-card-skeleton"
@@ -26,16 +26,16 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      {/* <Header /> */}
 
       <main className="flex-1">
         {/* Hero Section */}
-        <HeroSection
+        {/* <HeroSection
           title="Blog Page"
           description="Need assistance? We are here to help. To inquire about the products and services found on our website, please contact us by phone or e-mail, and we'll gladly assist you."
           backgroundImage="/scales-of-justice.png"
           breadcrumbs={[{ label: "Welcome & Shop With Us", href: "/" }, { label: "Blog Page" }]}
-        />
+        /> */}
 
         {/* Latest Blogs Section */}
         <div>

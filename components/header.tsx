@@ -476,9 +476,9 @@ export function Header() {
                   </div>
                 </div>
               ) : (
-                <Button className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-4 rounded-md hidden sm:flex">
+                <Link href="/sign-in" className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-3 rounded-md hidden sm:flex">
                   Login
-                </Button>
+                </Link>
               )}
 
               {/* Mobile Menu */}
@@ -497,16 +497,16 @@ export function Header() {
                       Home
                     </Link>
                     <Link
-                      href="/resources"
+                      href="/products"
                       className="text-lg font-medium hover:text-blue-600"
                     >
                       Resources Type
                     </Link>
                     <Link
-                      href="/litigation"
+                      href="/blog"
                       className="text-lg font-medium hover:text-blue-600"
                     >
-                      Litigation
+                      Blog
                     </Link>
                     <Link
                       href="/employment"
@@ -613,16 +613,16 @@ export function Header() {
                 Home
               </Link>
               <Link
-                href="/resources"
+                href="/products"
                 className="text-gray-700 hover:text-blue-600 transition-colors"
               >
                 Resources Type
               </Link>
               <Link
-                href="/litigation"
+                href="/blog"
                 className="text-gray-700 hover:text-blue-600 transition-colors"
               >
-                Litigation
+                Blog
               </Link>
               <Link
                 href="/employment"
