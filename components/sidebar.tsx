@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { LayoutDashboard, List, TrendingUp, Settings, LogOut, ChevronDown, ChevronRight } from "lucide-react"
+import { signOut } from "next-auth/react"
 
 interface SidebarProps {
   open: boolean
@@ -135,7 +136,9 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
           {/* Logout */}
           <div className="p-4">
-            <Button variant="ghost" className="w-full justify-start text-slate-300 hover:bg-slate-700 hover:text-white">
+            <Button variant="ghost" className="w-full justify-start text-slate-300 hover:bg-slate-700 hover:text-white"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
               <LogOut className="w-5 h-5 mr-3" />
               Log Out
             </Button>

@@ -1,42 +1,27 @@
 "use client"
 
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Eye, EyeOff, Check, X } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
-import otpAuth from "@/public/images/authImg.svg";
 
-// Password requirements
-const passwordRequirements = [
-  { id: "length", label: "At least 8 characters", regex: /.{8,}/ },
-  { id: "uppercase", label: "At least one uppercase letter", regex: /[A-Z]/ },
-  { id: "lowercase", label: "At least one lowercase letter", regex: /[a-z]/ },
-  { id: "number", label: "At least one number", regex: /\d/ },
-  { id: "special", label: "At least one special character", regex: /[!@#$%^&*(),.?":{}|<>]/ },
-]
+interface FormData {
+  newPassword: string
+  confirmPassword: string
+}
 
-// Validation functions
-const getPasswordValidation = () => ({
-  required: "New password is required",
-  minLength: {
-    value: 8,
-    message: "Password must be at least 8 characters",
-  },
-  validate: {
-    hasUppercase: (value: string) => /[A-Z]/.test(value) || "Must include at least one uppercase letter",
-    hasLowercase: (value: string) => /[a-z]/.test(value) || "Must include at least one lowercase letter",
-    hasNumber: (value: string) => /\d/.test(value) || "Must include at least one number",
-    hasSpecialChar: (value: string) => /[!@#$%^&*(),.?":{}|<>]/.test(value) || "Must include one special character",
-  },
-})
+const NewPasswordPage = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [isLoading, setIsLoading] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-const getConfirmPasswordValidation = (newPassword: string) => ({
-  required: "Please re-enter your password",
-  validate: (value: string) => value === newPassword || "Passwords do not match",
-})
+  const email = searchParams.get("email") || ""
+  const decodedEmail = decodeURIComponent(email)
 
-const NewPasswordFrom = () => {
   const {
     register,
     handleSubmit,
@@ -44,41 +29,36 @@ const NewPasswordFrom = () => {
     formState: { errors },
   } = useForm<FormData>()
 
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordStrength, setPasswordStrength] = useState(0)
-  
-  
-
   const newPassword = watch("newPassword", "")
 
-  // Calculate password strength and check requirements
-  useEffect(() => {
-    if (!newPassword) {
-      setPasswordStrength(0)
-      return
-    }
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
 
-    let strength = 0
-    passwordRequirements.forEach((req) => {
-      if (req.regex.test(newPassword)) {
-        strength += 20 // 5 requirements, each worth 20% of the strength
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: decodedEmail,
+          newPassword: data.newPassword,
+        }),
+      })
+
+      if (response.ok) {
+        toast.success("Password reset successfully! You can now login with your new password.")
+        router.push("/sign-in")
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.message || "Failed to reset password. Please try again.")
       }
-    })
-
-    setPasswordStrength(strength)
-  }, [newPassword])
-
-  interface FormData {
-    newPassword: string
-    confirmPassword: string
-  }
-
-  const onSubmit = (data: FormData) => {
-    // Handle the form submission, for example, call API for password reset
-    toast.success("Password reset successfully")
-    console.log("Password reset data:", data);
-
+    } catch (error) {
+      console.error("Error resetting password:", error)
+      toast.error("Network error. Please check your connection and try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -86,7 +66,7 @@ const NewPasswordFrom = () => {
       {/* Image Section */}
       <div className="w-full max-w-md">
         <Image
-          src={otpAuth}
+          src="/placeholder.svg?height=700&width=600"
           width={600}
           height={700}
           alt="New Password Illustration"
@@ -108,8 +88,15 @@ const NewPasswordFrom = () => {
             <input
               id="newPassword"
               type={showNewPassword ? "text" : "password"}
-              {...register("newPassword", getPasswordValidation())}
-              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
+              {...register("newPassword", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
+              disabled={isLoading}
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 disabled:opacity-50 ${
                 errors.newPassword
                   ? "border-red-500 ring-red-400 placeholder-red-500"
                   : "border-gray-300 focus:ring-green-500"
@@ -125,45 +112,10 @@ const NewPasswordFrom = () => {
             >
               {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
+            {errors.newPassword && (
+              <p className="mt-1 text-sm text-red-500">{errors.newPassword.message as string}</p>
+            )}
           </div>
-
-          {/* Password Strength Meter */}
-          {newPassword && (
-            <div className="space-y-2">
-              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all duration-300 ${
-                    passwordStrength <= 20
-                      ? "bg-red-500"
-                      : passwordStrength <= 40
-                      ? "bg-orange-500"
-                      : passwordStrength <= 60
-                      ? "bg-yellow-500"
-                      : passwordStrength <= 80
-                      ? "bg-blue-500"
-                      : "bg-green-500"
-                  }`}
-                  style={{ width: `${passwordStrength}%` }}
-                ></div>
-              </div>
-
-              {/* Password Requirements Checklist */}
-              <div className="space-y-1 mt-2">
-                {passwordRequirements.map((req) => (
-                  <div key={req.id} className="flex items-center text-sm">
-                    {req.regex.test(newPassword) ? (
-                      <Check size={16} className="text-green-500 mr-2" />
-                    ) : (
-                      <X size={16} className="text-red-500 mr-2" />
-                    )}
-                    <span className={req.regex.test(newPassword) ? "text-green-700" : "text-gray-600"}>
-                      {req.label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Re-enter Password */}
           <div className="relative">
@@ -173,8 +125,12 @@ const NewPasswordFrom = () => {
             <input
               id="confirmPassword"
               type={showConfirmPassword ? "text" : "password"}
-              {...register("confirmPassword", getConfirmPasswordValidation(newPassword))}
-              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 ${
+              {...register("confirmPassword", {
+                required: "Please re-enter your password",
+                validate: (value) => value === newPassword || "Passwords do not match",
+              })}
+              disabled={isLoading}
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 disabled:opacity-50 ${
                 errors.confirmPassword
                   ? "border-red-500 ring-red-400 placeholder-red-500"
                   : "border-gray-300 focus:ring-green-500"
@@ -198,22 +154,15 @@ const NewPasswordFrom = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#23547B] hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+            disabled={isLoading}
+            className="w-full bg-[#23547B] hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
           >
-            Continue
+            {isLoading ? "Resetting Password..." : "Continue"}
           </button>
         </form>
-
-        {/* Footer */}
-        {/* <p className="mt-6 text-center text-base text-[#787878]">
-          Back to?{" "}
-          <a href="/sign-in" className="text-[#23547B] hover:underline">
-            Login
-          </a>
-        </p> */}
       </div>
     </div>
   )
 }
 
-export default NewPasswordFrom
+export default NewPasswordPage

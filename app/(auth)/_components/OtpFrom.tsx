@@ -1,79 +1,167 @@
-"use client";
+"use client"
 
-import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "next/navigation";
-import Image from "next/image";
-import { toast } from "sonner";
-import authOtp from "@/public/images/authImg.svg";
+import type React from "react"
 
-const OtpFrom = () => {
+import { useEffect, useState, useRef } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
+import Image from "next/image"
+import { toast } from "sonner"
 
-  const searchParams = useSearchParams();
+const VerifyOtpPage = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [otp, setOtp] = useState<string[]>(Array(6).fill(""))
+  const [isLoading, setIsLoading] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [resendDisabled, setResendDisabled] = useState(false)
+  const [countdown, setCountdown] = useState(60)
 
-  const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  const email = searchParams.get("email") || "";
-  const decodedEmail = decodeURIComponent(email);
+  const email = searchParams.get("email") || ""
+  const decodedEmail = decodeURIComponent(email)
 
   useEffect(() => {
-    inputRefs.current[0]?.focus();
-  }, []);
+    if (!decodedEmail) {
+      toast.error("Email address is missing. Please start from the beginning.")
+      router.push("/forget-password")
+      return
+    }
+    inputRefs.current[0]?.focus()
+  }, [decodedEmail, router])
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout
+    if (resendDisabled && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(countdown - 1)
+      }, 1000)
+    } else if (countdown === 0) {
+      setResendDisabled(false)
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer)
+    }
+  }, [resendDisabled, countdown])
 
   const handleChange = (index: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
+    if (!/^\d?$/.test(value)) return
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
 
     if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+      inputRefs.current[index + 1]?.focus()
     }
-  };
+  }
 
-  const handleKeyDown = (
-    index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
-  ) => {
+  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+      inputRefs.current[index - 1]?.focus()
     }
-  };
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const otpString = otp.join("");
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData("text/plain").trim()
+
+    // Check if pasted content is a 6-digit number
+    if (/^\d{6}$/.test(pastedData)) {
+      const digits = pastedData.split("")
+      setOtp(digits)
+
+      // Focus on the last input
+      if (inputRefs.current[5]) {
+        inputRefs.current[5].focus()
+      }
+    } else {
+      toast.error("Please paste a valid 6-digit OTP")
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const otpString = otp.join("")
     if (otpString.length !== 6) {
-      toast.error("Please enter all 6 digits of the OTP");
-      return;
+      toast.error("Please enter all 6 digits of the OTP")
+      return
     }
 
-    console.log("OTP submitted:", otpString);
+    setIsLoading(true)
 
-    // Call your OTP verification API here
-    // Example placeholder:
-    toast.success("OTP verified successfully");
-  };
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-code`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          otp: otpString,
+          email: decodedEmail,
+        }),
+      })
 
-  const handleResendOtp = () => {
+      if (response.ok) {
+        toast.success("OTP verified successfully!")
+        router.push(`/new-password?email=${encodeURIComponent(decodedEmail)}`)
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.message || "Invalid OTP. Please try again.")
+        setOtp(Array(6).fill(""))
+        inputRefs.current[0]?.focus()
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error)
+      toast.error("Network error. Please check your connection and try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
     if (!decodedEmail) {
-      toast.error("Email address is missing");
-      return;
+      toast.error("Email address is missing")
+      return
     }
 
-    // Call your resend OTP API here
-    // Example placeholder:
-    toast.success("OTP resent successfully");
-    setOtp(Array(6).fill(""));
-    inputRefs.current[0]?.focus();
-  };
+    setResendDisabled(true)
+    setCountdown(60)
+    setIsResending(true)
+
+    try {
+      const response = await fetch(`=${process.env.NEXT_PUBLIC_API_URL}/auth/forget-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: decodedEmail }),
+      })
+
+      if (response.ok) {
+        toast.success("OTP resent successfully!")
+        setOtp(Array(6).fill(""))
+        inputRefs.current[0]?.focus()
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.message || "Failed to resend OTP. Please try again.")
+        setResendDisabled(false)
+      }
+    } catch (error) {
+      console.error("Error resending OTP:", error)
+      toast.error("Network error. Please check your connection and try again.")
+      setResendDisabled(false)
+    } finally {
+      setIsResending(false)
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row justify-center items-center lg:gap-[100px] gap-10 min-h-screen bg-gray-100 px-4 py-8">
       {/* Image Section */}
       <div className="w-full max-w-md">
         <Image
-          src={authOtp}
+          src="/placeholder.svg?height=700&width=600"
           width={600}
           height={700}
           alt="OTP Verification Illustration"
@@ -83,11 +171,9 @@ const OtpFrom = () => {
 
       {/* Form Section */}
       <div className="w-full max-w-md bg-white rounded-xl p-8 shadow-[0px_0px_56px_0px_#00000029]">
-        <h2 className="text-center text-[40px] font-semibold mb-2">
-          Enter OTP
-        </h2>
+        <h2 className="text-center text-[40px] font-semibold mb-2">Enter OTP</h2>
         <h3 className="text-center mb-[40px] w-[90%] mx-auto text-[#9E9E9E] font-medium">
-          An OTP has been sent to your email address please verify it below
+          An OTP has been sent to {decodedEmail}. Please verify it below.
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-6 w-full">
@@ -96,6 +182,9 @@ const OtpFrom = () => {
             {otp.map((digit, index) => (
               <input
                 key={index}
+                ref={(el) => {
+                  inputRefs.current[index] = el
+                }}
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
@@ -103,7 +192,9 @@ const OtpFrom = () => {
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center text-lg sm:text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                onPaste={index === 0 ? handlePaste : undefined}
+                disabled={isLoading}
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center text-lg sm:text-xl font-semibold border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
                 aria-label={`Digit ${index + 1}`}
               />
             ))}
@@ -115,18 +206,20 @@ const OtpFrom = () => {
             <button
               type="button"
               onClick={handleResendOtp}
-              className="text-[#23547B] font-semibold hover:underline focus:outline-none"
+              disabled={isResending || isLoading || resendDisabled}
+              className="text-[#23547B] font-semibold hover:underline focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
             >
-              Resend OTP
+              {isResending ? "Resending..." : resendDisabled ? `Resend OTP in ${countdown}s` : "Resend OTP"}
             </button>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[#23547B] hover:bg-green-700 text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+            disabled={isLoading}
+            className="w-full bg-[#23547B] hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
           >
-            Verify
+            {isLoading ? "Verifying..." : "Verify"}
           </button>
         </form>
 
@@ -138,7 +231,7 @@ const OtpFrom = () => {
         </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OtpFrom;
+export default VerifyOtpPage

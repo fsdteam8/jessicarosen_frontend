@@ -1,7 +1,12 @@
+"use client"
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
 export default function HomeHero() {
+  const session = useSession()
+  console.log(session, "full session")
+
   return (
     <div className="w-full mb-[48px]">
       {/* Blue divider line */}

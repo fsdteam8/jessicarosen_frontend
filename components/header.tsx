@@ -306,18 +306,20 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/use-auth";
 import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { getItemCount, setOpen } = useCart();
-  const { isAuthenticated, user, logout } = useAuth();
   const itemCount = getItemCount();
 
   const [isMounted, setIsMounted] = useState(false);
+  const { data: session, status } = useSession();
+  const user = session?.user
+
 
   useEffect(() => {
     setIsMounted(true);
@@ -445,7 +447,7 @@ export function Header() {
                 )}
               </button>
 
-              {isAuthenticated ? (
+              {status === "authenticated" ? (
                 <div className="relative group hidden sm:block">
                   <Button variant="ghost" size="sm" className="text-gray-700">
                     <span className="text-sm">{user?.name}</span>
@@ -468,7 +470,7 @@ export function Header() {
                       My Orders
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={()=>signOut({callbackUrl:("/")})}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       Logout
@@ -476,9 +478,12 @@ export function Header() {
                   </div>
                 </div>
               ) : (
-                <Button className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-4 rounded-md hidden sm:flex">
-                  Login
-                </Button>
+                <Link href={"/sign-in"}>
+                
+                  <Button className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-4 rounded-md hidden sm:flex">
+                    Login
+                  </Button>
+                </Link>
               )}
 
               {/* Mobile Menu */}
@@ -538,7 +543,7 @@ export function Header() {
                     >
                       Wishlist
                     </Link>
-                    {!isAuthenticated && (
+                    {status === "unauthenticated" && (
                       <Button
                         asChild
                         className="bg-blue-600 hover:bg-blue-700 mt-4"
@@ -546,7 +551,7 @@ export function Header() {
                         <Link href="/auth/login">Login</Link>
                       </Button>
                     )}
-                    {isAuthenticated && (
+                    {status === "authenticated" && (
                       <>
                         <div className="border-t pt-4 mt-4">
                           <p className="font-medium">{user?.name}</p>
@@ -566,7 +571,7 @@ export function Header() {
                         </Link>
                         <Button
                           variant="destructive"
-                          onClick={logout}
+                          onClick={()=>signOut({callbackUrl:("/")})}
                           className="mt-4"
                         >
                           Logout
