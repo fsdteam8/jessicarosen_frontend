@@ -1,3 +1,4 @@
+// @typescript-eslint/no-explicit-any
 import Image from "next/image";
 import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
