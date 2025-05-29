@@ -23,6 +23,7 @@ export default function CartPage() {
     getDiscount,
     // getTotal,
   } = useCart()
+  console.log("Cart items:", items)
 
   // const [promoCode, setPromoCode] = useState("")
   const [promoApplied] = useState(false)
@@ -157,7 +158,7 @@ export default function CartPage() {
                             <button
                               className="h-8 w-8 border rounded-l-md flex items-center justify-center"
                               onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
-                            >
+                            > 
                               <Minus className="h-3 w-3" />
                             </button>
                             <input
