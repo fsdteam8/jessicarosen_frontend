@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { Button } from "../ui/button";
 import bannnerImg from "../../public/images/cartSubImg.png";
+import Link from "next/link";
 
 
 const BestSellers = () => {
@@ -17,9 +18,11 @@ const BestSellers = () => {
                 period. They are professionally handcrafted to add to a strong
                 agreement and help businesses grow.
               </p>
+              <Link href="#">
               <Button variant={"outline"} className="bg-[#FFFFFF] hover:bg-[#1e4258] text-black">
                 Exploer Resources
               </Button>
+              </Link>
             </div>
             <div className="flex gap-4">
               <div className="relative w-[180px] h-[240px]   z-10">

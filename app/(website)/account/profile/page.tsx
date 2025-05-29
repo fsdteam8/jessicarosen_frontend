@@ -64,7 +64,7 @@ export default function ProfilePage() {
               </p>
               <Button
                 className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                onClick={() => (window.location.href = "/account/dashboard")}
+                onClick={() => (window.location.href = "/dashboard")}
               >
                 <span>
                   <SquareArrowOutUpRight />

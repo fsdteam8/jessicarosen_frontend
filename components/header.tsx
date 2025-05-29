@@ -309,6 +309,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useAuth } from "@/hooks/use-auth";
 import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
+import { useWishlist } from "@/hooks/use-wishlist";
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -318,6 +319,9 @@ export function Header() {
   const itemCount = getItemCount();
 
   const [isMounted, setIsMounted] = useState(false);
+
+  const { items } = useWishlist();
+  console.log("Wishlist items:", items);
 
   useEffect(() => {
     setIsMounted(true);
@@ -333,7 +337,7 @@ export function Header() {
     <>
       <header className="sticky top-0 z-40 w-full bg-white">
         {/* Top Blue Bar */}
-        <div className="bg-[#23547B] text-white font-medium leading-[120%] text-sm py-5">
+        <div className="bg-[#23547B] text-white font-medium leading-[120%] text-sm py-2">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <span className="flex items-center">
@@ -432,9 +436,12 @@ export function Header() {
 
             {/* Right Side Icons */}
             <div className="flex items-center space-x-4">
-              <button className="p-2 hidden sm:flex">
+              <Link href="/wishlist" className="relative p-2 hidden sm:flex">
                 <Heart className="text-2xl text-gray-600" />
-              </button>
+                <span className="absolute -top-1 -right-1 bg-[#f97316] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {items.length}
+                </span>
+              </Link>
 
               <button className="p-2 relative" onClick={() => setOpen(true)}>
                 <ShoppingCart className="text-2xl text-gray-600" />
@@ -476,7 +483,10 @@ export function Header() {
                   </div>
                 </div>
               ) : (
-                <Link href="/sign-in" className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-3 rounded-md hidden sm:flex">
+                <Link
+                  href="/sign-in"
+                  className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-2 rounded-md hidden sm:flex"
+                >
                   Login
                 </Link>
               )}
@@ -603,9 +613,9 @@ export function Header() {
         )}
 
         {/* Navigation Menu */}
-        <div className="bg-white py-3 px-4 hidden md:block border-b-[1.5px] border-[#23547B]">
+        <div className="bg-white pb-4 px-4 hidden md:block border-b-[1.5px] border-[#23547B]">
           <div className="container mx-auto px-7 ">
-            <nav className="flex items-center text-base space-x-8">
+            <nav className="flex items-center text-base space-x-8 justify-center">
               <Link
                 href="/"
                 className="text-blue-600 font-medium hover:text-blue-700 transition-colors"

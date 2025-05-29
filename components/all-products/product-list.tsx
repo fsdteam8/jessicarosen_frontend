@@ -3,6 +3,8 @@ import { Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
+import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 
 // Mock data for products
 const products = [
@@ -10,8 +12,8 @@ const products = [
     id: 1,
     title: "Short Cause Matters",
     author: "Mr.Jason Bostian",
-    price: "$59.00",
-    salePrice: "$28",
+    price: "59.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 15,
     image: "/assets/images/product1.png",
@@ -23,8 +25,8 @@ const products = [
     id: 2,
     title: "Securing Organizational Objectives",
     author: "Jane Shepherd",
-    price: "$69.00",
-    salePrice: "$28",
+    price: "69.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 14,
     image: "/assets/images/product2.png",
@@ -36,8 +38,8 @@ const products = [
     id: 3,
     title: "Starting the Professional Engagement",
     author: "Arlene McCoy",
-    price: "$59.00",
-    salePrice: "$28",
+    price: "59.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 12,
     image: "/assets/images/product3.png",
@@ -49,8 +51,8 @@ const products = [
     id: 4,
     title: "Community Benefit Organization",
     author: "Guy Hawkins",
-    price: "$69.00",
-    salePrice: "$28",
+    price: "69.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 14,
     image: "/assets/images/product4.png",
@@ -62,8 +64,8 @@ const products = [
     id: 5,
     title: "Commercial Transactions Objective",
     author: "Cameron Williamson",
-    price: "$59.00",
-    salePrice: "$28",
+    price: "59.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 15,
     image: "/assets/images/product5.png",
@@ -75,8 +77,8 @@ const products = [
     id: 6,
     title: "Community Benefit Organization",
     author: "Guy Hawkins",
-    price: "$69.00",
-    salePrice: "$28",
+    price: "69.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 14,
     image: "/assets/images/product6.png",
@@ -88,8 +90,8 @@ const products = [
     id: 7,
     title: "Commercial Transactions Objective",
     author: "Cameron Williamson",
-    price: "$59.00",
-    salePrice: "$28",
+    price: "59.00",
+    salePrice: "28",
     rating: 4.8,
     reviews: 15,
     image: "/assets/images/product5.png",
@@ -104,6 +106,16 @@ interface ProductListProps {
 }
 
 export default function ProductList({ viewMode = "list" }: ProductListProps) {
+  const { addItem } = useCart();
+  const {addItem: addToWish} = useWishlist();
+  const addToCart = (item: any) => {
+    addItem({ ...item, quantity: 1 });
+  };
+
+  const addToWishlist = (item: any) => {
+    addToWish({...item, quantity: 1 });
+    
+  }
   return (
     <div
       className={
@@ -199,6 +211,7 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                         <Button
                           size={"lg"}
                           className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] px-[55px] rounded-[8px] "
+                        onClick={() => addToCart(product)}
                         >
                           Add To Cart
                         </Button>
@@ -207,6 +220,7 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                       <div className="flex items-center gap-2 mt-3 md:mt-4 lg:mt-6">
                         <Button
                           size={"lg"}
+                          onClick={() => addToWishlist(product)}
                           className="bg-transparent border-[2px] border-[#23547B] text-base md:text-[17px] lg:text-lg font-bold text-[#23547B] leading-[120%] tracking-normal py-[13px] px-[47px]"
                         >
                           <Bookmark className="w-6 h-6 text-[#23547B]" /> Wish

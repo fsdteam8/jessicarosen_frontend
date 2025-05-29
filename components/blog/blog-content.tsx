@@ -1,67 +1,73 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import type { BlogPost } from "@/lib/blog-data"
-import { BlogContentSkeleton } from "@/components/blog/blog-content-skeleton"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+// import Link from "next/link"
+import type { BlogPost } from "@/lib/blog-data";
+import { BlogContentSkeleton } from "@/components/blog/blog-content-skeleton";
+import { ArrowRight } from "lucide-react";
+import LegalDoc from "../HomePage/LegalDoc";
 
 interface BlogContentProps {
-  post: BlogPost
+  post: BlogPost;
 }
 
 export function BlogContent({ post }: BlogContentProps) {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Simulate loading delay
     const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
+      setIsLoading(false);
+    }, 1000);
 
-    return () => clearTimeout(timer)
-  }, [])
+    return () => clearTimeout(timer);
+  }, []);
 
   if (isLoading) {
-    return <BlogContentSkeleton />
+    return <BlogContentSkeleton />;
   }
 
   return (
-    <article className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg mb-6">
-          <Image src={post.image || "/placeholder.svg"} alt={post.title} fill className="object-cover" priority />
+    <div>
+      <article className="container mx-auto">
+        <div className="mb-8">
+          <div className="relative h-[500px] w-full overflow-hidden rounded-lg mb-6">
+            <Image
+              src="/images/cartimg.png"
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+
+          <div className="flex gap-10 items-center text-base font-medium leading-[120%] text-[#8A8AC5] mb-5">
+            {/* Left side - post date */}
+            <div className="flex items-center gap-1">
+              <div className="w-[50px] h-[2.5px] bg-[#008000]"></div>
+              <span>{post.date}</span>
+            </div>
+
+            {/* Right side - posted by */}
+            <div className="flex items-center gap-1">
+              <div className="w-[50px] h-[2.5px] bg-[#008000]"></div>
+              <p>Posted by</p>
+              <div className="w-5 h-5 rounded-full bg-gray-400"></div>
+              <p>jemmi</p>
+            </div>
+          </div>
+
+          <h1 className="text-3xl font-bold mb-8">{post.title}</h1>
         </div>
 
-        <div className="flex items-center text-sm text-gray-500 mb-4">
-          <span>{post.date}</span>
-          <span className="mx-2">•</span>
-          <span className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-            {post.commentsCount} comments
-          </span>
-        </div>
+        <div
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
 
-        <h1 className="text-3xl font-bold mb-6">{post.title}</h1>
-      </div>
-
-      <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
-
-      <div className="mt-8 pt-6 border-t">
-        <div className="flex flex-wrap gap-2">
+        <div className="mt-8 pt-6">
+          {/* <div className="flex flex-wrap gap-2">
           {post.tags.map((tag) => (
             <Link
               key={tag}
@@ -71,8 +77,21 @@ export function BlogContent({ post }: BlogContentProps) {
               #{tag}
             </Link>
           ))}
+        </div> */}
+
+          <div className="flex justify-center items-center gap-4 mb-6">
+            <button className="border-b-2 border-[#23547B] pb-1">
+              <div className="flex items-center">
+                <span className="text-base font-bold leading-[120%] mr-2 text-[#23547B]">
+                  All Resources
+                </span>
+                <ArrowRight className="text-xl mt-1.5 text-[#23547B]" />
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
-    </article>
-  )
+      </article>
+      <LegalDoc />
+    </div>
+  );
 }

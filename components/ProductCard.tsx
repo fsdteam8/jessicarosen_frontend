@@ -1,9 +1,15 @@
-import { Heart, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
+import { Heart, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+// import { useCart } from "@/hooks/use-cart";
 
 export default function ProductCard() {
+
+// const { addItem } = useCart();
+//   const addToCart = (item: any) => {
+//     addItem({ ...item, quantity: 1 });
+//   };
   return (
     <div className=" bg-gray-50 p-4 flex items-center justify-center">
       <Card
@@ -39,16 +45,18 @@ export default function ProductCard() {
           {/* Content Section */}
           <div className="flex-1 p-4 flex flex-col">
             {/* Product Title */}
-            <h2 className="text-lg font-bold text-gray-900 mb-4 leading-tight">
+            <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-3">
               Facilitating the Collaborative Relationship
             </h2>
 
             {/* Price and Rating Row */}
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
-                <span className="text-gray-500 text-sm">Price :</span>
-                <span className="text-gray-400 line-through text-sm">$75</span>
-                <span className="text-red-600 font-bold text-xl">$19.00</span>
+                <span className="text-gray-500 text-base">Price :</span>
+                <span className="text-gray-400  text-base">$75</span>
+                <span className="text-red-600 font-bold text-xl line-through">
+                  $19.00
+                </span>
               </div>
 
               <div className="flex items-center gap-1">
@@ -60,12 +68,12 @@ export default function ProductCard() {
 
             {/* Action Buttons */}
             <div className="flex gap-3 mt-auto">
-              <Button className="flex-1 bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-sm">
+              <Button  className="flex-1 bg-[#23547B] hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-sm">
                 Add To Cart
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 border-blue-700 text-blue-700 hover:bg-blue-50 font-semibold py-2.5 px-4 rounded-lg text-sm"
+                className="flex-1 border-[#23547B] text-[#23547B] hover:bg-blue-50 font-semibold py-2.5 px-4 rounded-lg text-sm"
               >
                 View Details
               </Button>
@@ -74,5 +82,5 @@ export default function ProductCard() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
