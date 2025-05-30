@@ -291,7 +291,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -318,14 +318,10 @@ export function Header() {
   const { isAuthenticated, user, logout } = useAuth();
   const itemCount = getItemCount();
 
-  const [isMounted, setIsMounted] = useState(false);
+  // const [isMounted, setIsMounted] = useState(false);
 
   const { items } = useWishlist();
   console.log("Wishlist items:", items);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -344,17 +340,17 @@ export function Header() {
                 <span className="mr-2 border p-2 rounded-full">
                   <Mail size={25} />
                 </span>
-                support@lawbie.com
+                <span className="">support@lawbie.com</span>
               </span>
             </div>
 
-            <div className="flex-1 text-center">
+            <div className="flex-1 text-center hidden lg:block">
               <span className="text-sm font-medium leading-[120%]">
                 Special Offers: Save up to 30% Using Promo Code
               </span>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="outline"
                 className="bg-white text-blue-600 border-white hover:bg-gray-100 text-base px-3 py-5 rounded-[8px]"
@@ -362,11 +358,11 @@ export function Header() {
                 <span className="w-[48px] h-[24px]">
                   <Image
                     src="/images/flage.png"
-                    alt=""
+                    alt="Canada Flag"
                     width={100}
                     height={100}
                   />
-                </span>{" "}
+                </span>
                 Lawbie Canada
               </Button>
               <Button
@@ -399,7 +395,7 @@ export function Header() {
                     alt="Lawbie Logo"
                     width={150}
                     height={50}
-                    className="h-[60px] w-auto mb-2"
+                    className="lg:h-[60px] lg:w-auto w-[80%] mb-2"
                   />
                 </h1>
                 {/* <p className="text-xs text-gray-600 -mt-1">
@@ -419,24 +415,22 @@ export function Header() {
                   className="w-full h-[52px] pl-4 pr-12 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white rounded-full  bg-[#23547B] p-2">
-                  <Search className="text-2xl text-white" />
+                  <Search className="text-xl text-white" />
                 </button>
               </div>
             </div>
 
             {/* Mobile Search Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden text-gray-600"
+            <button
+              className="md:hidden text-gray-600 mr-3"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
-              <Search className="h-4 w-4" />
-            </Button>
+              <Search className="text-2xl" />
+            </button>
 
             {/* Right Side Icons */}
             <div className="flex items-center space-x-4">
-              <Link href="/wishlist" className="relative p-2 hidden sm:flex">
+              <Link href="/wishlist" className="relative p-2 flex">
                 <Heart className="text-2xl text-gray-600" />
                 <span className="absolute -top-1 -right-1 bg-[#f97316] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                   {items.length}
@@ -445,11 +439,9 @@ export function Header() {
 
               <button className="p-2 relative" onClick={() => setOpen(true)}>
                 <ShoppingCart className="text-2xl text-gray-600" />
-                {isMounted && itemCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
-                    {itemCount}
-                  </Badge>
-                )}
+                <Badge className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
+                  {itemCount}
+                </Badge>
               </button>
 
               {isAuthenticated ? (
@@ -494,9 +486,9 @@ export function Header() {
               {/* Mobile Menu */}
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden">
-                    <Menu className="h-5 w-5" />
-                  </Button>
+                  <button className="md:hidden">
+                    <Menu className="text-2xl" />
+                  </button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[300px] sm:w-[400px]">
                   <nav className="flex flex-col gap-4 mt-8">
@@ -583,6 +575,39 @@ export function Header() {
                         </Button>
                       </>
                     )}
+
+                    <div className="block lg:hidden space-y-2">
+                      <Button
+                        variant="outline"
+                        className="w-full bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100 text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2"
+                      >
+                        <span className="w-[32px] h-[20px] relative">
+                          <Image
+                            src="/images/flage.png"
+                            alt="Canada Flag"
+                            fill
+                            className="object-contain"
+                          />
+                        </span>
+                        <span>Lawbie Canada</span>
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="w-full text-white bg-[#23547b] border-[2px]
+                         border-white text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 hover:bg-[#112a3f]"
+                      >
+                        <span className="w-[32px] h-[20px] relative">
+                          <Image
+                            src="/images/flage1.png"
+                            alt="US Flag"
+                            fill
+                            className="object-contain"
+                          />
+                        </span>
+                        <span className="text-white">Lawbie US</span>
+                      </Button>
+                    </div>
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -592,7 +617,7 @@ export function Header() {
 
         {/* Mobile Search Bar (conditionally rendered) */}
         {isSearchOpen && (
-          <div className="bg-white  py-2 px-4 md:hidden">
+          <div className="bg-white py-2 px-4 md:hidden">
             <form onSubmit={handleSearch} className="flex">
               <Input
                 type="text"

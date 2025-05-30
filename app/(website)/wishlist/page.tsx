@@ -288,7 +288,7 @@ export default function WishlistPage() {
                             ))}
                           </div>
                           <span className="text-sm font-medium text-gray-700">
-                            {item.rating.toFixed(1)} (
+                            {item?.rating?.toFixed(1)} (
                             {item.reviews?.toLocaleString() || "1,991"})
                           </span>
                         </div>
