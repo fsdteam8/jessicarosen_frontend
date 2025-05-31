@@ -1,9 +1,8 @@
 "use client"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// @typescript-eslint/no-explicit-any
 import Image from "next/image"
-import { Bookmark } from "lucide-react"
+import { Bookmark, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { FaStar } from "react-icons/fa"
@@ -103,19 +102,6 @@ const products = [
     category: "Practical law",
     userImage: "/assets/images/user5.png",
   },
-  {
-    id: 7,
-    title: "Commercial Transactions Objective",
-    author: "Cameron Williamson",
-    price: "59.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 15,
-    image: "/assets/images/product5.png",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/assets/images/user5.png",
-  },
 ]
 
 interface ProductListProps {
@@ -124,14 +110,23 @@ interface ProductListProps {
 
 export default function ProductList({ viewMode = "list" }: ProductListProps) {
   const { addItem } = useCart()
-  const { addItem: addToWish } = useWishlist()
+  const { addItem: addToWish, removeItem: removeFromWish, items: wishlistItems } = useWishlist()
+
+  // Check if the product is already in the wishlist
+  const isInWishlist = (productId: number | string) => {
+    return wishlistItems.some((item) => item.id === productId)
+  }
 
   const addToCart = (item: any) => {
     addItem({ ...item, quantity: 1 })
   }
 
-  const addToWishlist = (item: any) => {
-    addToWish({ ...item, quantity: 1 })
+  const toggleWishlist = (item: any) => {
+    if (isInWishlist(item.id)) {
+      removeFromWish(item.id)
+    } else {
+      addToWish({ ...item, quantity: 1 })
+    }
   }
 
   return (
@@ -216,11 +211,24 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
                     <Button
                       size="sm"
-                      onClick={() => addToWishlist(product)}
-                      className="bg-transparent border-[2px] border-[#23547B] text-sm font-bold text-[#23547B] leading-[120%] py-2 w-full"
+                      onClick={() => toggleWishlist(product)}
+                      className={`text-sm font-bold leading-[120%] py-2 w-full transition-all duration-200 ${
+                        isInWishlist(product.id)
+                          ? "bg-green-50 border-[2px] border-green-600 text-green-600 hover:bg-green-100"
+                          : "bg-transparent border-[2px] border-[#23547B] text-[#23547B] hover:bg-blue-50"
+                      }`}
                     >
-                      <Bookmark className="w-4 h-4 text-[#23547B] mr-1" />
-                      Wish List
+                      {isInWishlist(product.id) ? (
+                        <>
+                          <Check className="w-4 h-4 mr-1" />
+                          In Wishlist
+                        </>
+                      ) : (
+                        <>
+                          <Bookmark className="w-4 h-4 text-[#23547B] mr-1" />
+                          Wish List
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -306,11 +314,24 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
                         <Button
                           size="lg"
-                          onClick={() => addToWishlist(product)}
-                          className="bg-transparent border-[2px] border-[#23547B] text-base md:text-[17px] lg:text-lg font-bold text-[#23547B] leading-[120%] tracking-normal py-[13px] w-full max-w-[250px]"
+                          onClick={() => toggleWishlist(product)}
+                          className={`text-base md:text-[17px] lg:text-lg font-bold leading-[120%] tracking-normal py-[13px] w-full max-w-[250px] transition-all duration-200 ${
+                            isInWishlist(product.id)
+                              ? "bg-green-50 border-[2px] border-green-600 text-green-600 hover:bg-green-100"
+                              : "bg-transparent border-[2px] border-[#23547B] text-[#23547B] hover:bg-blue-50"
+                          }`}
                         >
-                          <Bookmark className="w-6 h-6 text-[#23547B] mr-2" />
-                          Wish List
+                          {isInWishlist(product.id) ? (
+                            <>
+                              <Check className="w-6 h-6 mr-2" />
+                              In Wishlist
+                            </>
+                          ) : (
+                            <>
+                              <Bookmark className="w-6 h-6 text-[#23547B] mr-2" />
+                              Wish List
+                            </>
+                          )}
                         </Button>
                       </div>
                     </div>
