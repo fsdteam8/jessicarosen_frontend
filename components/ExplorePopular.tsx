@@ -1,149 +1,3 @@
-// import React from "react";
-// import ProductCard from "./ProductCard";
-// import { ArrowRight } from "lucide-react";
-// import Link from "next/link";
-
-
-
-// const products = [
-//   {
-//     id: 1,
-//     title: "Short Cause Matters",
-//     author: "Mr.Jason Bostian",
-//     price: "59.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 15,
-//     image: "/assets/images/product1.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user1.png",
-//   },
-//   {
-//     id: 2,
-//     title: "Securing Organizational Objectives",
-//     author: "Jane Shepherd",
-//     price: "69.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 14,
-//     image: "/assets/images/product2.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user2.png",
-//   },
-//   {
-//     id: 3,
-//     title: "Starting the Professional Engagement",
-//     author: "Arlene McCoy",
-//     price: "59.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 12,
-//     image: "/assets/images/product3.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user3.png",
-//   },
-//   {
-//     id: 4,
-//     title: "Community Benefit Organization",
-//     author: "Guy Hawkins",
-//     price: "69.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 14,
-//     image: "/assets/images/product4.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user4.png",
-//   },
-//   {
-//     id: 5,
-//     title: "Commercial Transactions Objective",
-//     author: "Cameron Williamson",
-//     price: "59.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 15,
-//     image: "/assets/images/product5.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user5.png",
-//   },
-//   {
-//     id: 6,
-//     title: "Community Benefit Organization",
-//     author: "Guy Hawkins",
-//     price: "69.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 14,
-//     image: "/assets/images/product6.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user5.png",
-//   },
-//   {
-//     id: 7,
-//     title: "Commercial Transactions Objective",
-//     author: "Cameron Williamson",
-//     price: "59.00",
-//     salePrice: "28",
-//     rating: 4.8,
-//     reviews: 15,
-//     image: "/assets/images/product5.png",
-//     language: "English Language",
-//     category: "Practical law",
-//     userImage: "/assets/images/user5.png",
-//   },
-// ];
-
-// const ExplorePopular = () => {
-//   return (
-//     <div className="min-h-screen bg-gray-50 py-12 px-4">
-//       <div className="max-w-7xl mx-auto">
-//         {/* Header Section */}
-//         <div className="text-center mb-12">
-//           <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
-//             Explore Most Popular Resources
-//           </h1>
-//           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-//             From everyday essentials to the latest trends, we bring you a
-//             seamless shopping experience with unbeatable deals,
-//             delivery.discover
-//           </p>
-//         </div>
-
-//         {/* Books Grid */}
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-12">
-//           <ProductCard />
-//           <ProductCard />
-//           <ProductCard />
-//           <ProductCard />
-//           <ProductCard />
-//           <ProductCard />
-//         </div>
-
-//         {/* See More Button */}
-//         <div className="text-center ">
-//           <Link href="/products">
-//             <button className="px-8 py-3 font-bold text-[#23547B] text-lg border-b-2 border-[#23547B]">
-//               See More <ArrowRight className="inline-block" />
-//             </button>
-//           </Link>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ExplorePopular;
-
-
-
-
-
 // import ProductCard from "./product-card"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
@@ -151,12 +5,13 @@ import ProductCard from "./ProductCard"
 
 const products = [
   {
-    id: 1,
+    id: 7,
     title: "Short Cause Matters",
     author: "Mr.Jason Bostian",
     price: "59.00",
     salePrice: "28",
     rating: 4.8,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     reviews: 15,
     image: "/images/aboutUs.jpg",
     language: "English Language",
@@ -164,65 +19,70 @@ const products = [
     userImage: "/placeholder.svg?height=40&width=40",
   },
   {
-    id: 2,
+    id: 8,
     title: "Securing Organizational Objectives",
     author: "Jane Shepherd",
     price: "69.00",
     salePrice: "28",
     rating: 4.8,
     reviews: 14,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     image: "/images/aboutUs.jpg",
     language: "English Language",
     category: "Practical law",
     userImage: "/placeholder.svg?height=40&width=40",
   },
   {
-    id: 3,
+    id: 9,
     title: "Starting the Professional Engagement",
     author: "Arlene McCoy",
     price: "59.00",
     salePrice: "28",
     rating: 4.8,
     reviews: 12,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     image: "/images/aboutUs.jpg",
     language: "English Language",
     category: "Practical law",
     userImage: "/placeholder.svg?height=40&width=40",
   },
   {
-    id: 4,
+    id: 10,
     title: "Community Benefit Organization",
     author: "Guy Hawkins",
     price: "69.00",
     salePrice: "28",
     rating: 4.8,
     reviews: 14,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     image: "/images/aboutUs.jpg",
     language: "English Language",
     category: "Practical law",
     userImage: "/placeholder.svg?height=40&width=40",
   },
   {
-    id: 5,
+    id: 11,
     title: "Commercial Transactions Objective",
     author: "Cameron Williamson",
     price: "59.00",
     salePrice: "28",
     rating: 4.8,
     reviews: 15,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     image: "/images/aboutUs.jpg",
     language: "English Language",
     category: "Practical law",
     userImage: "/placeholder.svg?height=40&width=40",
   },
   {
-    id: 6,
+    id: 12,
     title: "Community Benefit Organization",
     author: "Guy Hawkins",
     price: "69.00",
     salePrice: "28",
     rating: 4.8,
     reviews: 14,
+    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
     image: "/images/aboutUs.jpg",
     language: "English Language",
     category: "Practical law",

@@ -1,12 +1,14 @@
+"use client"
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @typescript-eslint/no-explicit-any
-import Image from "next/image";
-import { Bookmark } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { FaStar } from "react-icons/fa";
-import { useCart } from "@/hooks/use-cart";
-import { useWishlist } from "@/hooks/use-wishlist";
+import Image from "next/image"
+import { Bookmark } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { FaStar } from "react-icons/fa"
+import { useCart } from "@/hooks/use-cart"
+import { useWishlist } from "@/hooks/use-wishlist"
 
 // Mock data for products
 const products = [
@@ -101,132 +103,214 @@ const products = [
     category: "Practical law",
     userImage: "/assets/images/user5.png",
   },
-];
+  {
+    id: 7,
+    title: "Commercial Transactions Objective",
+    author: "Cameron Williamson",
+    price: "59.00",
+    salePrice: "28",
+    rating: 4.8,
+    reviews: 15,
+    image: "/assets/images/product5.png",
+    language: "English Language",
+    category: "Practical law",
+    userImage: "/assets/images/user5.png",
+  },
+]
 
 interface ProductListProps {
-  viewMode?: "grid" | "list";
+  viewMode?: "grid" | "list"
 }
 
 export default function ProductList({ viewMode = "list" }: ProductListProps) {
-  const { addItem } = useCart();
-  const {addItem: addToWish} = useWishlist();
+  const { addItem } = useCart()
+  const { addItem: addToWish } = useWishlist()
+
   const addToCart = (item: any) => {
-    addItem({ ...item, quantity: 1 });
-  };
+    addItem({ ...item, quantity: 1 })
+  }
 
   const addToWishlist = (item: any) => {
-    addToWish({...item, quantity: 1 });
-    
+    addToWish({ ...item, quantity: 1 })
   }
+
   return (
     <div
       className={
         viewMode === "grid"
-          ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
           : "space-y-6"
       }
     >
       {products.map((product) => (
-        <Card
-          key={product.id}
-          className="overflow-hidden border-0 shadow-none rounded-none"
-        >
-          <div
-            className={
-              viewMode === "grid"
-                ? "flex flex-col h-full"
-                : "flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8"
-            }
-          >
-            <div className="">
-              <Image
-                src={product.image || "/placeholder.svg"}
-                alt={product.title}
-                width={324}
-                height={324}
-                className="object-cover w-full md:w-[324px] h-[324px] rounded-[8px]"
-              />
-            </div>
-            <div className="flex-1">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                <div className="">
-                  <h3 className="text-lg md:text-[19px] lg:text-xl text-[#2A2A2A] font-medium leading-[120%] trackingnormal mb-2">
+        <Card key={product.id} className="overflow-hidden border-0 shadow-none rounded-none">
+          {viewMode === "grid" ? (
+            // Grid View Layout
+            <div className="flex flex-col h-full">
+              <div className="w-full">
+                <Image
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.title}
+                  width={324}
+                  height={240}
+                  className="object-cover w-full h-[200px] sm:h-[240px] rounded-[8px]"
+                />
+              </div>
+
+              <div className="flex-1 flex flex-col justify-between p-4">
+                <div className="space-y-3">
+                  <h3 className="text-base sm:text-lg font-medium leading-[120%] text-[#2A2A2A] line-clamp-2">
                     {product.title}
                   </h3>
 
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2">
                     <Image
-                      src={product.userImage}
+                      src={product.userImage || "/placeholder.svg"}
                       alt={product.author}
-                      width={49}
-                      height={49}
-                      className="w-[49px] h-[49px] rounded-full"
+                      width={40}
+                      height={40}
+                      className="w-[40px] h-[40px] rounded-full flex-shrink-0"
                     />
-                    <div>
-                      <p className="text-xs font-normal text-[#2A2A2A] leading-[150%] pb-1">
-                        Created by
-                      </p>
-                      <h4 className="w-[129px] text-base text-[#23547B] font-bold leading-[120%] tracking-normal">
-                        {product.author}
-                      </h4>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-normal text-[#2A2A2A] leading-[150%]">Created by</p>
+                      <h4 className="text-sm text-[#23547B] font-bold leading-[120%] truncate">{product.author}</h4>
                     </div>
                   </div>
 
-                  <p className="text-base text-[#424242] font-normal leading-[150%] tracking-normal">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                    do eiusmod tempor incididunt ut labore et dolore magna
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                    Duis aute irure dolor in reprehenderit in voluptate velit
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                    occaecat cupidatat non proident, sunt in culpa qui officia
-                    deserunt mollit anim id est laborum.sunt in culpa qui
-                    officia deserunt mollit anim id est laborum.
+                  <p className="text-sm text-[#424242] font-normal leading-[150%] line-clamp-3">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua.
                   </p>
 
-                  <div className="text-base font-medium text-[#131313] leading-[120%] tracking-normal mt-2 md:mt-3 lg:mt-4">
+                  <div className="text-sm font-medium text-[#131313] leading-[120%]">
                     {product.language}, {product.category}
                   </div>
                 </div>
 
-                <div className="">
-                  <div className="h-full  flex flex-col justify-center">
-                    <div className="text-sm text-[#FF0000] font-medium leading-[120%] tracking-normal line-through pb-2">
-                      {product.price}
-                    </div>
-                    <div className="text-base font-medium text-[#424242] leading-[120%] tracking-normal mb-4 md:mb-6 lg:mb-8">
-                      Price: {product.salePrice}
-                    </div>
-
-                    <div className="flex items-center gap-1 mb-4 md:mb-5 lg:mb-6">
-                      <span className="text-base font-medium text-[#131313] leading-[120%] tracking-normal">
-                        {product.rating}
-                      </span>
-                      <FaStar size={20} color="#FFD700" />
-                      <span className="text-base font-medium text-[#616161] leading-[120%] tracking-normal">
-                        ({product.reviews}K)
-                      </span>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm text-[#FF0000] font-medium leading-[120%] line-through">
+                        ${product.price}
+                      </div>
+                      <div className="text-base font-medium text-[#424242] leading-[120%]">
+                        Price: ${product.salePrice}
+                      </div>
                     </div>
 
-                    <div className="">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-[#131313] leading-[120%]">{product.rating}</span>
+                      <FaStar size={16} color="#FFD700" />
+                      <span className="text-sm font-medium text-[#616161] leading-[120%]">({product.reviews}K)</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Button
+                      size="sm"
+                      className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
+                      onClick={() => addToCart(product)}
+                    >
+                      Add To Cart
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      onClick={() => addToWishlist(product)}
+                      className="bg-transparent border-[2px] border-[#23547B] text-sm font-bold text-[#23547B] leading-[120%] py-2 w-full"
+                    >
+                      <Bookmark className="w-4 h-4 text-[#23547B] mr-1" />
+                      Wish List
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // List View Layout
+            <div className="flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8">
+              <div className="flex-shrink-0">
+                <Image
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.title}
+                  width={324}
+                  height={324}
+                  className="object-cover w-full md:w-[324px] h-[324px] rounded-[8px]"
+                />
+              </div>
+
+              <div className="flex-1">
+                <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full">
+                  <div className="flex-1">
+                    <h3 className="text-lg md:text-[19px] lg:text-xl text-[#2A2A2A] font-medium leading-[120%] tracking-normal mb-2">
+                      {product.title}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mb-2">
+                      <Image
+                        src={product.userImage || "/placeholder.svg"}
+                        alt={product.author}
+                        width={49}
+                        height={49}
+                        className="w-[49px] h-[49px] rounded-full"
+                      />
                       <div>
+                        <p className="text-xs font-normal text-[#2A2A2A] leading-[150%] pb-1">Created by</p>
+                        <h4 className="text-base text-[#23547B] font-bold leading-[120%] tracking-normal">
+                          {product.author}
+                        </h4>
+                      </div>
+                    </div>
+
+                    <p className="text-base text-[#424242] font-normal leading-[150%] tracking-normal mb-4">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                      labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                      nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
+                      esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt
+                      in culpa qui officia deserunt mollit anim id est laborum.sunt in culpa qui officia deserunt mollit
+                      anim id est laborum.
+                    </p>
+
+                    <div className="text-base font-medium text-[#131313] leading-[120%] tracking-normal">
+                      {product.language}, {product.category}
+                    </div>
+                  </div>
+
+                  <div className="flex-shrink-0 lg:w-[250px]">
+                    <div className="h-full flex flex-col justify-center">
+                      <div className="text-sm text-[#FF0000] font-medium leading-[120%] tracking-normal line-through pb-2">
+                        ${product.price}
+                      </div>
+                      <div className="text-base font-medium text-[#424242] leading-[120%] tracking-normal mb-4 md:mb-6 lg:mb-8">
+                        Price: ${product.salePrice}
+                      </div>
+
+                      <div className="flex items-center gap-1 mb-4 md:mb-5 lg:mb-6">
+                        <span className="text-base font-medium text-[#131313] leading-[120%] tracking-normal">
+                          {product.rating}
+                        </span>
+                        <FaStar size={20} color="#FFD700" />
+                        <span className="text-base font-medium text-[#616161] leading-[120%] tracking-normal">
+                          ({product.reviews}K)
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 md:space-y-4 lg:space-y-6">
                         <Button
-                          size={"lg"}
-                          className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] px-[55px] rounded-[8px] "
-                        onClick={() => addToCart(product)}
+                          size="lg"
+                          className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full max-w-[250px]"
+                          onClick={() => addToCart(product)}
                         >
                           Add To Cart
                         </Button>
-                      </div>
 
-                      <div className="flex items-center gap-2 mt-3 md:mt-4 lg:mt-6">
                         <Button
-                          size={"lg"}
+                          size="lg"
                           onClick={() => addToWishlist(product)}
-                          className="bg-transparent border-[2px] border-[#23547B] text-base md:text-[17px] lg:text-lg font-bold text-[#23547B] leading-[120%] tracking-normal py-[13px] px-[47px]"
+                          className="bg-transparent border-[2px] border-[#23547B] text-base md:text-[17px] lg:text-lg font-bold text-[#23547B] leading-[120%] tracking-normal py-[13px] w-full max-w-[250px]"
                         >
-                          <Bookmark className="w-6 h-6 text-[#23547B]" /> Wish
-                          List
+                          <Bookmark className="w-6 h-6 text-[#23547B] mr-2" />
+                          Wish List
                         </Button>
                       </div>
                     </div>
@@ -234,9 +318,9 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </Card>
       ))}
     </div>
-  );
+  )
 }

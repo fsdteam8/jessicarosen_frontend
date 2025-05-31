@@ -146,11 +146,11 @@ export default function AllProducts() {
           </div>
         </div>
 
-        {/* Filter Bar */}
-        <div className="mb-[100px]">
-          <div className="">
-            <div className="flex justify-between items-center">
-              <div className="flex flex-wrap gap-2">
+        <div className="lg:mb-[100px] mb-10 px-4 sm:px-6 lg:px-8">
+          <div>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
+              {/* Left: Filter dropdowns */}
+              <div className="flex flex-wrap gap-2 max-w-full md:max-w-[calc(100%-150px)]">
                 <FilterDropdown
                   title="Practice Areas"
                   options={practiceAreas}
@@ -165,7 +165,8 @@ export default function AllProducts() {
                 <FilterDropdown title="Province/State" options={provinces} />
               </div>
 
-              <div>
+              {/* Right: All Filters Drawer */}
+              <div className="flex-shrink-0">
                 <AllFiltersDrawer categories={filterCategories} />
               </div>
             </div>

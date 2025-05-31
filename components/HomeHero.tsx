@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 export default function HomeHero() {
   return (
-    <div className="w-full mb-[48px]">
+    <div className="w-full lg:my-[48px] my-5">
       {/* Blue divider line */}
 
       {/* Hero Section */}
