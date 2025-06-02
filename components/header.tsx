@@ -185,7 +185,7 @@ export function Header() {
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
-                      className={text-lg font-medium ${pathname === "/" ? "text-blue-600" : "hover:text-blue-600"}}
+                      className={`text-lg font-medium ${pathname === "/" ? "text-blue-600" : "hover:text-blue-600"}`}
                     >
                       Home
                     </Link>
