@@ -1,30 +1,58 @@
-"use client";
+"use client"
 
-import Image from "next/image";
-import { useForm } from "react-hook-form";
-import forgetAuth from "@/public/images/authImg.svg";
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
 type FormData = {
-  email: string;
-};
+  email: string
+}
 
-const ForgetPasswordForm = () => {
+const ForgetPasswordPage = () => {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>()
 
-  const onSubmit = (data: FormData) => {
-    console.log("Email Submitted", data);
-    // Handle API call here
-  };
+  const onSubmit = async (data: FormData) => {
+    setIsLoading(true)
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/forget-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: data.email }),
+      })
+
+      if (response.ok) {
+        toast.success("OTP sent to your email successfully!")
+        // Navigate to OTP verification page with email as query parameter
+        router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`)
+      } else {
+        const errorData = await response.json()
+        toast.error(errorData.message || "Failed to send OTP. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error)
+      toast.error("Network error. Please check your connection and try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-center lg:gap-[100px] gap-10 min-h-screen bg-gray-100 px-4 py-8">
       <div className="w-full max-w-md">
         <Image
-          src={forgetAuth}
+          src="/placeholder.svg?height=700&width=600"
           width={600}
           height={700}
           alt="Forget Password Illustration"
@@ -32,12 +60,10 @@ const ForgetPasswordForm = () => {
         />
       </div>
       <div className="w-full max-w-md bg-white rounded-xl p-8 shadow-[0px_0px_56px_0px_#00000029]">
-        <h2 className="text-center text-[40px] font-semibold">
-          Forget Password
-        </h2>
+        <h2 className="text-center text-[40px] font-semibold">Forget Password</h2>
         <p className="text-center text-base text-[#9E9E9E] w-[70%] mx-auto mb-8">
-          Please enter the email address linked to your account. We&apos;ll send
-          a one-time password (OTP) to your email for verification.
+          Please enter the email address linked to your account. We&apos;ll send a one-time password (OTP) to your email
+          for verification.
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -62,19 +88,17 @@ const ForgetPasswordForm = () => {
               }`}
               placeholder="Enter your email..."
               aria-invalid={errors.email ? "true" : "false"}
+              disabled={isLoading}
             />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.email.message}
-              </p>
-            )}
+            {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
           </div>
 
           <button
             type="submit"
-            className="w-full bg-[#23547B] hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+            disabled={isLoading}
+            className="w-full bg-[#23547B] hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
           >
-            Send OTP
+            {isLoading ? "Sending OTP..." : "Send OTP"}
           </button>
         </form>
 
@@ -86,7 +110,7 @@ const ForgetPasswordForm = () => {
         </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ForgetPasswordForm;
+export default ForgetPasswordPage

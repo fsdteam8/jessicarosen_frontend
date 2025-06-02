@@ -98,11 +98,11 @@ export function AddResource() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-[40px]">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col  mt-[56px] mx-[50px] mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add Resource</h1>
+          <h1 className="text-2xl font-bold mb-[14px] text-[#131313]">Add Resource</h1>
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <span>Dashboard</span>
             <span>›</span>
@@ -120,7 +120,7 @@ export function AddResource() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Title */}
-          <Card>
+          <Card className="shadow-none border-none bg-transparent">
             <CardContent className="p-6">
               <Label htmlFor="title" className="text-base font-medium">
                 Add Title
@@ -130,18 +130,18 @@ export function AddResource() {
                 placeholder="Add your title..."
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                className={`mt-2 ${errors.title ? "border-red-500" : ""}`}
+                className={` mt-[16px] py-[16.5px] px-[16px] ${errors.title ? "border-red-500" : ""}`}
               />
               {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
             </CardContent>
           </Card>
 
           {/* Price, Discount, Quantity, Format */}
-          <Card>
+          <Card className="shadow-none border-none bg-transparent">
             <CardContent className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                  <Label htmlFor="price" className="text-sm font-medium">
+                  <Label htmlFor="price" className="text-sm  font-semibold">
                     Price
                   </Label>
                   <Input
@@ -151,7 +151,7 @@ export function AddResource() {
                     placeholder="Add price..."
                     value={formData.price}
                     onChange={(e) => handleInputChange("price", e.target.value)}
-                    className={`mt-1 ${errors.price ? "border-red-500" : ""}`}
+                    className={`mt-[16px] py-[16.5px] px-[16px] ${errors.price ? "border-red-500" : ""}`}
                   />
                   {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                 </div>
@@ -166,7 +166,7 @@ export function AddResource() {
                     placeholder="Add Discount Price..."
                     value={formData.discountPrice}
                     onChange={(e) => handleInputChange("discountPrice", e.target.value)}
-                    className="mt-1"
+                    className="mt-[16px] py-[16.5px] px-[16px]"
                   />
                 </div>
                 <div>
@@ -179,19 +179,19 @@ export function AddResource() {
                     placeholder="Add Quantity..."
                     value={formData.quantity}
                     onChange={(e) => handleInputChange("quantity", e.target.value)}
-                    className={`mt-1 ${errors.quantity ? "border-red-500" : ""}`}
+                    className={`mt-[16px] py-[16.5px] px-[16px] ${errors.quantity ? "border-red-500" : ""}`}
                   />
                   {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
                 </div>
-                <div>
+                <div className="  px-[16px]">
                   <Label htmlFor="format" className="text-sm font-medium">
                     Format
                   </Label>
-                  <Select value={formData.format} onValueChange={(value) => handleInputChange("format", value)}>
-                    <SelectTrigger className="mt-1">
+                  <Select  value={formData.format} onValueChange={(value) => handleInputChange("format", value)}>
+                    <SelectTrigger className="mt-[16px]">
                       <SelectValue placeholder="Add format..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent >
                       <SelectItem value="pdf">PDF</SelectItem>
                       <SelectItem value="doc">DOC</SelectItem>
                       <SelectItem value="all">All Format</SelectItem>
@@ -203,9 +203,8 @@ export function AddResource() {
           </Card>
 
           {/* Description */}
-          <Card>
+          <Card className="shadow-none border-none bg-transparent">
             <CardContent className="p-6">
-              <Label className="text-base font-medium">Description</Label>
               <div className="mt-2 border rounded-lg">
                 <Textarea
                   placeholder="Description..."
@@ -262,16 +261,17 @@ export function AddResource() {
               {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
             </CardContent>
           </Card>
+
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className=" shadow-[0px_1.5px_2px_0px_#1018281A] border border-[#B6B6B6]  rounded-lg py-[24px]">
           {/* Category */}
-          <Card>
-            <CardContent className="p-6">
-              <Label className="text-base font-medium">Category</Label>
+          <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="">
+              <Label className="text-[18px] font-medium ">Category</Label>
               <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
-                <SelectTrigger className={`mt-2 ${errors.category ? "border-red-500" : ""}`}>
+                <SelectTrigger className={`mt-[12px] ${errors.category ? "border-red-500" : ""}`}>
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -285,7 +285,7 @@ export function AddResource() {
           </Card>
 
           {/* Sub Category */}
-          <Card>
+          <Card className="border-none shadow-none bg-transparent">
             <CardContent className="p-6">
               <Label className="text-base font-medium">Sub_category</Label>
               <Select value={formData.subCategory} onValueChange={(value) => handleInputChange("subCategory", value)}>
@@ -302,7 +302,7 @@ export function AddResource() {
           </Card>
 
           {/* Thumbnail */}
-          <Card>
+          <Card className="border-none shadow-none bg-transparent">
             <CardContent className="p-6">
               <Label className="text-base font-medium">Thumbnail</Label>
               <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
