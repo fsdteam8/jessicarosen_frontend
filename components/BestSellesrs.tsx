@@ -1,5 +1,6 @@
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function BestSellesrs() {
   return (
@@ -13,13 +14,18 @@ export default function BestSellesrs() {
                 Our Best Sellers!
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed max-w-2xl">
-                They have achieved high sales and popularity within a certain period. They are often featured in top
-                charts or lists due to strong demand and positive customer reviews.
+                They have achieved high sales and popularity within a certain
+                period. They are often featured in top charts or lists due to
+                strong demand and positive customer reviews.
               </p>
             </div>
-            <Button className="bg-white text-gray-800 hover:bg-gray-100 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-medium rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
-              Explore Resources
-            </Button>
+            <div>
+              <Link href="/products">
+                <Button className="bg-white text-gray-800 hover:bg-gray-100 px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-medium rounded-lg shadow-md transition-all duration-200 hover:shadow-lg">
+                  Explore Resources
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Images Section */}
@@ -57,5 +63,5 @@ export default function BestSellesrs() {
         </div>
       </div>
     </section>
-  )
+  );
 }

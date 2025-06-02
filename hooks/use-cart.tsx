@@ -10,6 +10,7 @@ export type CartItem = {
   image: string
   price: number
   discountPrice?: number
+  salePrice?: number
   quantity: number
 }
 
@@ -105,9 +106,11 @@ export const useCart = create<CartState>()(
 
       getItemPrice: (id) => {
         const item = get().items.find((item) => item.id === id)
+        console.log("item", item)
         if (!item) return 0
 
         const price = item.discountPrice || item.price
+        console.log("price", price)
         return price * item.quantity
       },
 

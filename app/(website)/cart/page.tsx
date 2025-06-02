@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Trash2, ShoppingCart, ChevronRight, ArrowLeft, Minus, Plus } from "lucide-react"
+import {  ShoppingCart, ArrowLeft, Minus, Plus, CircleX } from "lucide-react"
 import { Button } from "@/components/ui/button"
 // import { useToast } from "@/hooks/use-toast"
 import { useCart } from "@/hooks/use-cart"
@@ -16,7 +16,7 @@ export default function CartPage() {
     items,
     removeItem,
     updateQuantity,
-    clearCart,
+    // clearCart,
     getSubtotal,
     getItemPrice,
     getShippingCost,
@@ -25,6 +25,11 @@ export default function CartPage() {
   } = useCart()
   console.log("Cart items:", items)
 
+  
+const handleTotalPrice = (id: string) => {
+ const price   =  getItemPrice(id)
+  console.log("price", price)
+}
   // const [promoCode, setPromoCode] = useState("")
   const [promoApplied] = useState(false)
   // const { toast } = useToast()
@@ -38,69 +43,18 @@ export default function CartPage() {
     removeItem(id)
   }
 
-  // const handleApplyCoupon = (e: React.FormEvent) => {
-  //   e.preventDefault()
-
-  //   if (!promoCode) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Please enter a promo code",
-  //       variant: "destructive",
-  //     })
-  //     return
-  //   }
-
-  //   // In a real app, this would validate the promo code against an API
-  //   if (promoCode.toUpperCase() === "LEGAL10") {
-  //     setPromoApplied(true)
-  //     toast({
-  //       title: "Promo applied",
-  //       description: "10% discount has been applied to your order",
-  //     })
-  //   } else {
-  //     toast({
-  //       title: "Invalid promo code",
-  //       description: "The promo code you entered is invalid or expired",
-  //       variant: "destructive",
-  //     })
-  //   }
-  // }
-
   const subtotal = getSubtotal()
   const shipping = getShippingCost()
   const discount = getDiscount() + (promoApplied ? subtotal * 0.1 : 0)
   const total = subtotal + shipping - discount
+ 
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
 
       <main className="flex-1">
         {/* Hero Section */}
-        <div className="relative h-[300px] flex items-center">
-          <div className="absolute inset-0 z-0">
-            <Image
-              src="/placeholder.svg?height=300&width=1200"
-              alt="Cart page background"
-              fill
-              className="object-cover brightness-50"
-              priority
-            />
-          </div>
-          <div className="container mx-auto px-4 z-10 text-white">
-            <div className="flex items-center text-sm mb-4">
-              <Link href="/" className="hover:text-[#f0a500]">
-                Welcome & Shop With Us
-              </Link>
-              <ChevronRight className="h-3 w-3 mx-2" />
-              <span>Cart Page</span>
-            </div>
-            <h1 className="text-4xl font-bold mb-2">Cart Page</h1>
-            <p className="text-sm opacity-90 max-w-2xl">
-              From everyday essentials to the latest trends, we bring you a seamless shopping experience with unbeatable
-              deals, delivery, discover convenience, quality, and style all in one place.
-            </p>
-          </div>
-        </div>
+        
 
         <div className="container mx-auto px-4 py-12">
           {items.length === 0 ? (
@@ -119,16 +73,17 @@ export default function CartPage() {
             </div>
           ) : (
             <div>
-              <h2 className="text-2xl font-bold mb-8">Products</h2>
+              {/* <h2 className="text-2xl font-bold mb-8">Products</h2> */}
 
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 text-left">
+                  <thead className="text-left border-b-2 border-b-gray-500">
+                    
                     <tr>
-                      <th className="py-4 px-6 font-medium">Products</th>
-                      <th className="py-4 px-6 font-medium">Quantity</th>
-                      <th className="py-4 px-6 font-medium">Price</th>
-                      <th className="py-4 px-6 font-medium">Remove</th>
+                      <th className="py-4 px-6 text-xl font-semibold">Products</th>
+                      <th className="py-4 px-6 text-xl font-semibold">Quantity</th>
+                      <th className="py-4 px-6 text-xl  font-semibold">Price</th>
+                      <th className="py-4 px-6 text-xl font-semibold">Remove</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -176,7 +131,7 @@ export default function CartPage() {
                             </button>
                           </div>
                         </td>
-                        <td className="py-4 px-6 font-medium">${formatPrice(getItemPrice(item.id))}</td>
+                        <td className="py-4 px-6 font-medium" onClick={() => handleTotalPrice(item.id)}>${formatPrice(getItemPrice(item.id))}</td>
                         <td className="py-4 px-6">
                           <Button
                             variant="ghost"
@@ -184,7 +139,7 @@ export default function CartPage() {
                             onClick={() => handleRemoveItem(item.id)}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50"
                           >
-                            <Trash2 className="h-5 w-5" />
+                            <CircleX  className="h-5 w-5" />
                           </Button>
                         </td>
                       </tr>
@@ -195,27 +150,27 @@ export default function CartPage() {
 
               <div className="mt-8 flex flex-col md:flex-row gap-8">
                 <div className="md:w-2/3">
-                  <Button asChild variant="outline" className="mr-4">
+                  <Button asChild variant="outline" className="mr-4 bg-[#23547B] text-base leading-[120%] font-bold text-white w-[220px] h-[48px]">
                     <Link href="/products">
-                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      {/* <ArrowLeft className="mr-2 h-4 w-4" /> */}
                       Continue Shopping
                     </Link>
                   </Button>
 
-                  <Button
+                  {/* <Button
                     variant="outline"
                     className="text-red-500 border-red-500 hover:bg-red-50 hover:text-red-600"
                     onClick={() => clearCart()}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Clear Cart
-                  </Button>
+                  </Button> */}
                 </div>
 
-                <div className="md:w-1/3 bg-gray-50 p-6 rounded-lg">
-                  <h3 className="text-lg font-bold mb-4">Card details</h3>
+                <div className="md:w-1/3 p-6 rounded-lg">
+                  <h3 className="text-[24px] font-semibold leading-[120%] mb-4">Card details</h3>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-2 mb-8">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Subtotal ({items.length} items):</span>
                       <span>${formatPrice(subtotal)}</span>
@@ -241,7 +196,7 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  <Button asChild className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]">
+                  <Button asChild className="bg-[#2c5d7c] text-base font-bold leading-[120%] hover:bg-[#1e4258] w-[220px] h-[40px]">
                     <Link href="/checkout">Checkout</Link>
                   </Button>
                 </div>

@@ -3,7 +3,7 @@ import { AccountLayout } from "@/components/account/account-layout";
 export default function PrivacyPolicyPage() {
   return (
     <AccountLayout activeTab="privacy">
-      <div className="space-y-7">
+      <div className="space-y-7 mb-10">
         <div className="mb-6">
           <h2 className="font-semibold text-[32px] text-[#131313] mb-10">
             Privacy Policy

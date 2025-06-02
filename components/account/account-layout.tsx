@@ -2,7 +2,7 @@
 import type React from "react";
 import Link from "next/link";
 import { LogOut } from "lucide-react";
-import { HeroSection } from "@/components/hero-section";
+// import { HeroSection } from "@/components/hero-section";
 import { cn } from "@/lib/utils";
 import LogoutConfirmationModal from "../LogoutConfirmationModal";
 import { useState } from "react";
@@ -28,10 +28,10 @@ export function AccountLayout({
     setIsLogoutModalOpen(true);
   };
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1">
+    <div className="flex flex-col lg:mt-[80px]">
+      <main className="">
         {/* Hero Section */}
-        <HeroSection
+        {/* <HeroSection
           title="Accounts"
           description="Need assistance? We are here to help. To inquire about the products and services found on our website, please contact us by phone or e-mail, and we'll gladly assist you."
           backgroundImage="/scales-of-justice.png"
@@ -40,9 +40,9 @@ export function AccountLayout({
             { label: "Accounts", href: "/account" },
             { label: "My Profile", href: "/account/profile" },
           ]}
-        />
+        /> */}
 
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8">Accounts</h2>
 
           {/* Account Navigation */}
