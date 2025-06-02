@@ -1,9 +1,14 @@
+"use client"
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
 
 export default function HomeHero() {
+  const session = useSession()
+  console.log(session, "full session")
+
   return (
-    <div className="w-full mb-[48px]">
+    <div className="w-full lg:my-[48px] my-5">
       {/* Blue divider line */}
 
       {/* Hero Section */}
@@ -24,7 +29,7 @@ export default function HomeHero() {
           <div className="absolute inset-0 bg-black/30 rounded-lg" />
 
           {/* Text Content */}
-          <div className="absolute inset-0 flex px-16 mt-[7%]">
+          <div className="absolute inset-0 flex lg:px-16 px-5 mt-[7%]">
             <div className="text-white">
               <div className="flex items-center gap-2">
                 <Image
@@ -35,7 +40,7 @@ export default function HomeHero() {
                 />
                 <p className="text-sm font-semibold">Canadian Laws</p>
               </div>
-              <h1 className="text-[48px] font-bold leading-[120%] my-7 text-start">
+              <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
                 Deal Of The Day!
               </h1>
               <p className="text-base font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
@@ -44,12 +49,12 @@ export default function HomeHero() {
               </p>
 
               {/* Left-aligned button and discount info */}
-              <div className="mt-6 text-start flex justify-between items-center">
+              <div className="lg:mt-6 text-start flex justify-between items-center">
                 <div className="lg:h-[54px] lg:w-[242px] ">
                   <Button className="w-full h-full bg-[#E0B15E]">Explore Resources</Button>
                 </div>
 
-                <div className="mt-4">
+                <div className="lg:mt-4">
                   <p className="text-[32px] font-bold text-[#E0B15E]">30%</p>
                   <p className="text-base font-medium leading-[120%]">
                     Purchase discount.
