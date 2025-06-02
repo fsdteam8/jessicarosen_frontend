@@ -27,8 +27,10 @@ export function Header({ setSidebarOpen }: HeaderProps) {
           size="icon"
           className="text-white hover:bg-slate-600"
         >
+
           <Bell className="w-5 h-5" />
         </Button> */}
+
 
         <div className="flex items-center space-x-3">
           <span className="text-white text-sm font-medium hidden sm:block">

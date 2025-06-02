@@ -10,7 +10,13 @@ import { useCart } from "@/hooks/use-cart"
 import { formatPrice } from "@/lib/utils"
 
 export function CartSheet() {
-  const { items, isOpen, setOpen, removeItem, getSubtotal, getTotal } = useCart()
+  const { items, isOpen, setOpen, removeItem, getSubtotal, getTotal} = useCart()
+
+  if (!items) {
+    return null // or a loading state
+  }
+
+
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
