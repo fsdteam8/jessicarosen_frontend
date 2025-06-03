@@ -9,7 +9,7 @@ const ExploreTopCart = () => {
     
   return (
     <div>
-        <section className="py-16 bg-[#E9EEF2] mt-[88px]">
+        <section className="py-16  mt-[88px]">
           <div className="container mx-auto px-4 mt-[92px] ">
             <div className="text-center mb-[72px]">
               <h2 className="text-[40px] font-semibold leading-[120%] mb-2">Explore Top Selling Products</h2>

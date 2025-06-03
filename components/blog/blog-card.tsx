@@ -19,7 +19,7 @@ export function BlogCard({  title, date, image, slug, className, featured = fals
       <Link href={`/blog/${slug}`} className="block">
         <div className="relative overflow-hidden rounded-lg mb-4">
           <div
-            className={cn("relative w-full overflow-hidden bg-gray-100", featured ? "aspect-[16/9]" : "aspect-[4/3]")}
+            className={cn("relative w-full overflow-hidden", featured ? "aspect-[16/9]" : "aspect-[4/3]")}
           >
             <Image
               src={image || "/placeholder.svg"}

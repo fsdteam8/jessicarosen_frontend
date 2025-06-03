@@ -32,36 +32,6 @@ export default function BlogPage() {
       {/* <Header /> */}
 
       <main className="flex-1 mb-7">
-        {/* Latest Blogs Section */}
-        {/* <div>
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Latest Blogs</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Our team is always ready to assist you with any questions or concerns you might have. Fill out the form
-              below and we'll get back to you as soon as possible.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {isLoading
-              ? Array(3)
-                  .fill(null)
-                  .map((_, index) => <BlogCardSkeleton key={index} featured />)
-              : featuredPosts.map((post) => (
-                  <BlogCard
-                    key={post.id}
-                    id={post.id}
-                    title={post.title}
-                    excerpt={post.excerpt}
-                    date={post.date}
-                    image={post.image}
-                    slug={post.slug}
-                    featured
-                  />
-                ))}
-          </div>
-        </div> */}
-
         <section className="py-16 px-4 container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
