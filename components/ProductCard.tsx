@@ -50,9 +50,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
-    <div className="bg-gray-50 p-4 flex items-center justify-center">
+    <div className="bg-gray-50 p-4 flex items-center ">
       <Card
-        className="w-[370px] h-auto max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] bg-white shadow-lg border-8 border-white overflow-hidden"
+        className="h-auto max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] bg-white shadow-lg border-8 border-white overflow-hidden"
         style={{ borderRadius: "16px" }}
       >
         <CardContent className="p-0 h-full flex flex-col">
