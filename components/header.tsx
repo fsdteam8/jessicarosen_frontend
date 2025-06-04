@@ -19,6 +19,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isMounted, setIsMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState<"canada" | "us">("canada")
   const pathname = usePathname()
   const { getItemCount, setOpen } = useCart()
   const { isAuthenticated, user, logout } = useAuth()
@@ -62,7 +63,12 @@ export function Header() {
             <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="outline"
-                className="bg-white text-blue-600 border-white hover:bg-gray-100 text-base px-3 py-5 rounded-[8px]"
+                onClick={() => setActiveTab("canada")}
+                className={`text-base px-3 py-5 rounded-[8px] transition-all duration-200 ${
+                  activeTab === "canada"
+                    ? "bg-white text-blue-600 border-white hover:bg-gray-100"
+                    : "bg-transparent text-white border-white hover:bg-white/10"
+                }`}
               >
                 <span className="w-[48px] h-[24px]">
                   <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
@@ -71,12 +77,17 @@ export function Header() {
               </Button>
               <Button
                 variant="outline"
-                className="text-blue-600 bg-transparent border-[2px] border-white text-base px-3 py-5 rounded-[8px] flex items-center space-x-2 hover:bg-gray-100"
+                onClick={() => setActiveTab("us")}
+                className={`text-base px-3 py-5 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                  activeTab === "us"
+                    ? "bg-white text-blue-600 border-white hover:bg-gray-100"
+                    : "bg-transparent text-white border-[2px] border-white hover:bg-white/10"
+                }`}
               >
                 <span className="w-[48px] h-[24px] relative">
                   <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
                 </span>
-                <span className="text-white">Lawbie US</span>
+                <span>Lawbie US</span>
               </Button>
             </div>
           </div>
@@ -126,7 +137,7 @@ export function Header() {
               <Link href="/wishlist" className="relative p-2 flex">
                 <Heart className="text-2xl text-gray-600" />
                 {isMounted && (
-                  <span className="absolute -top-1 -right-1 bg-[#f97316] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  <span className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                     {wishlistCount}
                   </span>
                 )}
@@ -135,7 +146,7 @@ export function Header() {
               <button className="p-2 relative" onClick={() => setOpen(true)}>
                 <ShoppingCart className="text-2xl text-gray-600" />
                 {isMounted && (
-                  <Badge className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
+                  <Badge className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
                     {itemCount}
                   </Badge>
                 )}
@@ -271,7 +282,12 @@ export function Header() {
                     <div className="block lg:hidden space-y-2">
                       <Button
                         variant="outline"
-                        className="w-full bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100 text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2"
+                        onClick={() => setActiveTab("canada")}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          activeTab === "canada"
+                            ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                            : "bg-transparent text-white border-[#23547b] hover:bg-[#23547b]/10"
+                        }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image
@@ -286,7 +302,12 @@ export function Header() {
 
                       <Button
                         variant="outline"
-                        className="w-full text-white bg-[#23547b] border-[2px] border-white text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 hover:bg-[#112a3f]"
+                        onClick={() => setActiveTab("us")}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          activeTab === "us"
+                            ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                            : "bg-[#23547b] text-white border-[2px] border-white hover:bg-[#112a3f]"
+                        }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image

@@ -8,7 +8,7 @@ export default function HomeHero() {
   console.log(session, "full session")
 
   return (
-    <div className="w-full lg:my-[48px] my-5">
+    <div className="w-full lg:my-[48px] my-5 bg-none">
       {/* Blue divider line */}
 
       {/* Hero Section */}
