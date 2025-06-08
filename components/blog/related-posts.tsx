@@ -22,8 +22,8 @@ export function RelatedPosts({ posts, isLoading = false }: RelatedPostsProps) {
                 id={post.id}
                 title={post.title}
                 // excerpt={post.excerpt}
-                date={post.date}
-                image={post.image}
+                date={post.createdAt}
+                image={post.thumbnail}
                 slug={post.slug}
               />
             ))}
