@@ -27,7 +27,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  console.log("ProductCard product:", product)
+  // console.log("ProductCard product:", product)
 
   const { addItem } = useCart()
   const { addItem: addToWish, removeItem: removeFromWish, items: wishlistItems } = useWishlist()

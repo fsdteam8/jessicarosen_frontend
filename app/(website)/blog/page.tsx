@@ -27,6 +27,8 @@ export default function BlogPage() {
   const featuredPosts = getFeaturedBlogPosts(3);
   console.log("Featured Posts:", featuredPosts);
 
+  
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* <Header /> */}
