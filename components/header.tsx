@@ -124,7 +124,7 @@ export function Header() {
             {/* Logo */}
             <div className="flex items-center">
               <div className="text-blue-600">
-                <h1 className="text-2xl font-bold">
+                <Link href="/" className="text-2xl font-bold">
                   <Image
                     src="/images/authImg.svg"
                     alt="Lawbie Logo"
@@ -132,7 +132,7 @@ export function Header() {
                     height={60}
                     className="lg:h-[60px] lg:w-auto w-[80%] mb-2"
                   />
-                </h1>
+                </Link>
               </div>
             </div>
 
