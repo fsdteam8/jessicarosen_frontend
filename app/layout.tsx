@@ -2,11 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { NextAuthProvider } from "@/components/auth-provider";
-<<<<<<< HEAD
-// import { Toaster } from "sonner";
-=======
 import { Toaster } from "sonner";
->>>>>>> 2cecce076a407e3faa4bc58a4fba14aee1b72669
 import AppProvider from "@/provider/AppProvider";
 
 const geistSans = localFont({
@@ -37,11 +33,7 @@ export default function RootLayout({
       >
         <NextAuthProvider>
           <AppProvider>{children}</AppProvider>
-<<<<<<< HEAD
-          {/* <Toaster position="bottom-right" richColors /> */}
-=======
           <Toaster position="bottom-right" richColors />
->>>>>>> 2cecce076a407e3faa4bc58a4fba14aee1b72669
         </NextAuthProvider>
       </body>
     </html>
