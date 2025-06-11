@@ -192,7 +192,7 @@ export function Header() {
                       <p className="text-gray-500 text-xs text-center border-b">{user?.email}</p>
                     </div>
                     <Link
-                      href="/account"
+                      href="/account/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
                       My Account

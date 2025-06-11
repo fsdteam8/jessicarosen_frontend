@@ -12,7 +12,7 @@ const AppProvider = ({ children }: Props) => {
   return (
     <QueryClientProvider client={queryClient}>{children}
     
-    <Toaster position="top-right" />
+    {/* <Toaster position="top-right" /> */}
     
     </QueryClientProvider>
   );

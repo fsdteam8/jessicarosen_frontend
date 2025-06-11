@@ -2,12 +2,12 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { AccountLayout } from "@/components/account/account-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SquareArrowOutUpRight } from "lucide-react";
+import { SquareArrowOutUpRight, Camera, Trash2 } from "lucide-react";
 import LegalDoc from "@/components/HomePage/LegalDoc";
 import { useSession } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -106,7 +106,9 @@ export default function ProfilePage() {
     taxId: "",
     profileImage: "",
   });
+  const [imageKey, setImageKey] = useState(0); // Force image re-render
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const token = session?.user?.accessToken;
@@ -172,6 +174,46 @@ export default function ProfilePage() {
     return response; // Return full response for message access
   };
 
+  // Image upload function
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const response = await res.json();
+
+    if (!res.ok) {
+      throw new Error(response.message || "Failed to upload image");
+    }
+
+    return response;
+  };
+
+  // Image delete function
+  const deleteImage = async () => {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const response = await res.json();
+
+    if (!res.ok) {
+      throw new Error(response.message || "Failed to delete image");
+    }
+
+    return response;
+  };
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["user", userId],
     queryFn: () => fetchUserById(userId!),
@@ -191,6 +233,32 @@ export default function ProfilePage() {
     },
   });
 
+  // Image upload mutation
+  const uploadImageMutation = useMutation({
+    mutationFn: uploadImage,
+    onSuccess: (response) => {
+      toast.success(response.message || "Image uploaded successfully");
+      setImageKey(prev => prev + 1); // Force image re-render
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to upload image");
+    },
+  });
+
+  // Image delete mutation
+  const deleteImageMutation = useMutation({
+    mutationFn: deleteImage,
+    onSuccess: (response) => {
+      toast.success(response.message || "Image deleted successfully");
+      setImageKey(prev => prev + 1); // Force image re-render
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete image");
+    },
+  });
+
   useEffect(() => {
     if (data) {
       setFormData({
@@ -205,6 +273,8 @@ export default function ProfilePage() {
         taxId: data.address?.taxId || "",
         profileImage: data?.profileImage || "",
       });
+      // Update image key when data changes to force re-render
+      setImageKey(prev => prev + 1);
     }
   }, [data]);
 
@@ -220,6 +290,38 @@ export default function ProfilePage() {
     updateMutation.mutate(formData);
   };
 
+  // Handle file selection
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select a valid image file");
+        return;
+      }
+      
+      // Validate file size (e.g., max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      uploadImageMutation.mutate(file);
+    }
+  };
+
+  // Handle image upload button click
+  const handleImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Handle image delete
+  const handleImageDelete = () => {
+    if (window.confirm("Are you sure you want to delete your profile image?")) {
+      deleteImageMutation.mutate();
+    }
+  };
+
   return (
     <div>
       <AccountLayout activeTab="profile">
@@ -233,13 +335,54 @@ export default function ProfilePage() {
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border">
                   <Image
-                    src={data?.profileImage || "/images/not-imge.png"}
+                    key={imageKey} // Force re-render when imageKey changes
+                    src={`${data?.profileImage || "/images/not-imge.png"}?t=${imageKey}`} // Cache busting
                     alt="Profile"
                     width={128}
                     height={128}
                     className="object-cover"
+                    unoptimized // Disable Next.js optimization for dynamic images
                   />
                 </div>
+                {/* Image upload/delete controls */}
+                <div className="absolute -bottom-2 -right-2 flex gap-1">
+                  <Button
+                    size="sm"
+                    className="w-8 h-8 p-0 rounded-full bg-[#2c5d7c] hover:bg-[#1e4258]"
+                    onClick={handleImageUpload}
+                    disabled={uploadImageMutation.isPending}
+                    title="Upload new image"
+                  >
+                    {uploadImageMutation.isPending ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Camera className="w-4 h-4" />
+                    )}
+                  </Button>
+                  {data?.profileImage && data.profileImage !== "/images/not-imge.png" && (
+                    <Button
+                      size="sm"
+                      className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600"
+                      onClick={handleImageDelete}
+                      disabled={deleteImageMutation.isPending}
+                      title="Delete current image"
+                    >
+                      {deleteImageMutation.isPending ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h3 className="text-2xl font-bold">
@@ -301,27 +444,6 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
-                    {/* {isEditing && !readOnly ? (
-                      <Input
-                        name={name}
-                        value={
-                          name === "postalCode"
-                            ? formData.postalCode.toString()
-                            : (formData as any)[name]
-                        }
-                        onChange={handleChange}
-                        className="w-full h-[49px] border border-[#645949]"
-                        type={name === "postalCode" ? "number" : type}
-                        disabled={updateMutation.isPending}
-                      />
-                    ) : (
-                      <div className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
-                        readOnly ? 'bg-gray-100 text-gray-500' : 'bg-gray-50'
-                      }`}>
-                        {formData[name as keyof typeof formData]}
-                      </div>
-                    )} */}
-
                     {isEditing && !readOnly ? (
                       <Input
                         name={name}
