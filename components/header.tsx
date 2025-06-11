@@ -1,43 +1,58 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { Search, ShoppingCart, Heart, Menu, ChevronRight, Mail } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useCart } from "@/hooks/use-cart"
-import { useAuth } from "@/hooks/use-auth"
-import { CartSheet } from "@/components/cart-sheet"
-import Image from "next/image"
-import { useWishlist } from "@/hooks/use-wishlist"
+import type React from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Search,
+  ShoppingCart,
+  Heart,
+  Menu,
+  ChevronRight,
+  Mail,
+  UserRound,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
+import { CartSheet } from "@/components/cart-sheet";
+import Image from "next/image";
+import { useWishlist } from "@/hooks/use-wishlist";
+import { useSession } from "next-auth/react";
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isMounted, setIsMounted] = useState(false)
-  const [activeTab, setActiveTab] = useState<"canada" | "us">("canada")
-  const pathname = usePathname()
-  const { getItemCount, setOpen } = useCart()
-  const { isAuthenticated, user, logout } = useAuth()
-  const { items } = useWishlist()
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"canada" | "us">("canada");
+  const pathname = usePathname();
+  const { getItemCount, setOpen } = useCart();
+  const { isAuthenticated, logout } = useAuth();
+  const { items } = useWishlist();
+
+  const session = useSession();
+  console.log(session, "full session");
+
+
+  const user = session?.data?.user;
 
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
-  const itemCount = isMounted ? getItemCount() : 0
-  const wishlistCount = isMounted ? items.length : 0
+  const itemCount = isMounted ? getItemCount() : 0;
+  const wishlistCount = isMounted ? items.length : 0;
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log("Searching for:", searchQuery)
-    setIsSearchOpen(false)
-  }
+    e.preventDefault();
+    console.log("Searching for:", searchQuery);
+    setIsSearchOpen(false);
+  };
 
   return (
     <>
@@ -71,7 +86,12 @@ export function Header() {
                 }`}
               >
                 <span className="w-[48px] h-[24px]">
-                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
+                  <Image
+                    src="/images/flage.png"
+                    alt="Canada Flag"
+                    width={48}
+                    height={24}
+                  />
                 </span>
                 Lawbie Canada
               </Button>
@@ -85,7 +105,12 @@ export function Header() {
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
-                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
+                  <Image
+                    src="/images/flage1.png"
+                    alt="US Flag"
+                    fill
+                    className="object-contain"
+                  />
                 </span>
                 <span>Lawbie US</span>
               </Button>
@@ -99,7 +124,7 @@ export function Header() {
             {/* Logo */}
             <div className="flex items-center">
               <div className="text-blue-600">
-                <h1 className="text-2xl font-bold">
+                <Link href="/" className="text-2xl font-bold">
                   <Image
                     src="/images/authImg.svg"
                     alt="Lawbie Logo"
@@ -107,7 +132,7 @@ export function Header() {
                     height={60}
                     className="lg:h-[60px] lg:w-auto w-[80%] mb-2"
                   />
-                </h1>
+                </Link>
               </div>
             </div>
 
@@ -128,7 +153,10 @@ export function Header() {
             </div>
 
             {/* Mobile Search Button */}
-            <button className="md:hidden text-gray-600 mr-3" onClick={() => setIsSearchOpen(!isSearchOpen)}>
+            <button
+              className="md:hidden text-gray-600 mr-3"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+            >
               <Search className="text-2xl" />
             </button>
 
@@ -152,20 +180,27 @@ export function Header() {
                 )}
               </button>
 
-              {isMounted && isAuthenticated ? (
-                <div className="relative group hidden sm:block">
-                  <Button variant="ghost" size="sm" className="text-gray-700">
-                    <span className="text-sm">{user?.name}</span>
-                  </Button>
-                  <div className="absolute right-0 mt-2 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+              {session && user ? (
+                <div className="relative group hidden sm:block ">
+                  <button className="text-gray-700">
+                    {/* <span className="text-sm">{user?.name}</span> */}
+                    <span><UserRound className="text-2xl" /></span>
+                  </button>
+                  <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-gray-700">
-                      <p className="font-medium">{user?.name}</p>
-                      <p className="text-gray-500 text-xs">{user?.email}</p>
+                      <p className="font-medium text-center">{user?.name}</p>
+                      <p className="text-gray-500 text-xs text-center border-b">{user?.email}</p>
                     </div>
-                    <Link href="/account" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      href="/account"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       My Account
                     </Link>
-                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      href="/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       My Orders
                     </Link>
                     <button
@@ -196,14 +231,20 @@ export function Header() {
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
-                      className={`text-lg font-medium ${pathname === "/" ? "text-blue-600" : "hover:text-blue-600"}`}
+                      className={`text-lg font-medium ${
+                        pathname === "/"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
+                      }`}
                     >
                       Home
                     </Link>
                     <Link
                       href="/products"
                       className={`text-lg font-medium ${
-                        pathname === "/products" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/products"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Resources Type
@@ -211,7 +252,9 @@ export function Header() {
                     <Link
                       href="/blog"
                       className={`text-lg font-medium ${
-                        pathname === "/blog" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/blog"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Blog
@@ -219,7 +262,9 @@ export function Header() {
                     <Link
                       href="/employment"
                       className={`text-lg font-medium ${
-                        pathname === "/employment" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/employment"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Employment
@@ -227,7 +272,9 @@ export function Header() {
                     <Link
                       href="/corporate"
                       className={`text-lg font-medium ${
-                        pathname === "/corporate" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/corporate"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Corporate and M&A
@@ -235,7 +282,9 @@ export function Header() {
                     <Link
                       href="/legal-operations"
                       className={`text-lg font-medium ${
-                        pathname === "/legal-operations" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/legal-operations"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Legal Operations
@@ -243,7 +292,9 @@ export function Header() {
                     <Link
                       href="/commercial"
                       className={`text-lg font-medium ${
-                        pathname === "/commercial" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/commercial"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Commercial Transactions
@@ -251,29 +302,45 @@ export function Header() {
                     <Link
                       href="/wishlist"
                       className={`text-lg font-medium ${
-                        pathname === "/wishlist" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/wishlist"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Wishlist
                     </Link>
                     {isMounted && !isAuthenticated && (
-                      <Button asChild className="bg-blue-600 hover:bg-blue-700 mt-4">
+                      <Button
+                        asChild
+                        className="bg-blue-600 hover:bg-blue-700 mt-4"
+                      >
                         <Link href="/auth/login">Login</Link>
                       </Button>
                     )}
+
                     {isMounted && isAuthenticated && (
                       <>
                         <div className="border-t pt-4 mt-4">
                           <p className="font-medium">{user?.name}</p>
                           <p className="text-gray-500 text-sm">{user?.email}</p>
                         </div>
-                        <Link href="/account" className="text-lg font-medium hover:text-blue-600">
+                        <Link
+                          href="/account"
+                          className="text-lg font-medium hover:text-blue-600"
+                        >
                           My Account
                         </Link>
-                        <Link href="/orders" className="text-lg font-medium hover:text-blue-600">
+                        <Link
+                          href="/orders"
+                          className="text-lg font-medium hover:text-blue-600"
+                        >
                           My Orders
                         </Link>
-                        <Button variant="destructive" onClick={logout} className="mt-4">
+                        <Button
+                          variant="destructive"
+                          onClick={logout}
+                          className="mt-4"
+                        >
                           Logout
                         </Button>
                       </>
@@ -338,7 +405,11 @@ export function Header() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
               />
-              <Button type="submit" size="sm" className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3">
+              <Button
+                type="submit"
+                size="sm"
+                className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3"
+              >
                 <Search className="h-4 w-4 text-white" />
               </Button>
             </form>
@@ -352,7 +423,9 @@ export function Header() {
               <Link
                 href="/"
                 className={`font-medium transition-colors ${
-                  pathname === "/" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Home
@@ -360,7 +433,9 @@ export function Header() {
               <Link
                 href="/products"
                 className={`font-medium transition-colors ${
-                  pathname === "/products" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/products"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Resources Type
@@ -368,7 +443,9 @@ export function Header() {
               <Link
                 href="/blog"
                 className={`font-medium transition-colors ${
-                  pathname === "/blog" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/blog"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Blog
@@ -376,7 +453,9 @@ export function Header() {
               <Link
                 href="/employment"
                 className={`font-medium transition-colors ${
-                  pathname === "/employment" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/employment"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Employment
@@ -384,7 +463,9 @@ export function Header() {
               <Link
                 href="/corporate"
                 className={`font-medium transition-colors ${
-                  pathname === "/corporate" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/corporate"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Corporate and M&A
@@ -392,7 +473,9 @@ export function Header() {
               <Link
                 href="/legal-operations"
                 className={`font-medium transition-colors ${
-                  pathname === "/legal-operations" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/legal-operations"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Legal Operations
@@ -400,7 +483,9 @@ export function Header() {
               <Link
                 href="/commercial"
                 className={`font-medium transition-colors ${
-                  pathname === "/commercial" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/commercial"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Commercial Transactions
@@ -416,5 +501,5 @@ export function Header() {
       {/* Cart Sheet */}
       <CartSheet />
     </>
-  )
+  );
 }
