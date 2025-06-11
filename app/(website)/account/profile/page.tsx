@@ -1,263 +1,355 @@
+// @typescript-eslint/no-explicit-any
 "use client";
 
 import type React from "react";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { AccountLayout } from "@/components/account/account-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import { SquareArrowOutUpRight } from "lucide-react";
 import LegalDoc from "@/components/HomePage/LegalDoc";
+import { useSession } from "next-auth/react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+interface Address {
+  country: string;
+  cityState: string;
+  roadArea: string;
+  postalCode: number;
+  taxId: string;
+}
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  address: Address;
+  profileImage: string;
+}
+
+interface data {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  cityState: string;
+  roadArea: string;
+  postalCode: number;
+  taxId: string;
+  profileImage: string;
+}
+
+// Loading Component
+const ProfileLoadingSkeleton = () => (
+  <div className="rounded-lg mb-10">
+    <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px]">
+      <div className="relative">
+        <div className="w-32 h-32 rounded-full bg-gray-200 animate-pulse"></div>
+      </div>
+      <div className="flex-1 text-center md:text-left">
+        <div className="h-8 bg-gray-200 rounded animate-pulse mb-2 w-48"></div>
+        <div className="h-4 bg-gray-200 rounded animate-pulse mb-2 w-32"></div>
+        <div className="h-4 bg-gray-200 rounded animate-pulse mb-4 w-64"></div>
+        <div className="h-10 bg-gray-200 rounded animate-pulse w-40"></div>
+      </div>
+    </div>
+
+    <div className="bg-[#6459490D] p-6 rounded-[12px]">
+      <div className="flex justify-between items-center mb-6">
+        <div className="h-6 bg-gray-200 rounded animate-pulse w-48"></div>
+        <div className="h-10 bg-gray-200 rounded animate-pulse w-24"></div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[...Array(9)].map((_, index) => (
+          <div key={index} className={index === 6 ? "md:col-span-2" : ""}>
+            <div className="h-4 bg-gray-200 rounded animate-pulse mb-1 w-24"></div>
+            <div className="h-[49px] bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+// Error Component
+const ProfileError = ({ onRetry }: { onRetry: () => void }) => (
+  <div className="flex flex-col items-center justify-center py-12">
+    <div className="text-red-500 text-6xl mb-4">⚠️</div>
+    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+      Failed to load profile data
+    </h3>
+    <p className="text-gray-600 mb-4">
+      Something went wrong while fetching your profile information.
+    </p>
+    <Button onClick={onRetry} className="bg-[#2c5d7c] hover:bg-[#1e4258]">
+      Try Again
+    </Button>
+  </div>
+);
 
 export default function ProfilePage() {
-  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "Bessie",
-    lastName: "Edwards",
-    email: "alma.lawson@example.com",
-    phone: "(307) 555-0133",
-    country: "USA",
-    cityState: "California",
-    roadArea: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    postalCode: "15268959",
-    taxId: "SDPHNBYS286-0133",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    country: "",
+    cityState: "",
+    roadArea: "",
+    postalCode: 0,
+    taxId: "",
+    profileImage: "",
   });
+
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const token = session?.user?.accessToken;
+
+  const queryClient = useQueryClient();
+
+  const fetchUserById = async (userId: string) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch user data");
+
+    const response = await res.json();
+    return response.data as UserData;
+  };
+
+  const updateUserById = async ({
+    userId,
+    token,
+    data,
+  }: {
+    userId: string;
+    token: string;
+    data: typeof formData;
+  }) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phone,
+          address: {
+            country: data.country,
+            cityState: data.cityState,
+            roadArea: data.roadArea,
+            postalCode: data.postalCode,
+            taxId: data.taxId,
+          },
+          profileImage: data.profileImage,
+        }),
+      }
+    );
+
+    const response = await res.json();
+
+    if (!res.ok) {
+      throw new Error(response.message || "Failed to update user");
+    }
+
+    return response; // Return full response for message access
+  };
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => fetchUserById(userId!),
+    enabled: !!userId && !!token,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data: data) =>
+      updateUserById({ userId: userId!, token: token!, data }),
+    onSuccess: (response) => {
+      toast.success(response.message || "Profile updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+      setIsEditing(false);
+    },
+    onError: () => {
+      toast.error("Failed to update profile");
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        email: data.email || "",
+        phone: data.phoneNumber || "",
+        country: data.address?.country || "",
+        cityState: data.address?.cityState || "",
+        roadArea: data.address?.roadArea || "",
+        postalCode: Number(data.address?.postalCode) || 0,
+        taxId: data.address?.taxId || "",
+        profileImage: data?.profileImage || "",
+      });
+    }
+  }, [data]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "postalCode" ? Number(value) : value,
+    }));
   };
 
   const handleUpdate = () => {
-    // In a real app, this would send the data to an API
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been updated successfully.",
-    });
-    setIsEditing(false);
+    updateMutation.mutate(formData);
   };
 
   return (
     <div>
       <AccountLayout activeTab="profile">
-        <div className=" rounded-lg mb-10">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px]">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full overflow-hidden border">
-                <Image
-                  src="/diverse-person-smiling.png"
-                  alt="Profile"
-                  width={128}
-                  height={128}
-                  className="object-cover"
-                />
+        {isLoading ? (
+          <ProfileLoadingSkeleton />
+        ) : isError ? (
+          <ProfileError onRetry={() => refetch()} />
+        ) : (
+          <div className="rounded-lg mb-10">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px]">
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full overflow-hidden border">
+                  <Image
+                    src={data?.profileImage || "/images/not-imge.png"}
+                    alt="Profile"
+                    width={128}
+                    height={128}
+                    className="object-cover"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-2xl font-bold">Bessie Edwards</h3>
-              <p className="text-gray-500 mb-2">@bessieedwards</p>
-              <p className="text-gray-700">
-                3891 Ranchview Dr. Richardson, California 62639
-              </p>
-              <Button
-                className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                onClick={() => (window.location.href = "/dashboard")}
-              >
-                <span>
-                  <SquareArrowOutUpRight />
-                </span>
-                Go To Dashboard
-              </Button>
-            </div>
-          </div>
-
-          <div className="bg-[#6459490D] p-6 rounded-[12px]">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold">Personal Information</h3>
-              {!isEditing ? (
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-2xl font-bold">
+                  {formData.firstName} {formData.lastName}
+                </h3>
+                <p className="text-gray-500 mb-2">
+                  @{formData.firstName.toLowerCase()}
+                  {formData.lastName.toLowerCase()}
+                </p>
+                <p className="text-gray-700">
+                  {formData.roadArea}, {formData.cityState}, {formData.country},{" "}
+                  {formData.postalCode}
+                </p>
                 <Button
-                  className="bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={() => setIsEditing(true)}
+                  className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
+                  onClick={() => (window.location.href = "/dashboard")}
                 >
-                  <span>
-                    <SquareArrowOutUpRight />
-                  </span>
-                  Update
+                  <SquareArrowOutUpRight className="mr-2" />
+                  Go To Dashboard
                 </Button>
-              ) : (
-                <Button
-                  className="bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={handleUpdate}
-                >
-                  <span>
-                    <SquareArrowOutUpRight />
-                  </span>
-                  Save
-                </Button>
-              )}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  First Name
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.firstName}
-                  </div>
-                )}
+            <div className="bg-[#6459490D] p-6 rounded-[12px]">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold">Personal Information</h3>
+                <Button
+                  className="bg-[#2c5d7c] hover:bg-[#1e4258]"
+                  onClick={isEditing ? handleUpdate : () => setIsEditing(true)}
+                  disabled={updateMutation.isPending}
+                >
+                  <SquareArrowOutUpRight className="mr-2" />
+                  {isEditing
+                    ? updateMutation.isPending
+                      ? "Saving..."
+                      : "Save"
+                    : "Update"}
+                </Button>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.lastName}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[
+                  { label: "First Name", name: "firstName" },
+                  { label: "Last Name", name: "lastName" },
+                  {
+                    label: "Email Address",
+                    name: "email",
+                    type: "email",
+                    readOnly: true,
+                  },
+                  { label: "Phone", name: "phone" },
+                  { label: "Country", name: "country" },
+                  { label: "City/State", name: "cityState" },
+                  { label: "Road/Area", name: "roadArea", span: true },
+                  { label: "Postal Code", name: "postalCode" },
+                  { label: "TAX ID", name: "taxId" },
+                ].map(({ label, name, type = "text", span, readOnly }) => (
+                  <div key={name} className={span ? "md:col-span-2" : ""}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {label}
+                    </label>
+                    {/* {isEditing && !readOnly ? (
+                      <Input
+                        name={name}
+                        value={
+                          name === "postalCode"
+                            ? formData.postalCode.toString()
+                            : (formData as any)[name]
+                        }
+                        onChange={handleChange}
+                        className="w-full h-[49px] border border-[#645949]"
+                        type={name === "postalCode" ? "number" : type}
+                        disabled={updateMutation.isPending}
+                      />
+                    ) : (
+                      <div className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
+                        readOnly ? 'bg-gray-100 text-gray-500' : 'bg-gray-50'
+                      }`}>
+                        {formData[name as keyof typeof formData]}
+                      </div>
+                    )} */}
+
+                    {isEditing && !readOnly ? (
+                      <Input
+                        name={name}
+                        value={
+                          name === "postalCode"
+                            ? formData.postalCode.toString()
+                            : formData[name as keyof typeof formData]
+                        }
+                        onChange={handleChange}
+                        className="w-full h-[49px] border border-[#645949]"
+                        type={name === "postalCode" ? "number" : type}
+                        disabled={updateMutation.isPending}
+                      />
+                    ) : (
+                      <div
+                        className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
+                          readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
+                        }`}
+                      >
+                        {formData[name as keyof typeof formData]}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full"
-                    type="email"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.email}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.phone}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Country
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="country"
-                    value={formData.country}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.country}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  City/State
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="cityState"
-                    value={formData.cityState}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.cityState}
-                  </div>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Road/Area
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="roadArea"
-                    value={formData.roadArea}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.roadArea}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Postal Code
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.postalCode}
-                  </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  TAX ID
-                </label>
-                {isEditing ? (
-                  <Input
-                    name="taxId"
-                    value={formData.taxId}
-                    onChange={handleChange}
-                    className="w-full"
-                  />
-                ) : (
-                  <div className="p-2.5 border rounded-md bg-gray-50">
-                    {formData.taxId}
-                  </div>
-                )}
+                ))}
               </div>
             </div>
           </div>
-        </div>
+        )}
       </AccountLayout>
       <LegalDoc />
     </div>

@@ -3,13 +3,26 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 // import Link from "next/link"
-import type { BlogPost } from "@/lib/blog-data";
+// import type { BlogPost } from "@/lib/blog-data";
 import { BlogContentSkeleton } from "@/components/blog/blog-content-skeleton";
 import { ArrowRight } from "lucide-react";
 import LegalDoc from "../HomePage/LegalDoc";
 
+// interface BlogContentProps {
+//   post: BlogPost;
+// }
+export interface Blog {
+  _id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  __v: number;
+}
+
 interface BlogContentProps {
-  post: BlogPost;
+  post: Blog;
 }
 
 export function BlogContent({ post }: BlogContentProps) {
@@ -34,7 +47,7 @@ export function BlogContent({ post }: BlogContentProps) {
         <div className="mb-8">
           <div className="relative h-[500px] w-full overflow-hidden rounded-lg mb-6">
             <Image
-              src="/images/cartimg.png"
+              src={post?.thumbnail}
               alt={post.title}
               fill
               className="object-cover"
@@ -46,7 +59,7 @@ export function BlogContent({ post }: BlogContentProps) {
             {/* Left side - post date */}
             <div className="flex items-center gap-1">
               <div className="w-[50px] h-[2.5px] bg-[#008000]"></div>
-              <span>{post.date}</span>
+              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
             </div>
 
             {/* Right side - posted by */}
@@ -63,22 +76,11 @@ export function BlogContent({ post }: BlogContentProps) {
 
         <div
           className="prose max-w-none"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: post?.description }}
         />
 
         <div className="mt-8 pt-6">
-          {/* <div className="flex flex-wrap gap-2">
-          {post.tags.map((tag) => (
-            <Link
-              key={tag}
-              href={`/blog/tag/${tag}`}
-              className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full hover:bg-gray-200"
-            >
-              #{tag}
-            </Link>
-          ))}
-        </div> */}
-
+         
           <div className="flex justify-center items-center gap-4 mb-6">
             <button className="border-b-2 border-[#23547B] pb-1">
               <div className="flex items-center">
