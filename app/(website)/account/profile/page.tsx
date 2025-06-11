@@ -30,18 +30,17 @@ interface UserData {
   profileImage: string;
 }
 
-
 interface data {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    country: string;
-    cityState: string;
-    roadArea: string;
-    postalCode: number;
-    taxId: string;
-    profileImage: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  cityState: string;
+  roadArea: string;
+  postalCode: number;
+  taxId: string;
+  profileImage: string;
 }
 
 // Loading Component
@@ -81,8 +80,12 @@ const ProfileLoadingSkeleton = () => (
 const ProfileError = ({ onRetry }: { onRetry: () => void }) => (
   <div className="flex flex-col items-center justify-center py-12">
     <div className="text-red-500 text-6xl mb-4">⚠️</div>
-    <h3 className="text-xl font-semibold text-gray-800 mb-2">Failed to load profile data</h3>
-    <p className="text-gray-600 mb-4">Something went wrong while fetching your profile information.</p>
+    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+      Failed to load profile data
+    </h3>
+    <p className="text-gray-600 mb-4">
+      Something went wrong while fetching your profile information.
+    </p>
     <Button onClick={onRetry} className="bg-[#2c5d7c] hover:bg-[#1e4258]">
       Try Again
     </Button>
@@ -111,11 +114,14 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
 
   const fetchUserById = async (userId: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (!res.ok) throw new Error("Failed to fetch user data");
 
@@ -132,27 +138,30 @@ export default function ProfilePage() {
     token: string;
     data: typeof formData;
   }) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phoneNumber: data.phone,
-        address: {
-          country: data.country,
-          cityState: data.cityState,
-          roadArea: data.roadArea,
-          postalCode: data.postalCode,
-          taxId: data.taxId,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        profileImage: data.profileImage,
-      }),
-    });
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phone,
+          address: {
+            country: data.country,
+            cityState: data.cityState,
+            roadArea: data.roadArea,
+            postalCode: data.postalCode,
+            taxId: data.taxId,
+          },
+          profileImage: data.profileImage,
+        }),
+      }
+    );
 
     const response = await res.json();
 
@@ -177,9 +186,7 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
       setIsEditing(false);
     },
-    onError: (
-
-    ) => {
+    onError: () => {
       toast.error("Failed to update profile");
     },
   });
@@ -265,7 +272,11 @@ export default function ProfilePage() {
                   disabled={updateMutation.isPending}
                 >
                   <SquareArrowOutUpRight className="mr-2" />
-                  {isEditing ? (updateMutation.isPending ? "Saving..." : "Save") : "Update"}
+                  {isEditing
+                    ? updateMutation.isPending
+                      ? "Saving..."
+                      : "Save"
+                    : "Update"}
                 </Button>
               </div>
 
@@ -273,7 +284,12 @@ export default function ProfilePage() {
                 {[
                   { label: "First Name", name: "firstName" },
                   { label: "Last Name", name: "lastName" },
-                  { label: "Email Address", name: "email", type: "email", readOnly: true },
+                  {
+                    label: "Email Address",
+                    name: "email",
+                    type: "email",
+                    readOnly: true,
+                  },
                   { label: "Phone", name: "phone" },
                   { label: "Country", name: "country" },
                   { label: "City/State", name: "cityState" },
@@ -285,7 +301,7 @@ export default function ProfilePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
-                    {isEditing && !readOnly ? (
+                    {/* {isEditing && !readOnly ? (
                       <Input
                         name={name}
                         value={
@@ -302,6 +318,29 @@ export default function ProfilePage() {
                       <div className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
                         readOnly ? 'bg-gray-100 text-gray-500' : 'bg-gray-50'
                       }`}>
+                        {formData[name as keyof typeof formData]}
+                      </div>
+                    )} */}
+
+                    {isEditing && !readOnly ? (
+                      <Input
+                        name={name}
+                        value={
+                          name === "postalCode"
+                            ? formData.postalCode.toString()
+                            : formData[name as keyof typeof formData]
+                        }
+                        onChange={handleChange}
+                        className="w-full h-[49px] border border-[#645949]"
+                        type={name === "postalCode" ? "number" : type}
+                        disabled={updateMutation.isPending}
+                      />
+                    ) : (
+                      <div
+                        className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
+                          readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
+                        }`}
+                      >
                         {formData[name as keyof typeof formData]}
                       </div>
                     )}
