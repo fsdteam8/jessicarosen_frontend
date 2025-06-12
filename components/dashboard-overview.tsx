@@ -1,13 +1,16 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { TrendingUp, Package } from "lucide-react";
-import { RevenueChart } from "./revenue-chart";
+import { Package, TrendingUp } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { ProductChart } from "./product-chart";
 import { ProductSellChart } from "./product-sell-chart";
+import { RevenueChart } from "./revenue-chart";
 // import { RevenueReport } from "./Revenue_report";
 
 export function DashboardOverview() {
+  const session = useSession();
+  console.log("Session Data:", session?.data?.user?.accessToken);
   return (
     <div className="space-y-[32px]">
       {/* Header */}
