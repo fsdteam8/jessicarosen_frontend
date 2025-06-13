@@ -4,7 +4,7 @@ import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import {
   type LucideIcon,
   MessageSquare,
 } from "lucide-react";
+import { toast } from "sonner";
 
 // Form validation schema
 const contactSchema = z.object({
@@ -24,12 +25,40 @@ const contactSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   address: z.string().optional(),
   phoneNumber: z.string().optional(),
+  subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
 
-// ContactInfo component
+// ✅ Define API response type
+type ContactResponse = {
+  message: string;
+  success: boolean;
+};
+
+// ✅ API function to post contact data
+const postContactData = async (
+  data: ContactFormData
+): Promise<ContactResponse> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/contact/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
 interface ContactInfoProps {
   Icon: LucideIcon;
   label: string;
@@ -51,8 +80,6 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ Icon, label, value }) => {
 };
 
 const ContactPage = () => {
-  const [isPending, setIsPending] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -62,64 +89,53 @@ const ContactPage = () => {
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = async (data: ContactFormData) => {
-    setIsPending(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Form submitted:", data);
-
-      // Reset form after successful submission
+  const contactMutation = useMutation({
+    mutationFn: postContactData,
+    onSuccess: (data) => {
+      console.log("Message sent successfully:", data);
       reset();
-      alert("Message sent successfully!");
-    } catch (error) {
+      toast.success("Message sent successfully!");
+    },
+    onError: (error: Error) => {
       console.error("Error submitting form:", error);
-      alert("Failed to send message. Please try again.");
-    } finally {
-      setIsPending(false);
-    }
+      toast.error(`Failed to send message: ${error.message}`);
+    },
+  });
+
+  const onSubmit = (data: ContactFormData) => {
+    contactMutation.mutate(data);
   };
+
+  const { isPending } = contactMutation;
 
   return (
     <div className="bg-gray-50">
       <div className="relative w-full h-[500px] overflow-hidden">
-        {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: "url('/images/contactHero.jpg')",
           }}
         />
-
-        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-black/50" />
-
-        {/* Content */}
         <div className="relative z-10 h-full flex items-center">
           <div className="container mx-auto px-4 w-full">
             <div className="max-w-2xl">
-              {/* Welcome Text */}
               <div className="mb-4">
                 <span className="text-white/90 text-sm font-medium">
                   Welcome & Shop With Us 🛒
                 </span>
               </div>
-
-              {/* Main Heading */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-white mb-6 leading-tight">
                 Get In Touch With Us
                 <br />
                 To Know More Information
               </h1>
-
-              {/* Description */}
               <p className="text-white/90 text-lg mb-8 leading-relaxed max-w-xl">
                 From everyday essentials to the latest trends, we bring you a
                 seamless shopping experience with unbeatable deals, delivery,
                 discover convenience, quality, and style all in one place.
               </p>
-
-              {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   size="lg"
@@ -138,7 +154,6 @@ const ContactPage = () => {
                   Email Now
                 </Button>
               </div>
-
             </div>
           </div>
         </div>
@@ -154,25 +169,16 @@ const ContactPage = () => {
           as soon as possible
         </p>
       </div>
+
       <div className="max-w-7xl mx-auto px-4">
         <div className="p-8">
-          {/* <div className="mb-8">
-            <h1 className="text-3xl font-bold text-[#2A2A2A] mb-2">Contact Us</h1>
-            <p className="text-gray-600">
-              We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
-            </p>
-          </div> */}
-
           <div className="flex flex-col lg:flex-row justify-between gap-16 mb-10">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="grid w-full grid-cols-1 md:grid-cols-2 gap-6 flex-1"
             >
               <div>
-                <Label
-                  htmlFor="firstName"
-                  className="text-[#2A2A2A] mb-2 block"
-                >
+                <Label htmlFor="firstName" className="text-[#2A2A2A] mb-2 block">
                   First Name *
                 </Label>
                 <Input
@@ -180,6 +186,7 @@ const ContactPage = () => {
                   {...register("firstName")}
                   placeholder="Enter Your First Name"
                   className="w-full"
+                  disabled={isPending}
                 />
                 {errors.firstName && (
                   <p className="text-red-500 text-sm mt-1">
@@ -197,6 +204,7 @@ const ContactPage = () => {
                   {...register("lastName")}
                   placeholder="Enter Your Last Name"
                   className="w-full"
+                  disabled={isPending}
                 />
                 {errors.lastName && (
                   <p className="text-red-500 text-sm mt-1">
@@ -214,14 +222,12 @@ const ContactPage = () => {
                   {...register("address")}
                   placeholder="Optional"
                   className="w-full"
+                  disabled={isPending}
                 />
               </div>
 
               <div className="md:col-span-2">
-                <Label
-                  htmlFor="phoneNumber"
-                  className="text-[#2A2A2A] mb-2 block"
-                >
+                <Label htmlFor="phoneNumber" className="text-[#2A2A2A] mb-2 block">
                   Phone Number
                 </Label>
                 <Input
@@ -229,10 +235,24 @@ const ContactPage = () => {
                   {...register("phoneNumber")}
                   placeholder="000-000-0000 (Optional)"
                   className="w-full"
+                  disabled={isPending}
                 />
-                {errors.phoneNumber && (
+              </div>
+
+              <div className="md:col-span-2">
+                <Label htmlFor="subject" className="text-[#2A2A2A] mb-2 block">
+                  Subject *
+                </Label>
+                <Input
+                  id="subject"
+                  {...register("subject")}
+                  placeholder="Enter the subject"
+                  className="w-full"
+                  disabled={isPending}
+                />
+                {errors.subject && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.phoneNumber.message}
+                    {errors.subject.message}
                   </p>
                 )}
               </div>
@@ -246,6 +266,7 @@ const ContactPage = () => {
                   {...register("message")}
                   placeholder="Tell us how we can help you"
                   className="w-full min-h-[120px]"
+                  disabled={isPending}
                 />
                 {errors.message && (
                   <p className="text-red-500 text-sm mt-1">
@@ -257,7 +278,7 @@ const ContactPage = () => {
               <Button
                 type="submit"
                 disabled={isPending}
-                className="bg-[#23547B] py-3 text-white hover:bg-[#016102]/90 mt-4 md:col-span-2 w-full"
+                className="bg-[#23547B] py-3 text-white hover:bg-[#016102]/90 mt-4 md:col-span-2 w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isPending ? "Sending..." : "Send Message"}
               </Button>
@@ -268,34 +289,10 @@ const ContactPage = () => {
                 Here&apos;s How to Reach Us
               </h3>
               <div className="space-y-10">
-                <div className="">
-                  <ContactInfo
-                    Icon={Mail}
-                    label="Email Address"
-                    value="example@gmail.com"
-                  />
-                </div>
-                <div>
-                  <ContactInfo
-                    Icon={Phone}
-                    label="Phone Number"
-                    value="(406) 555-0120"
-                  />
-                </div>
-                <div>
-                  <ContactInfo
-                    Icon={MapPin}
-                    label="Location"
-                    value="440 Collins Street, Melbourne VIC 3000"
-                  />
-                </div>
-                <div>
-                  <ContactInfo
-                    Icon={Clock}
-                    label="Business Hours"
-                    value="Monday – Saturday, 8:00 AM – 6:00 PM"
-                  />
-                </div>
+                <ContactInfo Icon={Mail} label="Email Address" value="example@gmail.com" />
+                <ContactInfo Icon={Phone} label="Phone Number" value="(406) 555-0120" />
+                <ContactInfo Icon={MapPin} label="Location" value="440 Collins Street, Melbourne VIC 3000" />
+                <ContactInfo Icon={Clock} label="Business Hours" value="Monday – Saturday, 8:00 AM – 6:00 PM" />
               </div>
             </div>
           </div>
