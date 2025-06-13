@@ -26,25 +26,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  AlignCenter,
-  AlignJustify,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Check,
-  ChevronDown,
-  FileText,
-  ImageIcon,
-  Italic,
-  List,
-  Underline,
-} from "lucide-react";
+import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import "react-quill/dist/quill.snow.css";
+
+// Import React Quill dynamically to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 interface Country {
   _id: string;
@@ -105,6 +96,28 @@ export default function ResourceForm() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const API_TOKEN =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI";
+
+  // Quill editor modules and formats
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      ["bold", "italic", "underline", "strike"],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ align: [] }],
+      ["clean"],
+    ],
+  };
+
+  const formats = [
+    "header",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "list",
+    "bullet",
+    "align",
+  ];
 
   // Fetch countries and states using TanStack Query
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery({
@@ -179,9 +192,17 @@ export default function ResourceForm() {
       submitData.append("format", formData.format);
       submitData.append("quantity", formData.quantity);
       submitData.append("country", formData.country);
-      submitData.append("states", formData.states.join(","));
-      submitData.append("practiceAreas", formData.practiceArea);
-      submitData.append("resourceType", formData.resourceType);
+
+      // Fix: Send states as an array
+      formData.states.forEach((state) => {
+        submitData.append("states[]", state);
+      });
+
+      // Fix: Send practiceAreas as an array
+      submitData.append("practiceAreas[]", formData.practiceArea);
+
+      // Fix: Send resourceType as an array
+      submitData.append("resourceType[]", formData.resourceType);
 
       if (formData.thumbnail) {
         submitData.append("thumbnail", formData.thumbnail);
@@ -292,9 +313,9 @@ export default function ResourceForm() {
       format: formData.format,
       quantity: formData.quantity,
       country: formData.country,
-      states: formData.states.join(","),
-      practiceArea: formData.practiceArea,
-      resourceType: formData.resourceType,
+      states: formData.states,
+      practiceAreas: [formData.practiceArea],
+      resourceType: [formData.resourceType],
       thumbnail: formData.thumbnail,
       document: formData.document,
     });
@@ -484,67 +505,22 @@ export default function ResourceForm() {
                 </div>
               </div>
 
-              {/* Description */}
+              {/* Description with React Quill */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Description...."
-                  className="min-h-[120px]"
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                />
-              </div>
-
-              {/* Rich Text Controls (Optional) */}
-              <div className="flex items-center gap-2 p-2 border rounded-md">
-                {/* Font select */}
-                <div className="flex items-center gap-1">
-                  <Label className="text-sm">Font</Label>
-                  <Select defaultValue="body">
-                    <SelectTrigger className="w-24">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="body">Body</SelectItem>
-                      <SelectItem value="heading">Heading</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Text style */}
-                <div className="flex items-center gap-1">
-                  <Button variant="outline" size="sm">
-                    <Bold className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Italic className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Underline className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Alignment */}
-                <div className="flex items-center gap-1">
-                  <Label className="text-sm">Align</Label>
-                  <Button variant="outline" size="sm">
-                    <AlignLeft className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <AlignCenter className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <AlignRight className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <AlignJustify className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <List className="h-4 w-4" />
-                  </Button>
+                <div className="border rounded-md">
+                  {typeof window !== "undefined" && (
+                    <ReactQuill
+                      theme="snow"
+                      value={formData.description}
+                      onChange={(content) =>
+                        handleInputChange("description", content)
+                      }
+                      modules={modules}
+                      formats={formats}
+                      className="min-h-[150px]"
+                    />
+                  )}
                 </div>
               </div>
             </CardContent>
