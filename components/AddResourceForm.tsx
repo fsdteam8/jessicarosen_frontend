@@ -1,84 +1,67 @@
-"use client";
+"use client"
 
-import type React from "react";
+import type React from "react"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import "react-quill/dist/quill.snow.css";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react"
+import dynamic from "next/dynamic"
+import { useState } from "react"
+import "react-quill/dist/quill.snow.css"
 
 // Import React Quill dynamically to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
 
 interface Country {
-  _id: string;
-  countryName: string;
-  states: string[];
+  _id: string
+  countryName: string
+  states: string[]
 }
 
 interface PracticeArea {
-  _id: string;
-  name: string;
-  description: string;
+  _id: string
+  name: string
+  description: string
 }
 
 interface ResourceType {
-  _id: string;
-  resourceTypeName: string;
-  description: string;
+  _id: string
+  resourceTypeName: string
+  description: string
 }
 
-interface FormData {
-  title: string;
-  price: string;
-  discountPrice: string;
-  quantity: string;
-  format: string;
-  country: string;
-  states: string[];
-  description: string;
-  practiceArea: string;
-  resourceType: string;
-  thumbnail: File | null;
-  document: File | null;
+interface FormDataState {
+  title: string
+  price: string
+  discountPrice: string
+  quantity: string
+  format: string
+  country: string
+  states: string[]
+  description: string
+  practiceArea: string // Stores ID
+  resourceType: string // Stores ID
+  thumbnail: File | null
+  file: File | null // Changed from 'document' to 'file'
 }
 
 export default function ResourceForm() {
-  const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [stateOpen, setStateOpen] = useState(false);
-  const [stateSearch, setStateSearch] = useState("");
+  const { toast } = useToast()
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
+  const [selectedStates, setSelectedStates] = useState<string[]>([])
+  const [countryOpen, setCountryOpen] = useState(false)
+  const [stateOpen, setStateOpen] = useState(false)
+  const [stateSearch, setStateSearch] = useState("")
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<FormDataState>({
     title: "",
     price: "",
     discountPrice: "",
@@ -90,14 +73,13 @@ export default function ResourceForm() {
     practiceArea: "",
     resourceType: "",
     thumbnail: null,
-    document: null,
-  });
+    file: null, // Changed from 'document' to 'file'
+  })
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
   const API_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
 
-  // Quill editor modules and formats
   const modules = {
     toolbar: [
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -106,206 +88,159 @@ export default function ResourceForm() {
       [{ align: [] }],
       ["clean"],
     ],
-  };
+  }
 
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "align",
-  ];
+  const formats = ["header", "bold", "italic", "underline", "strike", "list", "bullet", "align"]
 
-  // Fetch countries and states using TanStack Query
-  const { data: countriesData, isLoading: isLoadingCountries } = useQuery({
+  const { data: countriesData, isLoading: isLoadingCountries } = useQuery<Country[]>({
     queryKey: ["countries"],
     queryFn: async () => {
       const response = await fetch(`${API_BASE_URL}/country-state/all`, {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch countries");
-      }
-
-      const data = await response.json();
-      return data.success ? data.data : [];
+        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      })
+      if (!response.ok) throw new Error("Failed to fetch countries")
+      const data = await response.json()
+      return data.success ? data.data : []
     },
-  });
+  })
 
-  // Fetch practice areas using TanStack Query
-  const { data: practiceAreasData, isLoading: isLoadingPracticeAreas } =
-    useQuery({
-      queryKey: ["practiceAreas"],
-      queryFn: async () => {
-        const response = await fetch(`${API_BASE_URL}/practice-area/all`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        });
+  const { data: practiceAreasData, isLoading: isLoadingPracticeAreas } = useQuery<PracticeArea[]>({
+    queryKey: ["practiceAreas"],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/practice-area/all`, {
+        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      })
+      if (!response.ok) throw new Error("Failed to fetch practice areas")
+      const data = await response.json()
+      return data.success ? data.data : []
+    },
+  })
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch practice areas");
-        }
+  const { data: resourceTypesData, isLoading: isLoadingResourceTypes } = useQuery<ResourceType[]>({
+    queryKey: ["resourceTypes"],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE_URL}/resource-type/all`, {
+        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      })
+      if (!response.ok) throw new Error("Failed to fetch resource types")
+      const data = await response.json()
+      return data.success ? data.data : []
+    },
+  })
 
-        const data = await response.json();
-        return data.success ? data.data : [];
-      },
-    });
-
-  // Fetch resource types using TanStack Query
-  const { data: resourceTypesData, isLoading: isLoadingResourceTypes } =
-    useQuery({
-      queryKey: ["resourceTypes"],
-      queryFn: async () => {
-        const response = await fetch(`${API_BASE_URL}/resource-type/all`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch resource types");
-        }
-
-        const data = await response.json();
-        return data.success ? data.data : [];
-      },
-    });
-
-  // Create mutation for form submission
   const { mutate: submitResource, isPending: isSubmitting } = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const submitData = new FormData();
-      submitData.append("title", formData.title);
-      submitData.append("description", formData.description);
-      submitData.append("price", formData.price);
-      submitData.append("discountPrice", formData.discountPrice);
-      submitData.append("format", formData.format);
-      submitData.append("quantity", formData.quantity);
-      submitData.append("country", formData.country);
+    mutationFn: async (currentFormData: FormDataState) => {
+      const submitData = new FormData()
+      submitData.append("title", currentFormData.title)
+      submitData.append("description", currentFormData.description)
+      submitData.append("price", currentFormData.price)
+      submitData.append("discountPrice", currentFormData.discountPrice)
+      submitData.append("format", currentFormData.format)
+      submitData.append("quantity", currentFormData.quantity)
+      submitData.append("country", currentFormData.country)
 
-      // Fix: Send states as an array
-      formData.states.forEach((state) => {
-        submitData.append("states[]", state);
-      });
+      currentFormData.states.forEach((state) => {
+        submitData.append("states[]", state)
+      })
 
-      // Fix: Send practiceAreas as an array
-      submitData.append("practiceAreas[]", formData.practiceArea);
-
-      // Fix: Send resourceType as an array
-      submitData.append("resourceType[]", formData.resourceType);
-
-      if (formData.thumbnail) {
-        submitData.append("thumbnail", formData.thumbnail);
+      const practiceAreaObj = practiceAreasData?.find((p) => p._id === currentFormData.practiceArea)
+      if (practiceAreaObj) {
+        submitData.append("practiceAreas[]", practiceAreaObj.name)
+      } else if (currentFormData.practiceArea) {
+        submitData.append("practiceAreas[]", currentFormData.practiceArea)
       }
 
-      if (formData.document) {
-        submitData.append("document", formData.document);
+      const resourceTypeObj = resourceTypesData?.find((rt) => rt._id === currentFormData.resourceType)
+      if (resourceTypeObj) {
+        submitData.append("resourceType[]", resourceTypeObj.resourceTypeName)
+      } else if (currentFormData.resourceType) {
+        submitData.append("resourceType[]", currentFormData.resourceType)
+      }
+
+      if (currentFormData.thumbnail) {
+        submitData.append("thumbnail", currentFormData.thumbnail)
+      }
+      if (currentFormData.file) {
+        // Changed from currentFormData.document
+        submitData.append("file", currentFormData.file)
       }
 
       const response = await fetch(`${API_BASE_URL}/resource`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-        },
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
         body: submitData,
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to publish resource");
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(`Failed to publish resource: ${errorData.message || response.statusText}`)
       }
-
-      return await response.json();
+      return response.json()
     },
     onSuccess: (data) => {
-      console.log("Resource published successfully:", data);
+      console.log("Resource published successfully:", data)
       toast({
         title: "Success!",
         description: "Resource has been published successfully.",
         variant: "default",
-      });
+      })
     },
-    onError: (error) => {
-      console.error("Error publishing resource:", error);
+    onError: (error: Error) => {
+      console.error("Error publishing resource:", error)
       toast({
         title: "Error",
-        description: "Failed to publish resource. Please try again.",
+        description: error.message || "Failed to publish resource. Please try again.",
         variant: "destructive",
-      });
+      })
     },
-  });
+  })
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleInputChange = (field: keyof FormDataState, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
 
   const handleCountrySelect = (country: Country) => {
-    setSelectedCountry(country);
-    setSelectedStates([]);
-    setFormData((prev) => ({
-      ...prev,
-      country: country.countryName,
-      states: [],
-    }));
-    setCountryOpen(false);
-  };
+    setSelectedCountry(country)
+    setSelectedStates([])
+    setFormData((prev) => ({ ...prev, country: country.countryName, states: [] }))
+    setCountryOpen(false)
+  }
 
   const handleStateToggle = (state: string) => {
     const newStates = selectedStates.includes(state)
       ? selectedStates.filter((s) => s !== state)
-      : [...selectedStates, state];
+      : [...selectedStates, state]
+    setSelectedStates(newStates)
+    setFormData((prev) => ({ ...prev, states: newStates }))
+  }
 
-    setSelectedStates(newStates);
-    setFormData((prev) => ({
-      ...prev,
-      states: newStates,
-    }));
-  };
-
-  const handleThumbnailUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0] || null;
-
-    // Only accept image files for thumbnail
+  const handleThumbnailUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null
     if (file && !file.type.startsWith("image/")) {
       toast({
         title: "Invalid file type",
         description: "Please upload only image files for thumbnail.",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
+    setFormData((prev) => ({ ...prev, thumbnail: file }))
+  }
 
+  // Renamed from handleDocumentUpload to handleFileUpload
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0] || null // Renamed variable for clarity
     setFormData((prev) => ({
       ...prev,
-      thumbnail: file,
-    }));
-  };
-
-  const handleDocumentUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setFormData((prev) => ({
-      ...prev,
-      document: file,
-    }));
-  };
+      file: uploadedFile, // Changed from 'document' to 'file'
+    }))
+  }
 
   const handleSubmit = () => {
-    // Console log the form data
-    console.log("Form Data:", {
+    const practiceAreaObj = practiceAreasData?.find((p) => p._id === formData.practiceArea)
+    const resourceTypeObj = resourceTypesData?.find((rt) => rt._id === formData.resourceType)
+
+    const dataToLog = {
       title: formData.title,
       description: formData.description,
       price: formData.price,
@@ -314,20 +249,28 @@ export default function ResourceForm() {
       quantity: formData.quantity,
       country: formData.country,
       states: formData.states,
-      practiceAreas: [formData.practiceArea],
-      resourceType: [formData.resourceType],
-      thumbnail: formData.thumbnail,
-      document: formData.document,
-    });
-
-    // Submit using mutation
-    submitResource(formData);
-  };
+      practiceAreas: practiceAreaObj ? [practiceAreaObj.name] : formData.practiceArea ? [formData.practiceArea] : [],
+      resourceType: resourceTypeObj
+        ? [resourceTypeObj.resourceTypeName]
+        : formData.resourceType
+          ? [formData.resourceType]
+          : [],
+      thumbnail: formData.thumbnail
+        ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
+        : null,
+      file: formData.file // Changed from 'File' and formData.document
+        ? {
+            url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`, // Example URL
+            type: formData.file.type,
+          }
+        : null,
+    }
+    console.log("Form Data (for logging):", dataToLog)
+    submitResource(formData)
+  }
 
   const filteredStates =
-    selectedCountry?.states.filter((state) =>
-      state.toLowerCase().includes(stateSearch.toLowerCase())
-    ) || [];
+    selectedCountry?.states.filter((state) => state.toLowerCase().includes(stateSearch.toLowerCase())) || []
 
   return (
     <div className="max-w-9xl mx-auto p-6">
@@ -339,7 +282,7 @@ export default function ResourceForm() {
               <CardTitle>Add Resource</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Title */}
+              {/* ... other form fields remain the same ... */}
               <div className="space-y-2">
                 <Label htmlFor="title">Add Title</Label>
                 <Input
@@ -349,8 +292,6 @@ export default function ResourceForm() {
                   onChange={(e) => handleInputChange("title", e.target.value)}
                 />
               </div>
-
-              {/* Price, Discount, Quantity, Format */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
@@ -367,9 +308,7 @@ export default function ResourceForm() {
                     id="discountPrice"
                     placeholder="Add Discount Price.."
                     value={formData.discountPrice}
-                    onChange={(e) =>
-                      handleInputChange("discountPrice", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("discountPrice", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
@@ -378,33 +317,24 @@ export default function ResourceForm() {
                     id="quantity"
                     placeholder="Add Quantity.."
                     value={formData.quantity}
-                    onChange={(e) =>
-                      handleInputChange("quantity", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("quantity", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="format">Format</Label>
-                  <Select
-                    value={formData.format}
-                    onValueChange={(value) =>
-                      handleInputChange("format", value)
-                    }
-                  >
+                  <Select value={formData.format} onValueChange={(value) => handleInputChange("format", value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Add format.." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="PDF">PDF</SelectItem>
-                      <SelectItem value="Audio">Audio</SelectItem>
-                      <SelectItem value="Video">Video</SelectItem>
-                      <SelectItem value="Document">Document</SelectItem>
+                      {/* <SelectItem value="Audio">Audio</SelectItem>
+                      <SelectItem value="Video">Video</SelectItem> */}
+                      <SelectItem value="Document">Doc</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-
-              {/* Country & State */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Country</Label>
@@ -417,9 +347,7 @@ export default function ResourceForm() {
                         className="w-full justify-between"
                         disabled={isLoadingCountries}
                       >
-                        {selectedCountry
-                          ? selectedCountry.countryName
-                          : "Select country..."}
+                        {selectedCountry ? selectedCountry.countryName : "Select country..."}
                         <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -438,9 +366,7 @@ export default function ResourceForm() {
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    selectedCountry?._id === country._id
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                    selectedCountry?._id === country._id ? "opacity-100" : "opacity-0",
                                   )}
                                 />
                                 {country.countryName}
@@ -452,7 +378,6 @@ export default function ResourceForm() {
                     </PopoverContent>
                   </Popover>
                 </div>
-
                 <div className="space-y-2">
                   <Label>States</Label>
                   <Popover open={stateOpen} onOpenChange={setStateOpen}>
@@ -464,9 +389,7 @@ export default function ResourceForm() {
                         className="w-full justify-between"
                         disabled={!selectedCountry}
                       >
-                        {selectedStates.length > 0
-                          ? `${selectedStates.length} state(s) selected`
-                          : "Select states..."}
+                        {selectedStates.length > 0 ? `${selectedStates.length} state(s) selected` : "Select states..."}
                         <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
@@ -481,17 +404,11 @@ export default function ResourceForm() {
                           <CommandEmpty>No state found.</CommandEmpty>
                           <CommandGroup>
                             {filteredStates.map((state) => (
-                              <CommandItem
-                                key={state}
-                                value={state}
-                                onSelect={() => handleStateToggle(state)}
-                              >
+                              <CommandItem key={state} value={state} onSelect={() => handleStateToggle(state)}>
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    selectedStates.includes(state)
-                                      ? "opacity-100"
-                                      : "opacity-0"
+                                    selectedStates.includes(state) ? "opacity-100" : "opacity-0",
                                   )}
                                 />
                                 {state}
@@ -504,8 +421,6 @@ export default function ResourceForm() {
                   </Popover>
                 </div>
               </div>
-
-              {/* Description with React Quill */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
                 <div className="border rounded-md">
@@ -513,9 +428,7 @@ export default function ResourceForm() {
                     <ReactQuill
                       theme="snow"
                       value={formData.description}
-                      onChange={(content) =>
-                        handleInputChange("description", content)
-                      }
+                      onChange={(content) => handleInputChange("description", content)}
                       modules={modules}
                       formats={formats}
                       className="min-h-[150px]"
@@ -529,16 +442,14 @@ export default function ResourceForm() {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
-          {/* Practice Area */}
+          {/* Practice Area & Resource Type */}
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-2">
                 <Label>Practice Area</Label>
                 <Select
                   value={formData.practiceArea}
-                  onValueChange={(value) =>
-                    handleInputChange("practiceArea", value)
-                  }
+                  onValueChange={(value) => handleInputChange("practiceArea", value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a practice area" />
@@ -558,14 +469,11 @@ export default function ResourceForm() {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
+              <div className="space-y-2 mt-4">
                 <Label>Resource Type</Label>
                 <Select
                   value={formData.resourceType}
-                  onValueChange={(value) =>
-                    handleInputChange("resourceType", value)
-                  }
+                  onValueChange={(value) => handleInputChange("resourceType", value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a resource type" />
@@ -604,9 +512,7 @@ export default function ResourceForm() {
                   <label htmlFor="thumbnail-upload" className="cursor-pointer">
                     <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-600">
-                      {formData.thumbnail
-                        ? formData.thumbnail.name
-                        : "Click to upload thumbnail image"}
+                      {formData.thumbnail ? formData.thumbnail.name : "Click to upload thumbnail image"}
                     </p>
                   </label>
                 </div>
@@ -614,25 +520,25 @@ export default function ResourceForm() {
             </CardContent>
           </Card>
 
-          {/* Document Upload */}
+          {/* File Upload (formerly Document Upload) */}
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-2">
-                <Label>Document (PDF, Word, etc.)</Label>
+                <Label>File (PDF, Word, etc.)</Label> {/* Changed label */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                   <input
-                    type="file"
+                    type="file" // type="file" is generic for all file inputs
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                    onChange={handleDocumentUpload}
+                    onChange={handleFileUpload} // Changed to handleFileUpload
                     className="hidden"
-                    id="document-upload"
+                    id="file-upload" // Changed id
                   />
-                  <label htmlFor="document-upload" className="cursor-pointer">
+                  <label htmlFor="file-upload" className="cursor-pointer">
+                    {" "}
+                    {/* Changed htmlFor */}
                     <FileText className="mx-auto h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-600">
-                      {formData.document
-                        ? formData.document.name
-                        : "Click to upload document"}
+                      {formData.file ? formData.file.name : "Click to upload file"} {/* Changed to formData.file */}
                     </p>
                   </label>
                 </div>
@@ -641,15 +547,11 @@ export default function ResourceForm() {
           </Card>
 
           {/* Submit Button */}
-          <Button
-            onClick={handleSubmit}
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Publishing..." : "Publish Resources"}
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }
