@@ -37,14 +37,12 @@ export function Header() {
 
   const dispatch = useAppDispatch();
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
-  console.log(currentRegion, "current region");
 
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
   };
 
   const session = useSession();
-  console.log(session, "full session");
 
   const user = session?.data?.user;
 

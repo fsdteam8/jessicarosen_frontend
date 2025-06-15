@@ -6,6 +6,9 @@ import ProductCard from "./ProductCard";
 import { useAppSelector } from "@/redux/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
+import TableSkeletonWrapper from "./shared/TableSkeletonWrapper/TableSkeletonWrapper";
+import ErrorContainer from "./shared/ErrorContainer/ErrorContainer";
+import NotFound from "./shared/NotFound/NotFound";
 
 const ExploreSelling = () => {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
@@ -26,15 +29,38 @@ const ExploreSelling = () => {
       enabled: !!countryName,
     });
 
-  const products = data?.data;
+  let content;
 
   if (isLoading) {
-    return <div className="text-center text-gray-500">Loading...</div>;
-  }
-
-  if (isError) {
-    return (
-      <div className="text-center text-red-500">Error: {error.message}</div>
+    content = (
+      <div className="w-full p-5">
+        <TableSkeletonWrapper
+          count={6}
+          width="100%"
+          height="320px"
+          className="bg-[#E6EEF6]"
+        />
+      </div>
+    );
+  } else if (isError) {
+    content = (
+      <div>
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length === 0) {
+    content = (
+      <div>
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length > 0) {
+    content = (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {data?.data?.slice(0, 6)?.map((product) => (
+          <ProductCard key={product._id} product={product} />
+        ))}
+      </div>
     );
   }
 
@@ -44,7 +70,8 @@ const ExploreSelling = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
-            Explore Top Selling Resources in {currentRegion === "canada" ? "Canada" : "United States"}
+            Explore Top Selling Resources in{" "}
+            {currentRegion === "canada" ? "Canada" : "United States"}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Widely used materials that help students, legal professionals, and
@@ -53,7 +80,7 @@ const ExploreSelling = () => {
         </div>
 
         {/* Products Grid */}
-        {products?.length === 0 ? (
+        {data && data?.data && data?.data?.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-[#23547B] text-lg font-semibold">
               No resources available for{" "}
@@ -62,11 +89,7 @@ const ExploreSelling = () => {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {products?.slice(0, 6).map((product) => (
-                <ProductCard key={product?._id} product={product} />
-              ))}
-            </div>
+            <div>{content}</div>
 
             {/* See More Button */}
             <div className="text-center">
@@ -79,6 +102,7 @@ const ExploreSelling = () => {
             </div>
           </>
         )}
+        
       </div>
     </div>
   );
