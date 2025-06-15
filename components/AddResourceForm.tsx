@@ -12,10 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react"
+import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import "react-quill/dist/quill.snow.css"
+import Image from "next/image"
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
@@ -53,6 +54,9 @@ interface FormDataState {
   file: File | null // Changed from 'document' to 'file'
 }
 
+// Define the path for the component if it's not the root page
+// const componentFilePath = "resource-form.tsx"
+
 export default function ResourceForm() {
   const { toast } = useToast()
   const [selectedCountry, setSelectedCountry] = useState<Country | null>(null)
@@ -60,6 +64,8 @@ export default function ResourceForm() {
   const [countryOpen, setCountryOpen] = useState(false)
   const [stateOpen, setStateOpen] = useState(false)
   const [stateSearch, setStateSearch] = useState("")
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
@@ -216,15 +222,47 @@ export default function ResourceForm() {
 
   const handleThumbnailUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
-    if (file && !file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload only image files for thumbnail.",
-        variant: "destructive",
-      })
-      return
+
+    // Revoke the old object URL if it exists
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview)
     }
-    setFormData((prev) => ({ ...prev, thumbnail: file }))
+
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload only image files for thumbnail.",
+          variant: "destructive",
+        })
+        setFormData((prev) => ({ ...prev, thumbnail: null }))
+        setThumbnailPreview(null)
+        if (thumbnailInputRef.current) {
+          thumbnailInputRef.current.value = ""
+        }
+        return
+      }
+      setFormData((prev) => ({ ...prev, thumbnail: file }))
+      setThumbnailPreview(URL.createObjectURL(file))
+    } else {
+      // No file selected or selection cancelled
+      setFormData((prev) => ({ ...prev, thumbnail: null }))
+      setThumbnailPreview(null)
+      if (thumbnailInputRef.current) {
+        thumbnailInputRef.current.value = ""
+      }
+    }
+  }
+
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview)
+    }
+    setThumbnailPreview(null)
+    setFormData((prev) => ({ ...prev, thumbnail: null }))
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = ""
+    }
   }
 
   // Renamed from handleDocumentUpload to handleFileUpload
@@ -271,6 +309,15 @@ export default function ResourceForm() {
 
   const filteredStates =
     selectedCountry?.states.filter((state) => state.toLowerCase().includes(stateSearch.toLowerCase())) || []
+
+  useEffect(() => {
+    // Cleanup object URL on component unmount or when preview URL changes
+    return () => {
+      if (thumbnailPreview) {
+        URL.revokeObjectURL(thumbnailPreview)
+      }
+    }
+  }, [thumbnailPreview])
 
   return (
     <div className="max-w-9xl mx-auto p-6">
@@ -329,7 +376,7 @@ export default function ResourceForm() {
                     <SelectContent>
                       <SelectItem value="PDF">PDF</SelectItem>
                       {/* <SelectItem value="Audio">Audio</SelectItem>
-                      <SelectItem value="Video">Video</SelectItem> */}
+                    <SelectItem value="Video">Video</SelectItem> */}
                       <SelectItem value="Document">Doc</SelectItem>
                     </SelectContent>
                   </Select>
@@ -498,23 +545,50 @@ export default function ResourceForm() {
 
           {/* Thumbnail */}
           <Card>
+            <CardHeader>
+              <CardTitle>Thumbnail</CardTitle>
+            </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-2">
-                <Label>Thumbnail (Images Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <Label htmlFor="thumbnail-upload">Thumbnail (Images Only)</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleThumbnailUpload}
                     className="hidden"
                     id="thumbnail-upload"
+                    ref={thumbnailInputRef}
                   />
-                  <label htmlFor="thumbnail-upload" className="cursor-pointer">
-                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-2 text-sm text-gray-600">
-                      {formData.thumbnail ? formData.thumbnail.name : "Click to upload thumbnail image"}
-                    </p>
-                  </label>
+                  {formData.thumbnail && thumbnailPreview ? (
+                    <div className="space-y-3">
+                      <Image
+                        src={thumbnailPreview || "/placeholder.svg"}
+                        alt="Thumbnail preview"
+                        className="max-h-40 w-auto mx-auto rounded-md object-contain"
+                      />
+                      <p className="text-sm text-gray-600 truncate" title={formData.thumbnail.name}>
+                        {formData.thumbnail.name}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveThumbnail}
+                        className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <X className="mr-2 h-4 w-4" /> Remove Image
+                      </Button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                    >
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                      <p className="text-sm text-gray-600">Click or drag to upload</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                    </label>
+                  )}
                 </div>
               </div>
             </CardContent>
