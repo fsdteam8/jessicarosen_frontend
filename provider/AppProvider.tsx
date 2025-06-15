@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
-import { Toaster } from "sonner"
+// import { Toaster } from "sonner"
 interface Props {
   children: ReactNode;
 }

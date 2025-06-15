@@ -23,6 +23,8 @@ import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useSession } from "next-auth/react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { Region, setRegion } from "@/redux/features/regionSlice";
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -34,9 +36,16 @@ export function Header() {
   const { isAuthenticated, logout } = useAuth();
   const { items } = useWishlist();
 
+ const dispatch = useAppDispatch()
+  const currentRegion = useAppSelector((state) => state.region.currentRegion)
+  console.log(currentRegion, "current region");
+ 
+  const handleRegionChange = (region: Region) => {
+    dispatch(setRegion(region))
+  }
+
   const session = useSession();
   console.log(session, "full session");
-
 
   const user = session?.data?.user;
 
@@ -78,7 +87,7 @@ export function Header() {
             <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setActiveTab("canada")}
+                onClick={() => handleRegionChange("canada")}
                 className={`text-base px-3 py-5 rounded-[8px] transition-all duration-200 ${
                   activeTab === "canada"
                     ? "bg-white text-blue-600 border-white hover:bg-gray-100"
@@ -97,7 +106,7 @@ export function Header() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => setActiveTab("us")}
+                onClick={() => handleRegionChange("us")}
                 className={`text-base px-3 py-5 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                   activeTab === "us"
                     ? "bg-white text-blue-600 border-white hover:bg-gray-100"
@@ -184,12 +193,16 @@ export function Header() {
                 <div className="relative group hidden sm:block ">
                   <button className="text-gray-700">
                     {/* <span className="text-sm">{user?.name}</span> */}
-                    <span><UserRound className="text-2xl" /></span>
+                    <span>
+                      <UserRound className="text-2xl" />
+                    </span>
                   </button>
                   <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-gray-700">
                       <p className="font-medium text-center">{user?.name}</p>
-                      <p className="text-gray-500 text-xs text-center border-b">{user?.email}</p>
+                      <p className="text-gray-500 text-xs text-center border-b">
+                        {user?.email}
+                      </p>
                     </div>
                     <Link
                       href="/account/profile"

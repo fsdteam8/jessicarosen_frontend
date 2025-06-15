@@ -1,96 +1,41 @@
-// import ProductCard from "./product-card"
+"use client"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import ProductCard from "./ProductCard"
-
-const products = [
-  {
-    id: 7,
-    title: "Short Cause Matters",
-    author: "Mr.Jason Bostian",
-    price: "59.00",
-    salePrice: "28",
-    rating: 4.8,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    reviews: 15,
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 8,
-    title: "Securing Organizational Objectives",
-    author: "Jane Shepherd",
-    price: "69.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 14,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 9,
-    title: "Starting the Professional Engagement",
-    author: "Arlene McCoy",
-    price: "59.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 12,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 10,
-    title: "Community Benefit Organization",
-    author: "Guy Hawkins",
-    price: "69.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 14,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 11,
-    title: "Commercial Transactions Objective",
-    author: "Cameron Williamson",
-    price: "59.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 15,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: 12,
-    title: "Community Benefit Organization",
-    author: "Guy Hawkins",
-    price: "69.00",
-    salePrice: "28",
-    rating: 4.8,
-    reviews: 14,
-    description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quae.",
-    image: "/images/aboutUs.jpg",
-    language: "English Language",
-    category: "Practical law",
-    userImage: "/placeholder.svg?height=40&width=40",
-  },
-]
+import { useAppSelector } from "@/redux/hooks"
+import { AllProductDataTypeResponse } from "@/types/all-product-dataType"
+import { useQuery } from "@tanstack/react-query"
 
 const ExplorePopular = () => {
+    const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const countryName =
+    currentRegion === "canada"
+      ? "Canada"
+      : currentRegion === "us"
+      ? "USA"
+      : null;
+
+  const { data, isLoading, error, isError } =
+    useQuery<AllProductDataTypeResponse>({
+      queryKey: ["all-products", countryName],
+      queryFn: () =>
+        fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/most-popular?country=${countryName}`
+        ).then((res) => res.json()),
+      enabled: !!countryName,
+    });
+
+  const products = data?.data;
+
+  if (isLoading) {
+    return <div className="text-center text-gray-500">Loading...</div>;
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center text-red-500">Error: {error.message}</div>
+    );
+  }
 
 
   
@@ -108,8 +53,8 @@ const ExplorePopular = () => {
 
         {/* Books Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {products?.map((product) => (
+            <ProductCard key={product._id} product={product} />
           ))}
         </div>
 
