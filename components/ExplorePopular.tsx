@@ -1,13 +1,13 @@
-"use client"
-import { ArrowRight } from "lucide-react"
-import Link from "next/link"
-import ProductCard from "./ProductCard"
-import { useAppSelector } from "@/redux/hooks"
-import { AllProductDataTypeResponse } from "@/types/all-product-dataType"
-import { useQuery } from "@tanstack/react-query"
+"use client";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+import ProductCard from "./ProductCard";
+import { useAppSelector } from "@/redux/hooks";
+import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
+import { useQuery } from "@tanstack/react-query";
 
 const ExplorePopular = () => {
-    const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const countryName =
     currentRegion === "canada"
       ? "Canada"
@@ -37,23 +37,24 @@ const ExplorePopular = () => {
     );
   }
 
-
-  
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h1 className="text-[40px] font-semibold text-gray-900 mb-4">Explore Most Popular Resources</h1>
+          <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
+            Explore Most Popular Resources
+          </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            From everyday essentials to the latest trends, we bring you a seamless shopping experience with unbeatable
-            deals, delivery.discover
+            From everyday essentials to the latest trends, we bring you a
+            seamless shopping experience with unbeatable deals,
+            delivery.discover
           </p>
         </div>
 
         {/* Books Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {products?.map((product) => (
+          {products?.slice(0, 6)?.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
@@ -68,7 +69,7 @@ const ExplorePopular = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ExplorePopular
+export default ExplorePopular;

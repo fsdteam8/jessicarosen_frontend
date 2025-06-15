@@ -44,7 +44,7 @@ const ExploreSelling = () => {
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
-            Explore Top Selling Resources in Canada
+            Explore Top Selling Resources in {currentRegion === "canada" ? "Canada" : "United States"}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Widely used materials that help students, legal professionals, and
@@ -63,7 +63,7 @@ const ExploreSelling = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-              {products?.map((product) => (
+              {products?.slice(0, 6).map((product) => (
                 <ProductCard key={product?._id} product={product} />
               ))}
             </div>
