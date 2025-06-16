@@ -1,14 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+
 import FilterDropdown from "./filter-dropdown";
 import CountryDropdown from "./country-dropdown";
 import AllFiltersDrawer from "./all-filters-drawer";
@@ -174,46 +167,10 @@ export default function AllProducts() {
         </div>
 
         {/* Products */}
-        <div className="w-full">
+        <div className="w-full ">
           <Suspense fallback={<div>Loading products...</div>}>
             <ProductList viewMode={viewMode} />
           </Suspense>
-
-          <Pagination className="mt-8">
-            <PaginationContent className="">
-              <PaginationItem>
-                <PaginationPrevious href="#" />
-              </PaginationItem>
-              <PaginationItem className="">
-                <PaginationLink href="#" isActive>
-                  1
-                </PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">2</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">3</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">4</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">5</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <span className="flex h-9 items-center justify-center px-4">
-                  ...
-                </span>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationLink href="#">50</PaginationLink>
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext href="#" />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
         </div>
       </main>
     </div>

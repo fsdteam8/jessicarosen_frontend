@@ -1,10 +1,10 @@
-import { ResourceList } from "@/components/resource-list";
-import React from "react";
+import ResourcesTable from "@/components/ResourcesTable";
 
 const page = () => {
   return (
     <div className="">
-      <ResourceList />
+      {/* <ResourceList /> */}
+      <ResourcesTable />
     </div>
   );
 };
