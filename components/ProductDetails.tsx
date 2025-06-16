@@ -157,7 +157,11 @@ export default function ProductDetails() {
         </div> */}
         <div className=" w-full">
           <Image
-            src={product?.thumbnail || "/placeholder.svg"}
+            src={
+              Array.isArray(product?.thumbnail)
+                ? product?.thumbnail[0] || "/placeholder.svg"
+                : product?.thumbnail || "/placeholder.svg"
+            }
             alt={product?.title || "Product image"}
             width={664}
             height={328}
