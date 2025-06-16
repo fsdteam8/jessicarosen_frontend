@@ -6,34 +6,16 @@ import Image from "next/image"
 import { useCart } from "@/hooks/use-cart"
 import { useWishlist } from "@/hooks/use-wishlist"
 import Link from "next/link"
+import { ProductDataType } from "@/types/all-product-dataType"
 
-interface Product {
-  id: number | string
-  title: string
-  author: string
-  price: string
-  salePrice: string
-  rating: number
-  reviews: number
-  description: string
-  image: string
-  language: string
-  category: string
-  userImage: string
-}
-
-interface ProductCardProps {
-  product: Product
-}
-
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product }: {product?: ProductDataType}) {
   // console.log("ProductCard product:", product)
 
   const { addItem } = useCart()
   const { addItem: addToWish, removeItem: removeFromWish, items: wishlistItems } = useWishlist()
 
   // Check if the product is already in the wishlist
-  const isInWishlist = wishlistItems.some((item) => item.id === product.id)
+  const isInWishlist = wishlistItems.some((item) => item.id === product?._id)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addToCart = (item: any) => {
@@ -52,10 +34,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-gray-50 p-4 flex items-center ">
       <Card
-        className="h-auto max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] bg-white shadow-lg border-8 border-white overflow-hidden"
+        className="h-auto w-full bg-white shadow-lg border-8 border-white overflow-hidden "
         style={{ borderRadius: "16px" }}
       >
-        <CardContent className="p-0 h-full flex flex-col">
+        <CardContent className="p-0 h-full flex flex-col ">
           {/* Top Image Section */}
           <div className="relative h-[180px] overflow-hidden">
             {/* Heart Icon */}
@@ -75,8 +57,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* Book Image */}
             <div className="w-full">
               <Image
-                src={product?.image || "/placeholder.svg"}
-                alt={product?.title}
+                src={product?.thumbnail || "/placeholder.svg"}
+                alt={product?.title || "Product Image"}
                 width={370}
                 height={180}
                 className="object-cover h-[200px] w-full"
@@ -90,20 +72,20 @@ export default function ProductCard({ product }: ProductCardProps) {
             {/* Product Title */}
             <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-3 line-clamp-2">{product?.title}</h2>
 
-            <p className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3">{product?.description}</p>
+            <p dangerouslySetInnerHTML={{ __html: product?.description || "" }} className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3"/>
 
             {/* Price and Rating Row */}
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 text-base">Price :</span>
                 <span className="text-gray-400 text-base line-through">${product?.price}</span>
-                <span className="text-red-600 font-bold text-xl">${product?.salePrice}</span>
+                <span className="text-red-600 font-bold text-xl">${product?.discountPrice}</span>
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-lg font-semibold text-gray-900">{product?.rating}</span>
+                <span className="text-lg font-semibold text-gray-900">{product?.averageRating}</span>
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-gray-500 text-sm">({product?.reviews} Reviews)</span>
+                <span className="text-gray-500 text-sm">({product?.totalReviews} Reviews)</span>
               </div>
             </div>
 
@@ -116,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 Add To Cart
               </Button>
 
-              <Link href={`/products/${product?.id}`} className="flex-1">
+              <Link href={`/products/${product?._id}`} className="flex-1">
                 <Button
                   variant="outline"
                   className="w-full border-[#23547B] text-[#23547B] hover:bg-blue-50 font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
