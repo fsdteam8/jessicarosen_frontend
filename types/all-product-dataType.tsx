@@ -17,7 +17,7 @@ export interface ProductDataType {
   quantity: number;
   format: string;
   file: FileInfo;
-  thumbnail: string;
+  thumbnail: string[];
   createdBy: User;
   status: string;
   practiceAreas: string[];

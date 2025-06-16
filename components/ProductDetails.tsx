@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { Star, Heart, Share2 } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,31 +15,31 @@ export default function ProductDetails() {
   console.log("ProductDetails params:", params?.id);
 
   // Image gallery data
-  const productImages = [
-    {
-      src: "/images/aboutUs.jpg",
-      alt: "Books and coffee setup",
-    },
-    {
-      src: "/images/cartimg.png",
-      alt: "Legal documents",
-    },
-    {
-      src: "/images/cartSubImg.png",
-      alt: "Business presentation",
-    },
-    {
-      src: "/images/aboutUs.jpg",
-      alt: "Office workspace",
-    },
-    {
-      src: "/images/cartSubImg.png",
-      alt: "Law books",
-    },
-  ];
+  // const productImages = [
+  //   {
+  //     src: "/images/aboutUs.jpg",
+  //     alt: "Books and coffee setup",
+  //   },
+  //   {
+  //     src: "/images/cartimg.png",
+  //     alt: "Legal documents",
+  //   },
+  //   {
+  //     src: "/images/cartSubImg.png",
+  //     alt: "Business presentation",
+  //   },
+  //   {
+  //     src: "/images/aboutUs.jpg",
+  //     alt: "Office workspace",
+  //   },
+  //   {
+  //     src: "/images/cartSubImg.png",
+  //     alt: "Law books",
+  //   },
+  // ];
 
   // State to track the currently selected main image
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  // const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
@@ -68,22 +67,19 @@ export default function ProductDetails() {
       {/* Main Product Section */}
       <div className="grid md:grid-cols-2 gap-8">
         {/* Left side - Product Images */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <div className="gap-4 flex">
-            {/* Left Large Image - Main Display */}
             <div className="w-[328px] h-[328px] relative">
               <Image
                 src={
                   productImages[selectedImageIndex].src || "/placeholder.svg"
                 }
-                // src={product?.thumbnail || "/placeholder.svg"}
                 alt={productImages[selectedImageIndex].alt}
                 fill
                 className="object-cover rounded-lg"
               />
             </div>
 
-            {/* Right Grid of Thumbnail Images */}
             <div className="grid grid-cols-2 gap-4">
               {productImages.slice(1).map((image, index) => (
                 <div
@@ -101,7 +97,6 @@ export default function ProductDetails() {
                     fill
                     className="object-cover"
                   />
-                  {/* Overlay for visual feedback */}
                   <div
                     className={`absolute inset-0 transition-opacity duration-200 ${
                       selectedImageIndex === index + 1
@@ -114,7 +109,6 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Main image as first thumbnail option */}
           <div className="flex gap-2 pt-2">
             <div
               className={`w-16 h-16 relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
@@ -124,12 +118,6 @@ export default function ProductDetails() {
               }`}
               onClick={() => setSelectedImageIndex(0)}
             >
-              {/* <Image
-                src={productImages[0].src || "/placeholder.svg"}
-                alt={productImages[0].alt}
-                fill
-                className="object-cover"
-              /> */}
               <div
                 className={`absolute inset-0 transition-opacity duration-200 ${
                   selectedImageIndex === 0
@@ -140,7 +128,6 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Share section */}
           <div className="flex items-center gap-2 pt-4">
             <span className="text-sm text-gray-600">Share:</span>
             <div className="flex gap-2">
@@ -167,6 +154,19 @@ export default function ProductDetails() {
               </Button>
             </div>
           </div>
+        </div> */}
+        <div className=" w-full">
+          <Image
+            src={
+              Array.isArray(product?.thumbnail)
+                ? product?.thumbnail[0] || "/placeholder.svg"
+                : product?.thumbnail || "/placeholder.svg"
+            }
+            alt={product?.title || "Product image"}
+            width={664}
+            height={328}
+            className="w-full h-[328px] rounded-[8px] object-cover"
+          />
         </div>
 
         {/* Right side - Product Details */}
@@ -256,7 +256,10 @@ export default function ProductDetails() {
                 {/* <Download className="w-4 h-4 mr-2" /> */}
                 Download Now
               </Button>
-              <Button variant="outline" className="border-[2px] border-[#23547B] text-[#23547B] text-lg font-bold leading-[120%] hover:bg-blue-50 p-[13px] h-[48px] w-[142px] rounded-[8px]">
+              <Button
+                variant="outline"
+                className="border-[2px] border-[#23547B] text-[#23547B] text-lg font-bold leading-[120%] hover:bg-blue-50 p-[13px] h-[48px] w-[142px] rounded-[8px]"
+              >
                 <Heart className="w-4 h-4 mr-2" />
                 Wish List
               </Button>
@@ -265,16 +268,30 @@ export default function ProductDetails() {
 
           {/* Bottom Info */}
           <div className="border-t pt-4">
-            <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-2">
-              <span>Details Info</span>
-              <span>Area</span>
-              <span>{product?.practiceAreas}</span>
-              <span>Formats</span>
-              <span className="font-medium">{product?.format}</span>
+            <div className="flex flex-wrap gap-4  mb-2">
+              <span className="text-lg text-[#424242] font-medium leading-[120%]">
+                Details Info :
+              </span>
+              <span className="text-base text-[#616161] font-medium leading-[120%]">
+                Area
+              </span>
+              <span className="text-lg text-[#424242] font-medium leading-[120%]">
+                {product?.practiceAreas}
+              </span>
+              <span className="text-base text-[#616161] font-medium leading-[120%]">
+                Formats
+              </span>
+              <span className="text-lg text-[#424242] font-medium leading-[120%]">
+                {product?.format}
+              </span>
             </div>
-            <div className="text-sm text-gray-600">
-              <span>Total Pages: </span>
-              <span className="font-medium">140</span>
+            <div >
+              <span className="text-base text-[#616161] font-medium leading-[120%]">
+                Total Pages:{" "}
+              </span>
+              <span className="text-lg text-[#424242] font-medium leading-[120%]">
+                140
+              </span>
             </div>
           </div>
         </div>

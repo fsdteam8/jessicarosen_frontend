@@ -57,7 +57,7 @@ export default function ProductCard({ product }: {product?: ProductDataType}) {
             {/* Book Image */}
             <div className="w-full">
               <Image
-                src={product?.thumbnail || "/placeholder.svg"}
+                src={Array.isArray(product?.thumbnail) ? product?.thumbnail[0] : product?.thumbnail || "/placeholder.svg"}
                 alt={product?.title || "Product Image"}
                 width={370}
                 height={180}
