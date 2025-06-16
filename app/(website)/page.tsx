@@ -1,5 +1,4 @@
 import HomeHero from "@/components/HomeHero";
-// import ExploreSelling from "@/components/ExploreSelling";
 import BestSellesrs from "@/components/BestSellesrs";
 import ExploreSelling from "@/components/ExploreSelling";
 import ExplorePopular from "@/components/ExplorePopular";
@@ -9,7 +8,6 @@ export default function Home() {
   return (
     <div className="">
       <HomeHero />
-      {/* <ExploreSelling /> */}
       <ExploreSelling />
       <BestSellesrs />
       <ExplorePopular />
