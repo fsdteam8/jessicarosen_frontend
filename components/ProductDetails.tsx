@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Star, Heart, Download, ShoppingCart, Share2 } from "lucide-react";
+import { Star, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -45,16 +44,14 @@ export default function ProductDetails() {
 
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
-      queryKey: ["all-products"],
+      queryKey: ["single-products"],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/${params?.id}`
         ).then((res) => res.json()),
     });
-  console.log("ProductDetails data: single", data);
-
-  const product = data?.data?.find((item) => item._id === params?.id);
-  console.log("ProductDetails product:", product);
+  console.log("ProductDetails data: single", data?.data);
+  const product = Array.isArray(data?.data) ? data?.data[0] : data?.data;
 
   if (isLoading) {
     return <div className="text-center text-gray-500">Loading...</div>;
@@ -76,10 +73,10 @@ export default function ProductDetails() {
             {/* Left Large Image - Main Display */}
             <div className="w-[328px] h-[328px] relative">
               <Image
-                // src={
-                //   productImages[selectedImageIndex].src || "/placeholder.svg"
-                // }
-                src={product?.thumbnail || "/placeholder.svg"}
+                src={
+                  productImages[selectedImageIndex].src || "/placeholder.svg"
+                }
+                // src={product?.thumbnail || "/placeholder.svg"}
                 alt={productImages[selectedImageIndex].alt}
                 fill
                 className="object-cover rounded-lg"
@@ -173,77 +170,93 @@ export default function ProductDetails() {
         </div>
 
         {/* Right side - Product Details */}
-        <div className="space-y-6">
+        <div className="">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
-              Foundational understanding commercial laws and practices
+            <h1 className="text-2xl font-medium text-[#2A2A2A] leading-[120%] mb-3 md:mb-4">
+              {product?.title}
             </h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <div className="flex items-center">
-                <span className="text-lg font-medium mr-1">4.8</span>
+                <span className="text-base font-medium leading-[120%] text-[#131313] mr-1">
+                  {product?.averageRating?.toFixed(1)}
+                </span>
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
                       className={`w-4 h-4 ${
-                        star <= 4
-                          ? "fill-yellow-400 text-yellow-400"
+                        star <= Math.round(product?.averageRating || 0)
+                          ? "fill-[#F3CE00] text-[#F3CE00]"
                           : "text-gray-300"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 ml-1">
-                  (1.5k Ratings)
+                <span className="text-base font-medium leading-[120%] text-[#616161] ml-1">
+                  ({product?.totalReviews} Ratings)
                 </span>
               </div>
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-sm text-gray-500 line-through">
-                {product?.price ?? ""}
+            <div className="flex flex-col items-start justify-center gap-1 mb-2">
+              <span className="text-sm text-[#FF0000] font-medium leading-[120%] line-through">
+                {product?.price}
               </span>
-              <span className="text-2xl font-bold text-gray-900">
-                Price: ${product?.discountPrice ?? ""}
+              <span className="text-xl font-medium text-[#424242] leading-[120%]">
+                Price: ${product?.discountPrice}
               </span>
             </div>
 
             {/* Author */}
             <div className="flex items-center gap-3 mb-4">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                <AvatarFallback>JI</AvatarFallback>
+              <Avatar className="w-[49px] h-[49px]">
+                <AvatarImage src={product?.createdBy?.profileImage} />
+                <AvatarFallback>{`${product?.createdBy?.firstName?.[0] ?? ""}${
+                  product?.createdBy?.lastName?.[0] ?? ""
+                }`}</AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-sm font-medium">Mr. Jakon Illusion</p>
-                <p className="text-xs text-gray-600">15k Followers</p>
+              <div className="flex items-center gap-10 md:gap-12 lg:gap-[54px]">
+                <div>
+                  <p className="text-xs font-normal leading-[150%] text-[#2A2A2A]">
+                    Created by
+                  </p>
+                  <p className="text-base font-bold text-[#23547B] leading-normal">
+                    {product?.createdBy?.firstName}{" "}
+                    {product?.createdBy?.lastName}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-base font-medium text-[#616161] leading-[120%]">
+                    15k Followers
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Sale Badge */}
-            <div className="mb-6">
-              <Badge variant="destructive" className="bg-red-500 text-white">
-                SALE $12.00
-              </Badge>
+            <div className="mb-4 md:mb-5 lg:mb-6">
+              <span className="text-[#FF0000] text-base font-medium leading-[120%] tracking-[0%]">
+                SAVE ${(product?.price ?? 0) - (product?.discountPrice ?? 0)}.00
+              </span>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mb-6">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6">
-                <ShoppingCart className="w-4 h-4 mr-2" />
+            <div className="flex gap-4 mb-6">
+              <Button className="bg-[#23547B] w-[142px] h-[48px] text-base font-bold leading-[120%] text-white rounded-[8px] px-[26px] py-[14px]">
+                {/* <ShoppingCart className="w-4 h-4 mr-2" /> */}
                 Add To Cart
               </Button>
               <Button
                 variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50 px-6"
+                className="border-[2px] border-[#23547B] text-[#23547B] text-lg font-bold leading-[120%] hover:bg-blue-50 p-[13px] h-[48px] w-[156px] rounded-[8px]"
               >
-                <Download className="w-4 h-4 mr-2" />
+                {/* <Download className="w-4 h-4 mr-2" /> */}
                 Download Now
               </Button>
-              <Button variant="outline" className="border-gray-300 px-6">
+              <Button variant="outline" className="border-[2px] border-[#23547B] text-[#23547B] text-lg font-bold leading-[120%] hover:bg-blue-50 p-[13px] h-[48px] w-[142px] rounded-[8px]">
                 <Heart className="w-4 h-4 mr-2" />
                 Wish List
               </Button>
@@ -255,9 +268,9 @@ export default function ProductDetails() {
             <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-2">
               <span>Details Info</span>
               <span>Area</span>
-              <span>Employment</span>
+              <span>{product?.practiceAreas}</span>
               <span>Formats</span>
-              <span className="font-medium">PDF</span>
+              <span className="font-medium">{product?.format}</span>
             </div>
             <div className="text-sm text-gray-600">
               <span>Total Pages: </span>
