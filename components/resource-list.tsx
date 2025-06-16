@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trash2, Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 // import { Pagination } from "@/components/ui/pagination";
-import { ResourceSkeleton } from "./resource-skeleton";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ResourceSkeleton } from "./resource-skeleton";
 
 interface Resource {
   id: string;
@@ -193,7 +193,10 @@ export function ResourceList() {
             </thead>
             <tbody>
               {paginatedResources.map((resource) => (
-                <tr key={resource.id} className="border-b-[#B6B6B6] border hover:bg-gray-50">
+                <tr
+                  key={resource.id}
+                  className=" border border-b-[#B6B6B6] hover:bg-gray-50 "
+                >
                   <td className="px-[50px] ">
                     <div className="flex items-center space-x-3 ">
                       <Image
@@ -208,16 +211,24 @@ export function ResourceList() {
                       </span>
                     </div>
                   </td>
-                  <td className="font-medium text-[#424242] text-[16px]">{resource.id}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">
+                    {resource.id}
+                  </td>
                   <td className="font-medium text-[#424242] text-[16px]">
                     ${resource.price.toFixed(2)}
                   </td>
                   <td className="font-medium text-[#424242] text-[16px]">
                     ${resource.discountPrice.toFixed(2)}
                   </td>
-                  <td className="font-medium text-[#424242] text-[16px]">{resource.quantity}</td>
-                  <td className="font-medium text-[#424242] text-[16px]">{resource.format}</td>
-                  <td className="font-medium text-[#424242] text-[16px]">{resource.date}</td>
+                  <td className="font-medium text-[#424242] text-[16px]">
+                    {resource.quantity}
+                  </td>
+                  <td className="font-medium text-[#424242] text-[16px]">
+                    {resource.format}
+                  </td>
+                  <td className="font-medium text-[#424242] text-[16px]">
+                    {resource.date}
+                  </td>
                   <td className="p-4">
                     <Button
                       variant="ghost"
