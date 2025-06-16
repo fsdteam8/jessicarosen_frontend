@@ -4,6 +4,7 @@ import "./globals.css";
 import { NextAuthProvider } from "@/components/auth-provider";
 import { Toaster } from "sonner";
 import AppProvider from "@/provider/AppProvider";
+import ReduxProvider from "@/redux/provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,8 +33,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextAuthProvider>
-          <AppProvider>{children}</AppProvider>
-          <Toaster position="bottom-right" richColors />
+          <ReduxProvider>
+            <AppProvider>{children}</AppProvider>
+            <Toaster position="bottom-right" richColors />
+          </ReduxProvider>
         </NextAuthProvider>
       </body>
     </html>
