@@ -26,6 +26,7 @@ import { useState, useEffect, useRef } from "react"
 import "react-quill/dist/quill.snow.css"
 import type { Resource } from "./resource-status" // Assuming types are in resource-status.tsx
 import Image from "next/image"
+import { useSession } from "next-auth/react"
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
@@ -106,8 +107,11 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-  const API_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+
+   const session = useSession();
+        const API_TOKEN = session?.data?.user?.accessToken;
+  // const API_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU1NzkwLCJleHAiOjE3NTA2NjA1OTB9.f25R6lWhkEDKCgnRYDDfHe5veZImx6v74kAfZZ2RDrI"
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery<Country[]>({
     queryKey: ["countries"],
@@ -176,8 +180,21 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
   const { mutate: updateResource, isPending: isSubmitting } = useMutation({
     mutationFn: async (currentFormData: FormDataState) => {
       if (!resource) throw new Error("No resource selected for update.")
-
-      const metadataUpdatePayload: any = {
+//@ts-nocheck //
+      const metadataUpdatePayload: {
+        title: string
+        description: string
+        price: number
+        discountPrice: number
+        format: string
+        quantity: number
+        country: string
+        states: string[]
+        practiceAreas?: string[]
+        resourceType?: string[]
+        thumbnail?: string | null
+        file?: { url: string; type: string } | null
+      } = {
         title: currentFormData.title,
         description: currentFormData.description,
         price: Number.parseFloat(currentFormData.price) || 0,
@@ -573,6 +590,9 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                   {formData.thumbnailPreview ? (
                     <div className="space-y-2">
                       <Image
+                        width={128}
+                        height={128}
+                        // thumbnail?.[0] ||
                         src={formData.thumbnailPreview || "/placeholder.svg"} // Shows blob URL for new, or existing URL
                         alt="Thumbnail"
                         className="max-h-32 w-auto mx-auto rounded-md object-contain"
@@ -588,7 +608,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                         onClick={handleRemoveThumbnail}
                         className="w-full text-red-500 border-red-500 hover:bg-red-50 hover:text-red-600 text-xs"
                       >
-                        <X className="mr-1 h-3 w-3" /> Remove / Change
+                        <X className="mr-1 h-3 w-3" /> Remove
                       </Button>
                     </div>
                   ) : (

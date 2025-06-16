@@ -17,6 +17,7 @@ import dynamic from "next/dynamic"
 import { useState, useEffect, useRef } from "react"
 import "react-quill/dist/quill.snow.css"
 import Image from "next/image"
+import { useSession } from "next-auth/react"
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
@@ -83,8 +84,12 @@ export default function ResourceForm() {
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-  const API_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+
+     const session = useSession();
+      const API_TOKEN = session?.data?.user?.accessToken;
+      // console.log("Token:", API_TOKEN);
+  // const API_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
 
   const modules = {
     toolbar: [
@@ -563,6 +568,8 @@ export default function ResourceForm() {
                   {formData.thumbnail && thumbnailPreview ? (
                     <div className="space-y-3">
                       <Image
+                      width={100}
+                      height={100}
                         src={thumbnailPreview || "/placeholder.svg"}
                         alt="Thumbnail preview"
                         className="max-h-40 w-auto mx-auto rounded-md object-contain"

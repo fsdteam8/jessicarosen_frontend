@@ -10,7 +10,7 @@ import Image from "next/image"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 // import type { Resource, ApiResponse } from "@/lib/types"
 import { ResourceSkeleton } from "./resource-skeleton"
-import { MessageModal } from "./message-modal"
+// import { MessageModal } from "./message-modal"
 import { EditResourceModal } from "./edit-resource-modal"
 import {
   AlertDialog,
@@ -32,6 +32,7 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination"
+import { useSession } from "next-auth/react"
 
 
 // Types
@@ -74,8 +75,8 @@ export function ResourceStatus() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 5 // Adjusted for better demo with potentially fewer items
 
-  const [selectedResourceForMessage, setSelectedResourceForMessage] = useState<Resource | null>(null)
-  const [messageModalOpen, setMessageModalOpen] = useState(false)
+  // const [selectedResourceForMessage, setSelectedResourceForMessage] = useState<Resource | null>(null)
+  // const [messageModalOpen, setMessageModalOpen] = useState(false)
   const [editingResource, setEditingResource] = useState<Resource | null>(null)
   const [editModalOpen, setEditModalOpen] = useState(false)
 
@@ -83,8 +84,11 @@ export function ResourceStatus() {
 
   // IMPORTANT: Replace with your actual API URL and token management strategy
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.example.com" // Fallback for safety
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+
+      const session = useSession();
+      const token = session?.data?.user?.accessToken;
+  // const token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
 
   // Fetch resources
   const {
@@ -113,7 +117,7 @@ export function ResourceStatus() {
   })
 
   // Delete resource mutation
-  const deleteMutation = useMutation<any, Error, string>({
+  const deleteMutation = useMutation<ApiResponse, Error, string>({
     mutationFn: async (id: string) => {
       const response = await fetch(`${baseUrl}/resource/${id}`, {
         method: "DELETE",
@@ -163,10 +167,12 @@ export function ResourceStatus() {
     }
   }
 
-  const handleMessageClick = (resource: Resource) => {
-    setSelectedResourceForMessage(resource)
-    setMessageModalOpen(true)
-  }
+
+  // handle message 
+  // const handleMessageClick = (resource: Resource) => {
+  //   setSelectedResourceForMessage(resource)
+  //   setMessageModalOpen(true)
+  // }
 
   const handleEdit = (resource: Resource) => {
     setEditingResource(resource)
@@ -348,7 +354,7 @@ export function ResourceStatus() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleMessageClick(resource)}
+                          // onClick={() => handleMessageClick(resource)}
                           className="text-[#424242] hover:text-green-600"
                           title="Message"
                         >
@@ -430,7 +436,7 @@ export function ResourceStatus() {
         )}
       </Card>
 
-      <MessageModal open={messageModalOpen} onOpenChange={setMessageModalOpen} resource={selectedResourceForMessage} />
+      {/* <MessageModal open={messageModalOpen} onOpenChange={setMessageModalOpen} resource={selectedResourceForMessage} /> */}
 
       <EditResourceModal
         open={editModalOpen}
