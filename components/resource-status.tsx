@@ -42,6 +42,7 @@ export interface ResourceFile {
 }
 
 export interface Resource {
+  images: never[]
   _id: string
   title: string
   country: string

@@ -66,6 +66,9 @@ interface FormDataState {
   // Store URLs of existing files for display and comparison
   existingThumbnailUrl?: string | null
   existingFileUrl?: string | null
+  images: (File | string)[] // New files or existing URLs
+  imagePreviews: string[] // For display: blob URLs for new, existing URLs for old
+  existingImageUrls: string[] // Initial URLs from the resource
   existingFileName?: string | null
 }
 
@@ -86,6 +89,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
   const [stateSearch, setStateSearch] = useState("")
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const imagesInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
@@ -103,13 +107,16 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     file: null,
     existingThumbnailUrl: null,
     existingFileUrl: null,
+    images: [],
+    imagePreviews: [],
+    existingImageUrls: [],
     existingFileName: null,
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-   const session = useSession();
-        const API_TOKEN = session?.data?.user?.accessToken;
+  const session = useSession()
+  const API_TOKEN = session?.data?.user?.accessToken
   // const API_TOKEN =
   //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU1NzkwLCJleHAiOjE3NTA2NjA1OTB9.f25R6lWhkEDKCgnRYDDfHe5veZImx6v74kAfZZ2RDrI"
 
@@ -170,6 +177,9 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
         existingFileName: resource.file?.url
           ? resource.file.url.substring(resource.file.url.lastIndexOf("/") + 1)
           : null,
+        images: resource.images || [],
+        imagePreviews: resource.images || [],
+        existingImageUrls: resource.images || [],
       })
       setSelectedStates(resource.states || [])
       const countryObj = countriesData.find((c) => c.countryName === resource.country)
@@ -177,10 +187,45 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     }
   }, [resource, countriesData, practiceAreasData, resourceTypesData, open]) // Added `open` to reset form state when modal reopens
 
+  useEffect(() => {
+    // Cleanup for thumbnail preview
+    const currentThumbnailPreview = formData.thumbnailPreview
+    // Cleanup for image previews
+    const currentImagePreviews = formData.imagePreviews
+
+    return () => {
+      if (currentThumbnailPreview && currentThumbnailPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(currentThumbnailPreview)
+      }
+      currentImagePreviews?.forEach((preview) => {
+        if (preview && preview.startsWith("blob:")) {
+          URL.revokeObjectURL(preview)
+        }
+      })
+    }
+  }, [formData.thumbnailPreview, formData.imagePreviews])
+
   const { mutate: updateResource, isPending: isSubmitting } = useMutation({
     mutationFn: async (currentFormData: FormDataState) => {
       if (!resource) throw new Error("No resource selected for update.")
-//@ts-nocheck //
+
+      // Helper function for placeholder uploads (concept, replace with actual uploads)
+      const uploadFileAndGetUrl = async (file: File, type: "image" | "thumbnail" | "file") => {
+        // Simulate upload delay
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        // In a real app, this would involve:
+        // 1. Creating FormData
+        // 2. Appending the file
+        // 3. Sending a POST request to your upload endpoint (e.g., Cloudinary, S3, custom backend)
+        // 4. Receiving the URL of the uploaded file in response
+        toast({
+          title: "Dev Note",
+          description: `${type} '${file.name}' would be uploaded and URL sent.`,
+          variant: "default",
+        })
+        return `https://res.cloudinary.com/your_cloud/${type === "file" ? "raw" : "image"}/upload/v_placeholder/new_${type}_${Date.now()}_${file.name}` // Placeholder URL
+      }
+
       const metadataUpdatePayload: {
         title: string
         description: string
@@ -194,6 +239,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
         resourceType?: string[]
         thumbnail?: string | null
         file?: { url: string; type: string } | null
+        images?: string[] // Added images field
       } = {
         title: currentFormData.title,
         description: currentFormData.description,
@@ -215,47 +261,45 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
 
       // --- Thumbnail Handling ---
       if (currentFormData.thumbnail instanceof File) {
-        // **IMPORTANT**: A new thumbnail file has been selected.
-        // You need to upload this `currentFormData.thumbnail` to your storage (e.g., Cloudinary, S3, or a dedicated backend endpoint)
-        // and get a URL in return.
-        // For this example, we'll use a placeholder URL. Replace this with actual upload logic.
-        // const thumbnailUrl = await uploadFileAndGetUrl(currentFormData.thumbnail); // Your actual upload function
-        const thumbnailUrl = `https://res.cloudinary.com/your_cloud/image/upload/v_placeholder/new_thumb_${currentFormData.thumbnail.name}` // Placeholder
-        metadataUpdatePayload.thumbnail = thumbnailUrl
-        toast({ title: "Dev Note", description: "Thumbnail would be uploaded and URL sent.", variant: "default" })
+        metadataUpdatePayload.thumbnail = await uploadFileAndGetUrl(currentFormData.thumbnail, "thumbnail")
       } else if (
         currentFormData.thumbnail === null &&
-        currentFormData.thumbnailPreview === null &&
+        currentFormData.thumbnailPreview === null && // Explicitly removed
         currentFormData.existingThumbnailUrl
       ) {
-        // Thumbnail was explicitly removed by the user (and there was an existing one)
-        metadataUpdatePayload.thumbnail = null // Or "" depending on how your API handles removal
+        metadataUpdatePayload.thumbnail = null
       } else if (currentFormData.existingThumbnailUrl) {
-        // No change to thumbnail, keep existing URL (if API expects it, otherwise omit)
-        // Some APIs might not require sending the URL if it's unchanged.
-        // If your API clears the field if not sent, you MUST send the existing URL.
         metadataUpdatePayload.thumbnail = currentFormData.existingThumbnailUrl
       } else {
-        // No existing thumbnail and no new one selected
         metadataUpdatePayload.thumbnail = null
       }
 
-      // --- Main File Handling (similar logic to thumbnail) ---
+      // --- Main File Handling ---
       if (currentFormData.file instanceof File) {
-        // **IMPORTANT**: A new main file has been selected.
-        // Upload `currentFormData.file` and get its URL.
-        // const fileUrl = await uploadFileAndGetUrl(currentFormData.file); // Your actual upload function
-        const fileUrl = `https://res.cloudinary.com/your_cloud/raw/upload/v_placeholder/new_file_${currentFormData.file.name}` // Placeholder
-        metadataUpdatePayload.file = { url: fileUrl, type: currentFormData.file.type } // Assuming API expects {url, type}
-        toast({ title: "Dev Note", description: "Main file would be uploaded and URL sent.", variant: "default" })
-      } else if (currentFormData.file === null && currentFormData.existingFileUrl === null && resource.file?.url) {
-        // Main file was explicitly removed
-        metadataUpdatePayload.file = null // Or an appropriate structure to indicate removal
+        const fileUrl = await uploadFileAndGetUrl(currentFormData.file, "file")
+        metadataUpdatePayload.file = { url: fileUrl, type: currentFormData.file.type }
+      } else if (currentFormData.file === null && currentFormData.existingFileName === null && resource.file?.url) {
+        // Explicitly removed
+        metadataUpdatePayload.file = null
       } else if (currentFormData.existingFileUrl) {
-        metadataUpdatePayload.file = { url: currentFormData.existingFileUrl, type: resource.file?.type || "" } // Send existing if no change
+        metadataUpdatePayload.file = { url: currentFormData.existingFileUrl, type: resource.file?.type || "" }
       } else {
         metadataUpdatePayload.file = null
       }
+
+      // --- Images Handling ---
+      const finalImageUrls: string[] = []
+      for (const imageItem of currentFormData.images) {
+        if (typeof imageItem === "string") {
+          // Existing image URL
+          finalImageUrls.push(imageItem)
+        } else if (imageItem instanceof File) {
+          // New image File
+          const newImageUrl = await uploadFileAndGetUrl(imageItem, "image")
+          finalImageUrls.push(newImageUrl)
+        }
+      }
+      metadataUpdatePayload.images = finalImageUrls
 
       const response = await fetch(`${API_BASE_URL}/resource/${resource._id}`, {
         method: "PUT",
@@ -285,7 +329,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     },
   })
 
-  const handleInputChange = (field: keyof FormDataState, value: string) => {
+  const handleInputChange = (field: keyof FormDataState, value: string | string[] | (File | string)[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -306,12 +350,17 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
 
   const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
+    // Revoke previous blob URL if it exists
     if (formData.thumbnailPreview && formData.thumbnailPreview.startsWith("blob:")) {
       URL.revokeObjectURL(formData.thumbnailPreview)
     }
     if (file) {
       if (!file.type.startsWith("image/")) {
-        toast({ title: "Invalid file type", description: "Please upload an image.", variant: "destructive" })
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image for the thumbnail.",
+          variant: "destructive",
+        })
         setFormData((prev) => ({ ...prev, thumbnail: null, thumbnailPreview: prev.existingThumbnailUrl }))
         if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
         return
@@ -327,7 +376,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     if (formData.thumbnailPreview && formData.thumbnailPreview.startsWith("blob:")) {
       URL.revokeObjectURL(formData.thumbnailPreview)
     }
-    setFormData((prev) => ({ ...prev, thumbnail: null, thumbnailPreview: null })) // Keep existingThumbnailUrl to know original state
+    setFormData((prev) => ({ ...prev, thumbnail: null, thumbnailPreview: null }))
     if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
   }
 
@@ -335,7 +384,6 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     const file = event.target.files?.[0] || null
     setFormData((prev) => ({ ...prev, file: file, existingFileName: file ? file.name : prev.existingFileName }))
     if (!file && fileInputRef.current) {
-      // If selection cancelled, reset input
       fileInputRef.current.value = ""
       setFormData((prev) => ({
         ...prev,
@@ -345,11 +393,55 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
   }
 
   const handleRemoveFile = () => {
-    setFormData((prev) => ({ ...prev, file: null, existingFileName: null })) // Keep existingFileUrl to know original state
+    setFormData((prev) => ({ ...prev, file: null, existingFileName: null }))
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
+  const handleNewImagesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const newImageFiles: File[] = []
+      const newImagePreviews: string[] = []
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        if (file.type.startsWith("image/")) {
+          newImageFiles.push(file)
+          newImagePreviews.push(URL.createObjectURL(file))
+        } else {
+          toast({
+            title: "Invalid file type",
+            description: `Skipping '${file.name}' as it's not an image.`,
+            variant: "destructive",
+          })
+        }
+      }
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...newImageFiles],
+        imagePreviews: [...prev.imagePreviews, ...newImagePreviews],
+      }))
+    }
+    if (imagesInputRef.current) imagesInputRef.current.value = "" // Reset file input
+  }
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    const previewToRemove = formData.imagePreviews[indexToRemove]
+    if (previewToRemove && previewToRemove.startsWith("blob:")) {
+      URL.revokeObjectURL(previewToRemove)
+    }
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, index) => index !== indexToRemove),
+      imagePreviews: prev.imagePreviews.filter((_, index) => index !== indexToRemove),
+    }))
+  }
+
   const handleSubmit = () => {
+    // Basic validation example (can be expanded)
+    if (!formData.title) {
+      toast({ title: "Validation Error", description: "Title is required.", variant: "destructive" })
+      return
+    }
     updateResource(formData)
   }
 
@@ -358,15 +450,6 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
   const modules = {
     toolbar: [[{ header: [1, 2, false] }], ["bold", "italic", "underline"], [{ list: "ordered" }, { list: "bullet" }]],
   }
-
-  useEffect(() => {
-    const currentPreview = formData.thumbnailPreview
-    return () => {
-      if (currentPreview && currentPreview.startsWith("blob:")) {
-        URL.revokeObjectURL(currentPreview)
-      }
-    }
-  }, [formData.thumbnailPreview])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -433,6 +516,63 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                 </div>
               </CardContent>
             </Card>
+
+            {/* Images Section */}
+            <Card>
+              <CardHeader>
+                <Label>Images</Label>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <Label
+                    htmlFor="images-upload-edit"
+                    className="cursor-pointer text-sm font-medium text-primary hover:underline"
+                  >
+                    Upload New Images
+                  </Label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleNewImagesChange}
+                    className="hidden"
+                    id="images-upload-edit"
+                    ref={imagesInputRef}
+                  />
+                </div>
+                {formData.imagePreviews && formData.imagePreviews.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {formData.imagePreviews.map((previewUrl, index) => (
+                      <div key={index} className="relative group">
+                        <Image
+                          width={150}
+                          height={150}
+                          src={previewUrl || "/placeholder.svg"}
+                          alt={`Resource image ${index + 1}`}
+                          className="rounded-md object-cover aspect-square"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove image</span>
+                        </Button>
+                        {typeof formData.images[index] !== "string" && (
+                          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs text-center p-1">
+                            New
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No images uploaded yet. Click above to add some.</p>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Sidebar */}
@@ -486,6 +626,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                     <SelectContent>
                       <SelectItem value="PDF">PDF</SelectItem>
                       <SelectItem value="Document">Doc</SelectItem>
+                      {/* Add other formats as needed */}
                     </SelectContent>
                   </Select>
                 </div>
@@ -584,7 +725,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                     accept="image/*"
                     onChange={handleThumbnailChange}
                     className="hidden"
-                    id="thumbnail-upload-edit" // Unique ID for edit modal
+                    id="thumbnail-upload-edit"
                     ref={thumbnailInputRef}
                   />
                   {formData.thumbnailPreview ? (
@@ -592,12 +733,14 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                       <Image
                         width={128}
                         height={128}
-                        // thumbnail?.[0] ||
-                        src={formData.thumbnailPreview || "/placeholder.svg"} // Shows blob URL for new, or existing URL
-                        alt="Thumbnail"
+                        src={
+                          formData.thumbnailPreview ||
+                          "/placeholder.svg?width=128&height=128&query=thumbnail+placeholder"
+                        }
+                        alt="Thumbnail preview"
                         className="max-h-32 w-auto mx-auto rounded-md object-contain"
                       />
-                      {formData.thumbnail && ( // Show name only if it's a new file
+                      {formData.thumbnail && (
                         <p className="text-xs text-gray-500 truncate" title={formData.thumbnail.name}>
                           New: {formData.thumbnail.name}
                         </p>
@@ -617,7 +760,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                       className="cursor-pointer flex flex-col items-center justify-center space-y-1 py-2"
                     >
                       <ImageIcon className="h-10 w-10 text-gray-400" />
-                      <p className="text-xs text-gray-600">Upload image</p>
+                      <p className="text-xs text-gray-600">Upload thumbnail</p>
                     </label>
                   )}
                 </div>
@@ -633,10 +776,10 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                     type="file"
                     onChange={handleFileChange}
                     className="hidden"
-                    id="file-upload-edit" // Unique ID for edit modal
+                    id="file-upload-edit"
                     ref={fileInputRef}
                   />
-                  {formData.file ? ( // A new file is selected
+                  {formData.file ? (
                     <div className="space-y-2">
                       <FileText className="mx-auto h-10 w-10 text-gray-400" />
                       <p className="text-xs text-gray-500 truncate" title={formData.file.name}>
@@ -651,7 +794,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                         <X className="mr-1 h-3 w-3" /> Remove / Change
                       </Button>
                     </div>
-                  ) : formData.existingFileName ? ( // Display existing file if no new one is selected
+                  ) : formData.existingFileName ? (
                     <div className="space-y-2">
                       <FileText className="mx-auto h-10 w-10 text-gray-400" />
                       <p className="text-xs text-gray-500 truncate" title={formData.existingFileName}>
@@ -663,7 +806,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                       >
                         Click to change file
                       </label>
-                    </div> // No new file and no existing file
+                    </div>
                   ) : (
                     <label
                       htmlFor="file-upload-edit"
