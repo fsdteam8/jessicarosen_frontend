@@ -53,6 +53,7 @@ interface FormDataState {
   resourceType: string // Stores ID
   thumbnail: File | null
   file: File | null // Changed from 'document' to 'file'
+  images: File[] // New field for multiple images
 }
 
 // Define the path for the component if it's not the root page
@@ -66,6 +67,7 @@ export default function ResourceForm() {
   const [stateOpen, setStateOpen] = useState(false)
   const [stateSearch, setStateSearch] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<FormDataState>({
@@ -81,13 +83,14 @@ export default function ResourceForm() {
     resourceType: "",
     thumbnail: null,
     file: null, // Changed from 'document' to 'file'
+    images: [], // Initialize images as an empty array
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-     const session = useSession();
-      const API_TOKEN = session?.data?.user?.accessToken;
-      // console.log("Token:", API_TOKEN);
+  const session = useSession()
+  const API_TOKEN = session?.data?.user?.accessToken
+  // console.log("Token:", API_TOKEN);
   // const API_TOKEN =
   //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
 
@@ -175,6 +178,11 @@ export default function ResourceForm() {
         // Changed from currentFormData.document
         submitData.append("file", currentFormData.file)
       }
+
+      // Append multiple images
+      currentFormData.images.forEach((imageFile) => {
+        submitData.append("images", imageFile) // Backend should handle multiple files with the same key
+      })
 
       const response = await fetch(`${API_BASE_URL}/resource`, {
         method: "POST",
@@ -279,6 +287,43 @@ export default function ResourceForm() {
     }))
   }
 
+  const handleImagesUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const newFiles = Array.from(files)
+      // const newPreviews = newFiles.map((file) => URL.createObjectURL(file))
+
+      // Filter out non-image files
+      const imageFiles = newFiles.filter((file) => file.type.startsWith("image/"))
+      if (imageFiles.length !== newFiles.length) {
+        toast({
+          title: "Invalid file type",
+          description: "Some files were not images and were not added.",
+          variant: "destructive",
+        })
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...imageFiles],
+      }))
+      setImagePreviews((prev) => [...prev, ...imageFiles.map((file) => URL.createObjectURL(file))])
+    }
+    // Reset file input to allow selecting the same file(s) again if removed
+    if (event.target) {
+      event.target.value = ""
+    }
+  }
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    URL.revokeObjectURL(imagePreviews[indexToRemove])
+    setImagePreviews((prev) => prev.filter((_, index) => index !== indexToRemove))
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, index) => index !== indexToRemove),
+    }))
+  }
+
   const handleSubmit = () => {
     const practiceAreaObj = practiceAreasData?.find((p) => p._id === formData.practiceArea)
     const resourceTypeObj = resourceTypesData?.find((rt) => rt._id === formData.resourceType)
@@ -307,6 +352,9 @@ export default function ResourceForm() {
             type: formData.file.type,
           }
         : null,
+      images: formData.images.map(
+        (img) => `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`,
+      ),
     }
     console.log("Form Data (for logging):", dataToLog)
     submitResource(formData)
@@ -321,8 +369,9 @@ export default function ResourceForm() {
       if (thumbnailPreview) {
         URL.revokeObjectURL(thumbnailPreview)
       }
+      imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
     }
-  }, [thumbnailPreview])
+  }, [thumbnailPreview,imagePreviews])
 
   return (
     <div className="max-w-9xl mx-auto p-6">
@@ -568,8 +617,8 @@ export default function ResourceForm() {
                   {formData.thumbnail && thumbnailPreview ? (
                     <div className="space-y-3">
                       <Image
-                      width={100}
-                      height={100}
+                        width={100}
+                        height={100}
                         src={thumbnailPreview || "/placeholder.svg"}
                         alt="Thumbnail preview"
                         className="max-h-40 w-auto mx-auto rounded-md object-contain"
@@ -623,6 +672,62 @@ export default function ResourceForm() {
                     </p>
                   </label>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Multiple Images Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upload Images</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <Label htmlFor="images-upload">Additional Images (Multiple)</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImagesUpload}
+                    className="hidden"
+                    id="images-upload"
+                  />
+                  <label
+                    htmlFor="images-upload"
+                    className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                  >
+                    <ImageIcon className="h-12 w-12 text-gray-400" />
+                    <p className="text-sm text-gray-600">Click or drag to upload images</p>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB each</p>
+                  </label>
+                </div>
+                {imagePreviews.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((previewUrl, index) => (
+                      <div key={index} className="relative group">
+                        <Image
+                          src={previewUrl || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          width={100}
+                          height={100}
+                          className="w-full h-24 object-cover rounded-md"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <p className="text-xs text-gray-500 truncate mt-1" title={formData.images[index]?.name}>
+                          {formData.images[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
