@@ -57,7 +57,7 @@ export default function CartPageAPI() {
     try {
       await updateCartMutation.mutateAsync({
         itemId,
-        quantity: targetQuantity,
+        quantity: newQuantity,
       });
     } finally {
       setUpdatingItems((prev) => {
@@ -304,9 +304,13 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
+<<<<<<< HEAD
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
                               }
+=======
+                              onClick={() => handleRemoveItem(item._id)}
+>>>>>>> 707db86 (refactor)
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >
