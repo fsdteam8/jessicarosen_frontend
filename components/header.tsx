@@ -9,7 +9,6 @@ import {
   ShoppingCart,
   Heart,
   Menu,
-  ChevronRight,
   Mail,
   UserRound,
 } from "lucide-react";
@@ -24,26 +23,32 @@ import Image from "next/image";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useSession } from "next-auth/react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { Region, setRegion } from "@/redux/features/regionSlice";
+import { type Region, setRegion } from "@/redux/features/regionSlice";
+import { SearchModal } from "@/components/search-modal";
+import { usePracticeAreas } from "@/hooks/use-practice-areas";
+import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { getItemCount, setOpen } = useCart();
   const { isAuthenticated, logout } = useAuth();
   const { items } = useWishlist();
-
   const dispatch = useAppDispatch();
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const { data: practiceAreasData, isLoading: practiceAreasLoading } =
+    usePracticeAreas();
 
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
   };
 
   const session = useSession();
-
   const user = session?.data?.user;
 
   // Prevent hydration mismatch by only showing dynamic content after mount
@@ -56,9 +61,41 @@ export function Header() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
-    setIsSearchOpen(false);
+    if (searchQuery.trim()) {
+      setIsSearchModalOpen(true);
+      setIsSearchOpen(false);
+    }
   };
+
+  const handleSearchButtonClick = () => {
+    if (searchQuery.trim()) {
+      setIsSearchModalOpen(true);
+    }
+  };
+
+  const handleMobileSearchClick = () => {
+    if (isSearchOpen && searchQuery.trim()) {
+      setIsSearchModalOpen(true);
+      setIsSearchOpen(false);
+    } else {
+      setIsSearchOpen(!isSearchOpen);
+    }
+  };
+
+  const handlePracticeAreaClick = (
+    practiceAreaId: string,
+    practiceAreaName: string
+  ) => {
+    router.push(
+      `/products?practiceArea=${encodeURIComponent(
+        practiceAreaId
+      )}&name=${encodeURIComponent(practiceAreaName)}`
+    );
+  };
+
+  // Get first 5 practice areas for main navigation
+  const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
+  const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
 
   return (
     <>
@@ -74,13 +111,11 @@ export function Header() {
                 <span className="">support@lawbie.com</span>
               </span>
             </div>
-
             <div className="flex-1 text-center hidden lg:block">
               <span className="text-sm font-medium leading-[120%]">
                 Special Offers: Save up to 30% Using Promo Code
               </span>
             </div>
-
             <div className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="outline"
@@ -107,7 +142,7 @@ export function Header() {
                 className={`text-base px-3 py-5 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                   currentRegion === "us"
                     ? "bg-white text-blue-600 border-white hover:bg-gray-100"
-                    : "bg-transparent text-white border-[2px] border-white hover:bg-white/10"
+                    : "bg-transparent text-white  border-white hover:bg-white/10"
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
@@ -144,24 +179,28 @@ export function Header() {
 
             {/* Search Bar */}
             <div className="flex-1 max-w-md mx-8 hidden md:block">
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full h-[52px] pl-4 pr-12 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white rounded-full bg-[#23547B] p-2">
+                <button
+                  type="button"
+                  onClick={handleSearchButtonClick}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white rounded-full bg-[#23547B] p-2 hover:bg-[#1a3f5c] transition-colors"
+                >
                   <Search className="text-xl text-white" />
                 </button>
-              </div>
+              </form>
             </div>
 
             {/* Mobile Search Button */}
             <button
               className="md:hidden text-gray-600 mr-3"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={handleMobileSearchClick}
             >
               <Search className="text-2xl" />
             </button>
@@ -176,7 +215,6 @@ export function Header() {
                   </span>
                 )}
               </Link>
-
               <button className="p-2 relative" onClick={() => setOpen(true)}>
                 <ShoppingCart className="text-2xl text-gray-600" />
                 {isMounted && (
@@ -185,16 +223,14 @@ export function Header() {
                   </Badge>
                 )}
               </button>
-
               {session && user ? (
                 <div className="relative group hidden sm:block ">
                   <button className="text-gray-700">
-                    {/* <span className="text-sm">{user?.name}</span> */}
                     <span>
                       <UserRound className="text-2xl" />
                     </span>
                   </button>
-                  <div className="absolute right-0 mt-1 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
+                  <div className="absolute right-0 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-gray-700">
                       <p className="font-medium text-center">{user?.name}</p>
                       <p className="text-gray-500 text-xs text-center border-b">
@@ -257,7 +293,7 @@ export function Header() {
                           : "hover:text-blue-600"
                       }`}
                     >
-                      Resources Type
+                      All Resources
                     </Link>
                     <Link
                       href="/blog"
@@ -269,46 +305,38 @@ export function Header() {
                     >
                       Blog
                     </Link>
-                    <Link
-                      href="/employment"
-                      className={`text-lg font-medium ${
-                        pathname === "/employment"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
-                      }`}
-                    >
-                      Employment
-                    </Link>
-                    <Link
-                      href="/corporate"
-                      className={`text-lg font-medium ${
-                        pathname === "/corporate"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
-                      }`}
-                    >
-                      Corporate and M&A
-                    </Link>
-                    <Link
-                      href="/legal-operations"
-                      className={`text-lg font-medium ${
-                        pathname === "/legal-operations"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
-                      }`}
-                    >
-                      Legal Operations
-                    </Link>
-                    <Link
-                      href="/commercial"
-                      className={`text-lg font-medium ${
-                        pathname === "/commercial"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
-                      }`}
-                    >
-                      Commercial Transactions
-                    </Link>
+
+                    {/* Mobile Practice Areas */}
+                    <div className="border-t pt-4 mt-4">
+                      <h3 className="text-sm font-semibold text-gray-500 mb-3">
+                        Practice Areas
+                      </h3>
+                      {practiceAreasLoading ? (
+                        <div className="space-y-2">
+                          {[...Array(3)].map((_, i) => (
+                            <div
+                              key={i}
+                              className="h-8 bg-gray-200 rounded animate-pulse"
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {practiceAreasData?.data?.map((area) => (
+                            <button
+                              key={area._id}
+                              onClick={() =>
+                                handlePracticeAreaClick(area._id, area.name)
+                              }
+                              className="w-full text-left text-base font-medium hover:text-blue-600 py-1"
+                            >
+                              {area.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
                     <Link
                       href="/wishlist"
                       className={`text-lg font-medium ${
@@ -327,7 +355,6 @@ export function Header() {
                         <Link href="/auth/login">Login</Link>
                       </Button>
                     )}
-
                     {isMounted && isAuthenticated && (
                       <>
                         <div className="border-t pt-4 mt-4">
@@ -355,7 +382,6 @@ export function Header() {
                         </Button>
                       </>
                     )}
-
                     <div className="block lg:hidden space-y-2">
                       <Button
                         variant="outline"
@@ -376,7 +402,6 @@ export function Header() {
                         </span>
                         <span>Lawbie Canada</span>
                       </Button>
-
                       <Button
                         variant="outline"
                         onClick={() => handleRegionChange("us")}
@@ -410,10 +435,11 @@ export function Header() {
             <form onSubmit={handleSearch} className="flex">
               <Input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
+                autoFocus
               />
               <Button
                 type="submit"
@@ -448,7 +474,7 @@ export function Header() {
                     : "text-gray-700 hover:text-blue-600"
                 }`}
               >
-                Resources Type
+                All Resources
               </Link>
               <Link
                 href="/blog"
@@ -460,53 +486,54 @@ export function Header() {
               >
                 Blog
               </Link>
-              <Link
-                href="/employment"
-                className={`font-medium transition-colors ${
-                  pathname === "/employment"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Employment
-              </Link>
-              <Link
-                href="/corporate"
-                className={`font-medium transition-colors ${
-                  pathname === "/corporate"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Corporate and M&A
-              </Link>
-              <Link
-                href="/legal-operations"
-                className={`font-medium transition-colors ${
-                  pathname === "/legal-operations"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Legal Operations
-              </Link>
-              <Link
-                href="/commercial"
-                className={`font-medium transition-colors ${
-                  pathname === "/commercial"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
-                }`}
-              >
-                Commercial Transactions
-              </Link>
-              <button className="ml-2 p-2 rounded-full border border-[#23547B] bg-gray-100 hover:bg-gray-200">
-                <ChevronRight className="w-6 h-6" />
-              </button>
+
+              {/* Dynamic Practice Areas */}
+              {practiceAreasLoading ? (
+                <div className="flex space-x-8">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-6 w-24 bg-gray-200 rounded animate-pulse"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  {visiblePracticeAreas.map((area) => (
+                    <button
+                      key={area._id}
+                      onClick={() =>
+                        handlePracticeAreaClick(area._id, area.name)
+                      }
+                      className="font-medium transition-colors text-gray-700 hover:text-blue-600 truncate max-w-[150px]"
+                      title={area.name}
+                    >
+                      {area.name}
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {/* Dropdown for more practice areas */}
+              {hasMoreAreas && (
+                <PracticeAreasDropdown
+                  visibleAreas={visiblePracticeAreas.map((area) => ({
+                    _id: area._id,
+                    name: area.name,
+                  }))}
+                />
+              )}
             </nav>
           </div>
         </div>
       </header>
+
+      {/* Search Modal */}
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        initialQuery={searchQuery}
+      />
 
       {/* Cart Sheet */}
       <CartSheet />

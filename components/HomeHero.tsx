@@ -1,11 +1,11 @@
-"use client"
+"use client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 
 export default function HomeHero() {
-  const session = useSession()
-  console.log(session, "full session")
+  const session = useSession();
+  console.log(session, "session");
 
   return (
     <div className="w-full lg:my-[48px] my-5 bg-none">
@@ -51,7 +51,9 @@ export default function HomeHero() {
               {/* Left-aligned button and discount info */}
               <div className="lg:mt-6 text-start flex justify-between items-center">
                 <div className="lg:h-[54px] lg:w-[242px] ">
-                  <Button className="w-full h-full bg-[#E0B15E]">Explore Resources</Button>
+                  <Button className="w-full h-full bg-[#E0B15E]">
+                    Explore Resources
+                  </Button>
                 </div>
 
                 <div className="lg:mt-4">
