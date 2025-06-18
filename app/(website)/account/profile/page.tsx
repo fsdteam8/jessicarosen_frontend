@@ -177,15 +177,18 @@ export default function ProfilePage() {
   // Image upload function
   const uploadImage = async (file: File) => {
     const formData = new FormData();
-    formData.append('profileImage', file);
+    formData.append("profileImage", file);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
     const response = await res.json();
 
@@ -198,12 +201,15 @@ export default function ProfilePage() {
 
   // Image delete function
   const deleteImage = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     const response = await res.json();
 
@@ -238,7 +244,7 @@ export default function ProfilePage() {
     mutationFn: uploadImage,
     onSuccess: (response) => {
       toast.success(response.message || "Image uploaded successfully");
-      setImageKey(prev => prev + 1); // Force image re-render
+      setImageKey((prev) => prev + 1); // Force image re-render
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
@@ -251,7 +257,7 @@ export default function ProfilePage() {
     mutationFn: deleteImage,
     onSuccess: (response) => {
       toast.success(response.message || "Image deleted successfully");
-      setImageKey(prev => prev + 1); // Force image re-render
+      setImageKey((prev) => prev + 1); // Force image re-render
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
@@ -274,7 +280,7 @@ export default function ProfilePage() {
         profileImage: data?.profileImage || "",
       });
       // Update image key when data changes to force re-render
-      setImageKey(prev => prev + 1);
+      setImageKey((prev) => prev + 1);
     }
   }, [data]);
 
@@ -295,11 +301,11 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast.error("Please select a valid image file");
         return;
       }
-      
+
       // Validate file size (e.g., max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size should be less than 5MB");
@@ -313,6 +319,40 @@ export default function ProfilePage() {
   // Handle image upload button click
   const handleImageUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const handelSubmitMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/apply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to submit");
+      }
+
+      return email;
+    },
+    onSuccess: () => {},
+    onError: (error) => {
+      console.error("Delete failed:", error);
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (data?.email) {
+      handelSubmitMutation.mutate(data.email);
+    } else {
+      toast.error("Email is not available.");
+    }
   };
 
   // Handle image delete
@@ -336,7 +376,9 @@ export default function ProfilePage() {
                 <div className="w-32 h-32 rounded-full overflow-hidden border">
                   <Image
                     key={imageKey} // Force re-render when imageKey changes
-                    src={`${data?.profileImage || "/images/not-imge.png"}?t=${imageKey}`} // Cache busting
+                    src={`${
+                      data?.profileImage || "/images/not-imge.png"
+                    }?t=${imageKey}`} // Cache busting
                     alt="Profile"
                     width={128}
                     height={128}
@@ -359,21 +401,22 @@ export default function ProfilePage() {
                       <Camera className="w-4 h-4" />
                     )}
                   </Button>
-                  {data?.profileImage && data.profileImage !== "/images/not-imge.png" && (
-                    <Button
-                      size="sm"
-                      className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600"
-                      onClick={handleImageDelete}
-                      disabled={deleteImageMutation.isPending}
-                      title="Delete current image"
-                    >
-                      {deleteImageMutation.isPending ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
+                  {data?.profileImage &&
+                    data.profileImage !== "/images/not-imge.png" && (
+                      <Button
+                        size="sm"
+                        className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600"
+                        onClick={handleImageDelete}
+                        disabled={deleteImageMutation.isPending}
+                        title="Delete current image"
+                      >
+                        {deleteImageMutation.isPending ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    )}
                 </div>
                 {/* Hidden file input */}
                 <input
@@ -398,7 +441,10 @@ export default function ProfilePage() {
                 </p>
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={() => (window.location.href = "/dashboard")}
+                  onClick={() => {
+                    handleSubmit();
+                    window.location.href = "/dashboard";
+                  }}
                 >
                   <SquareArrowOutUpRight className="mr-2" />
                   Go To Dashboard
