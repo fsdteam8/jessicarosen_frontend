@@ -35,18 +35,30 @@ export default function CartPageAPI() {
 
   // console.log(session, cartData);
 
-  // Here's the fixed version:
-  const handleQuantityChange = async (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return;
+  const handleQuantityChange = async (
+    itemId: string,
+    targetQuantity: number
+  ) => {
+    if (targetQuantity < 1) return; // Prevent invalid quantities
 
-    console.log(`Updating item ${itemId} quantity to ${newQuantity}`);
+    // Get the current quantity from the most up-to-date cart data
+    const currentItem = items.find((item) => item._id === itemId);
+    if (!currentItem) return;
+
+    // Prevent unnecessary API calls if quantity hasn't changed
+    if (currentItem.quantity === targetQuantity) return;
+
+    console.log(
+      `Updating item ${itemId} from ${currentItem.quantity} to ${targetQuantity}`
+    );
 
     setUpdatingItems((prev) => new Set(prev).add(itemId));
 
     try {
+      // Pass the absolute target quantity
       await updateCartMutation.mutateAsync({
         itemId,
-        quantity: newQuantity,
+        quantity: targetQuantity,
       });
     } finally {
       setUpdatingItems((prev) => {
@@ -208,7 +220,7 @@ export default function CartPageAPI() {
                         item.resource.discountPrice || item.resource.price;
                       const itemTotal = itemPrice * item.quantity;
 
-                      console.log(item.resource._id);
+                      console.log(item);
                       return (
                         <tr
                           key={item._id}
@@ -224,7 +236,7 @@ export default function CartPageAPI() {
                                     item.resource.thumbnail ||
                                     "/placeholder.svg?height=64&width=64"
                                   }
-                                  alt={item.resource.title}
+                                  alt={item.resource.title || "Product Image"}
                                   fill
                                   className="object-cover"
                                 />
@@ -243,12 +255,13 @@ export default function CartPageAPI() {
                             <div className="flex items-center">
                               <button
                                 className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                                onClick={() =>
-                                  handleQuantityChange(
-                                    item.resource._id,
+                                onClick={() => {
+                                  const newQuantity = Math.max(
+                                    1,
                                     item.quantity - 1
-                                  )
-                                }
+                                  );
+                                  handleQuantityChange(item._id, newQuantity);
+                                }}
                                 disabled={isUpdating || item.quantity <= 1}
                               >
                                 <Minus className="h-3 w-3" />
@@ -262,18 +275,20 @@ export default function CartPageAPI() {
                               </div>
                               <button
                                 className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                                onClick={() =>
+                                onClick={() => {
+                                  const newQuantity = item.quantity + 1;
                                   handleQuantityChange(
                                     item.resource._id,
-                                    item.quantity + 1
-                                  )
-                                }
+                                    newQuantity
+                                  );
+                                }}
                                 disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
                             </div>
                           </td>
+
                           <td className="py-4 px-6 font-medium">
                             <div>
                               ${formatPrice(itemPrice)}
@@ -291,7 +306,9 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleRemoveItem(item._id)}
+                              onClick={() =>
+                                handleRemoveItem(item.resource._id)
+                              }
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >
