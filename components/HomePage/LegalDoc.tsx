@@ -1,10 +1,23 @@
+"use client"
 import React from "react";
 import { Button } from "../ui/button";
 import { Mail } from "lucide-react";
 import { FaArrowRightLong } from "react-icons/fa6";
 import Image from "next/image";
+import { useAppSelector } from "@/redux/hooks";
+import Link from "next/link";
 
 const LegalDoc = () => {
+
+  const currentRegion = useAppSelector((state) => state.region.currentRegion);
+    const countryName =
+      currentRegion === "canada"
+        ? "Canada"
+        : currentRegion === "us"
+        ? "USA"
+        : null;
+  
+    console.log(countryName)
   return (
     <div>
       <section className="py-10 bg-[#2c5d7c] text-white">
@@ -13,7 +26,7 @@ const LegalDoc = () => {
             <div className="flex gap-3">
               <div className="w-[176px] h-[88px]">
                 <Image
-                  src="/images/flage.png"
+                  src={countryName === 'Canada' ? "/images/flage.png" : "/images/flage1.png"}
                   alt="Hero Image"
                   // fill
                   width={200}
@@ -32,12 +45,14 @@ const LegalDoc = () => {
               </div>
             </div>
             <div className="mt-4 md:mt-0 flex items-center space-x-6">
+              <Link href="/products">
               <Button className="bg-white h-[56px] text-[#2c5d7c] hover:bg-gray-100">
                 <p>Buy Now</p>
                 <span className="h-[35px] w-10 rounded-[8px] bg-[#23547B] flex items-center justify-center">
                   <FaArrowRightLong size={30} className="text-white text-xl" />
                 </span>
               </Button>
+              </Link>
               <div className="flex gap-2">
                 <span className="bg-white h-12 w-12 rounded-full flex items-center justify-center">
                   <Mail className="text-xl text-[#23547B]" />
