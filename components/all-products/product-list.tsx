@@ -6,13 +6,14 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-import { useCart } from "@/hooks/use-cart";
+import { useAddToCart } from "@/hooks/use-cart-api"; // Updated import
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { JessicaPagination } from "../ui/JessicaPagination";
+import { toast } from "@/hooks/use-toast";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
@@ -20,7 +21,7 @@ interface ProductListProps {
 
 export default function ProductList({ viewMode = "list" }: ProductListProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const { addItem } = useCart();
+  const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart(); // Updated to use the proper hook
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
@@ -32,8 +33,35 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
     return wishlistItems.some((item) => item.id === productId);
   };
 
-  const addToCart = (item: any) => {
-    addItem({ ...item, quantity: 1 });
+  const handleAddToCart = async (product: any) => {
+    try {
+      if (status === "unauthenticated") {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to add items to cart",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await addToCart({
+        resourceId: product._id,
+        quantity: 1,
+      });
+
+      toast({
+        title: "Success",
+        description: "Item added to cart",
+      });
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to add item",
+        variant: "destructive",
+      });
+    }
   };
 
   const toggleWishlist = (item: any) => {
@@ -45,7 +73,6 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
   };
 
   // Fetching all products data
-
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
       queryKey: ["all-products", currentPage],
@@ -57,6 +84,7 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
   console.log(data);
   const products = data?.data || [];
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -64,6 +92,7 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
       </div>
     );
   }
+
   if (isError) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -168,11 +197,11 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
                     <div className="space-y-2">
                       <Button
-                        size="sm"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={isAddingToCart}
                         className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
-                        onClick={() => addToCart(product)}
                       >
-                        Add To Cart
+                        {isAddingToCart ? "Adding..." : "Add To Cart"}
                       </Button>
 
                       <Button
@@ -202,7 +231,6 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
               </div>
             ) : (
               // List View Layout
-
               <div className="flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8 p-8">
                 <div className="flex-shrink-0">
                   <Link className="" href={`/products/${product._id}`}>
@@ -284,9 +312,10 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                           <Button
                             size="lg"
                             className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full max-w-[250px]"
-                            onClick={() => addToCart(product)}
+                            onClick={() => handleAddToCart(product)}
+                            disabled={isAddingToCart}
                           >
-                            Add To Cart
+                            {isAddingToCart ? "Adding..." : "Add To Cart"}
                           </Button>
 
                           <Button

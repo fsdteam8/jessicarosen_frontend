@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import { useAppSelector } from "@/redux/hooks";
 import { useQuery } from "@tanstack/react-query";
