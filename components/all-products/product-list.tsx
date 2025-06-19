@@ -15,12 +15,29 @@ import { useState } from "react";
 import { JessicaPagination } from "../ui/JessicaPagination";
 import { useAppSelector } from "@/redux/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import TableSkeletonWrapper from "../shared/TableSkeletonWrapper/TableSkeletonWrapper";
+import ErrorContainer from "../shared/ErrorContainer/ErrorContainer";
+import NotFound from "../shared/NotFound/NotFound";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
+  sortBy?: string;
+  practiceArea?: string | null;
+  resourceType?: string | null;
+  price?: string;
+  format?: string;
+  states?: string;
 }
 
-export default function ProductList({ viewMode = "list" }: ProductListProps) {
+export default function ProductList({
+  viewMode = "list",
+  sortBy,
+  practiceArea,
+  resourceType,
+  price,
+  format,
+  states,
+}: ProductListProps) {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const countryName =
     currentRegion === "canada"
@@ -57,34 +74,65 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
-      queryKey: ["all-products", currentPage, countryName],
+      queryKey: [
+        "all-products",
+        currentPage,
+        countryName,
+        sortBy,
+        practiceArea,
+        resourceType,
+        price,
+        format,
+        states,
+      ],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&page=${currentPage}&limit=8`
+          `${
+            process.env.NEXT_PUBLIC_BACKEND_URL
+          }/api/v1/resource/get-all-resources?country=${countryName}&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+            practiceArea
+              ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
+              : ""
+          }${
+            resourceType
+              ? `&resourceType=${encodeURIComponent(resourceType)}`
+              : ""
+          }&format=${encodeURIComponent(
+            format ?? ""
+          )}&price=${encodeURIComponent(price ?? "")}&states=${encodeURIComponent(states ?? "")}`
         ).then((res) => res.json()),
     });
 
   console.log(data);
   const products = data?.data || [];
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold">Loading products...</p>
-      </div>
-    );
-  }
-  if (isError) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg font-semibold text-red-500">
-          {error?.message || "Something went wrong"}
-        </p>
-      </div>
-    );
-  }
 
-  return (
-    <div>
+  let content;
+
+  if (isLoading) {
+    content = (
+      <div className="w-full p-5">
+        <TableSkeletonWrapper
+          count={6}
+          width="100%"
+          height="320px"
+          className="bg-[#E6EEF6]"
+        />
+      </div>
+    );
+  } else if (isError) {
+    content = (
+      <div>
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length === 0) {
+    content = (
+      <div>
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length > 0) {
+    content = (
       <div
         className={
           viewMode === "grid"
@@ -334,6 +382,12 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
           </Card>
         ))}
       </div>
+    );
+  }
+
+  return (
+    <div>
+      <div>{content}</div>
       <div className="pb-[88px] pt-4">
         {data && data?.pagination && data?.pagination?.totalPages > 1 && (
           <JessicaPagination

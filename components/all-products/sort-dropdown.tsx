@@ -1,33 +1,42 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface SortDropdownProps {
-  options: { label: string; value: string }[]
-  defaultValue: string
+  options: { label: string; value: string }[];
+  defaultValue: string;
+  onChange: (value: string) => void;
 }
 
-export default function SortDropdown({ options, defaultValue }: SortDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [selected, setSelected] = useState(defaultValue)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+export default function SortDropdown({
+  options,
+  defaultValue,
+  onChange,
+}: SortDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState(defaultValue);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedLabel = options.find((option) => option.value === selected)?.label || defaultValue
+  const selectedLabel =
+    options.find((option) => option.value === selected)?.label || defaultValue;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -37,7 +46,11 @@ export default function SortDropdown({ options, defaultValue }: SortDropdownProp
         className="flex items-center justify-between gap-2 h-9 px-3 border-gray-300 font-normal"
       >
         {selectedLabel}
-        {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        {isOpen ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
       </Button>
 
       {isOpen && (
@@ -50,8 +63,9 @@ export default function SortDropdown({ options, defaultValue }: SortDropdownProp
                   selected === option.value ? "bg-gray-100" : ""
                 }`}
                 onClick={() => {
-                  setSelected(option.value)
-                  setIsOpen(false)
+                  setSelected(option.value);
+                  setIsOpen(false);
+                  onChange(option.value);
                 }}
               >
                 {option.label}
@@ -61,5 +75,5 @@ export default function SortDropdown({ options, defaultValue }: SortDropdownProp
         </div>
       )}
     </div>
-  )
+  );
 }
