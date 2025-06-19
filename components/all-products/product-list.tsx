@@ -6,7 +6,7 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-import { useCart } from "@/hooks/use-cart";
+import { useAddToCart } from "@/hooks/use-cart-api"; // Updated import
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
@@ -18,6 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import TableSkeletonWrapper from "../shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import ErrorContainer from "../shared/ErrorContainer/ErrorContainer";
 import NotFound from "../shared/NotFound/NotFound";
+
+import { toast } from "@/hooks/use-toast";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
@@ -46,7 +48,7 @@ export default function ProductList({
       ? "USA"
       : null;
   const [currentPage, setCurrentPage] = useState(1);
-  const { addItem } = useCart();
+  const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart(); // Updated to use the proper hook
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
@@ -58,8 +60,35 @@ export default function ProductList({
     return wishlistItems.some((item) => item.id === productId);
   };
 
-  const addToCart = (item: any) => {
-    addItem({ ...item, quantity: 1 });
+  const handleAddToCart = async (product: any) => {
+    try {
+      if (status === "unauthenticated") {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to add items to cart",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await addToCart({
+        resourceId: product._id,
+        quantity: 1,
+      });
+
+      toast({
+        title: "Success",
+        description: "Item added to cart",
+      });
+    } catch (error) {
+      console.error("Add to cart error:", error);
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Failed to add item",
+        variant: "destructive",
+      });
+    }
   };
 
   const toggleWishlist = (item: any) => {
@@ -71,7 +100,6 @@ export default function ProductList({
   };
 
   // Fetching all products data
-
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
       queryKey: [
@@ -227,11 +255,11 @@ export default function ProductList({
 
                     <div className="space-y-2">
                       <Button
-                        size="sm"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={isAddingToCart}
                         className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
-                        onClick={() => addToCart(product)}
                       >
-                        Add To Cart
+                        {isAddingToCart ? "Adding..." : "Add To Cart"}
                       </Button>
 
                       <Button
@@ -261,7 +289,6 @@ export default function ProductList({
               </div>
             ) : (
               // List View Layout
-
               <div className="flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8 p-8">
                 <div className="flex-shrink-0">
                   <Link className="" href={`/products/${product._id}`}>
@@ -346,9 +373,10 @@ export default function ProductList({
                           <Button
                             size="lg"
                             className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full max-w-[250px]"
-                            onClick={() => addToCart(product)}
+                            onClick={() => handleAddToCart(product)}
+                            disabled={isAddingToCart}
                           >
-                            Add To Cart
+                            {isAddingToCart ? "Adding..." : "Add To Cart"}
                           </Button>
 
                           <Button

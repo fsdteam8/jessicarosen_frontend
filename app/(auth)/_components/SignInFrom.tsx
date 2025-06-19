@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { useForm } from "react-hook-form"
-import { Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { toast } from "sonner"
-import authImg from "@/public/images/authImg.svg"
+import Image from "next/image";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import authImg from "@/public/images/authImg.svg";
 
 type FormData = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
 const validateLogin = {
   email: {
@@ -30,41 +30,41 @@ const validateLogin = {
       message: "Password must be at least 6 characters long",
     },
   },
-}
+};
 
 export default function SignInForm() {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>()
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+  } = useForm<FormData>();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const onSubmit = async (data: FormData) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
-      })
+      });
 
       if (result?.error) {
-        toast.error(result.error)
+        toast.error(result.error);
       } else {
-        toast.success("Login successful! Welcome back.")
-        router.push("/dashboard")
-        router.refresh()
+        toast.success("Login successful! Welcome back.");
+        router.push("/");
+        router.refresh();
       }
     } catch (error) {
-      console.error("Login error:", error)
-      toast.error("An error occurred during login")
+      console.error("Login error:", error);
+      toast.error("An error occurred during login");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col md:flex-row justify-center items-center lg:gap-[100px] gap-10 min-h-screen bg-gray-100 px-4 py-8">
@@ -79,7 +79,9 @@ export default function SignInForm() {
       </div>
 
       <div className="w-full max-w-lg bg-white rounded-xl p-6 sm:p-8 shadow-[0px_0px_56px_0px_#00000029]">
-        <h2 className="text-center text-2xl font-semibold mb-2">Welcome Back!</h2>
+        <h2 className="text-center text-2xl font-semibold mb-2">
+          Welcome Back!
+        </h2>
         <h3 className="text-center text-[#787878] text-base font-medium mb-10">
           Enter to get unlimited data & information
         </h3>
@@ -99,7 +101,11 @@ export default function SignInForm() {
               }`}
               placeholder="Enter your email..."
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password */}
@@ -125,12 +131,19 @@ export default function SignInForm() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Forgot Password */}
           <div className="flex items-center justify-end text-sm">
-            <Link href="/forget-password" className="text-red-900 hover:underline">
+            <Link
+              href="/forget-password"
+              className="text-red-900 hover:underline"
+            >
               Forgot password?
             </Link>
           </div>
@@ -155,5 +168,5 @@ export default function SignInForm() {
         </p>
       </div>
     </div>
-  )
+  );
 }
