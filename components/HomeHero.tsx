@@ -1,5 +1,4 @@
 "use client";
-
 import Image from "next/image";
 import { useAppSelector } from "@/redux/hooks";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +11,7 @@ import { useRef } from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
+
 
 interface PromoCode {
   _id: string;
@@ -147,7 +147,7 @@ export default function HomeHero() {
       </div>
     );
   }
-
+  
   return (
     <div className="w-full lg:my-[48px] my-5 bg-none">
       {/* Hero Section */}
@@ -213,7 +213,6 @@ export default function HomeHero() {
                     </Button>
                     </Link>
                   </div>
-
                   <div className="lg:mt-4">
                     <p className="text-[32px] font-bold text-[#E0B15E]"><HeroPromoCarousel specialPromos={specialPromoCodes} /></p>
                     <p className="text-base font-medium leading-[120%]">
