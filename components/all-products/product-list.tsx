@@ -13,12 +13,21 @@ import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { JessicaPagination } from "../ui/JessicaPagination";
+import { useAppSelector } from "@/redux/hooks";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
 }
 
 export default function ProductList({ viewMode = "list" }: ProductListProps) {
+  const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const countryName =
+    currentRegion === "canada"
+      ? "Canada"
+      : currentRegion === "us"
+      ? "USA"
+      : null;
   const [currentPage, setCurrentPage] = useState(1);
   const { addItem } = useCart();
   const {
@@ -48,10 +57,10 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
 
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
-      queryKey: ["all-products", currentPage],
+      queryKey: ["all-products", currentPage, countryName],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?page=${currentPage}&limit=7`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&page=${currentPage}&limit=8`
         ).then((res) => res.json()),
     });
 
@@ -112,15 +121,17 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                     </h3>
 
                     <div className="flex items-center gap-2">
-                      <Image
-                        src={
-                          product?.createdBy?.profileImage || "/placeholder.svg"
-                        }
-                        alt={product?.createdBy?.firstName}
-                        width={40}
-                        height={40}
-                        className="w-[40px] h-[40px] rounded-full flex-shrink-0"
-                      />
+                      <Avatar className="border border-black rounded-full w-[49px] h-[49px] flex items-center justify-center">
+                        <AvatarImage
+                          src={product?.createdBy?.profileImage}
+                          alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                        />
+                        <AvatarFallback>{`${
+                          product?.createdBy?.firstName?.[0] ?? ""
+                        }${
+                          product?.createdBy?.lastName?.[0] ?? ""
+                        }`}</AvatarFallback>
+                      </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-normal text-[#2A2A2A] leading-[150%]">
                           Created by
@@ -228,16 +239,19 @@ export default function ProductList({ viewMode = "list" }: ProductListProps) {
                       </h3>
 
                       <div className="flex items-center gap-2 mb-2">
-                        <Image
-                          src={
-                            product?.createdBy?.profileImage ||
-                            "/placeholder.svg"
-                          }
-                          alt={product?.createdBy?.firstName}
-                          width={49}
-                          height={49}
-                          className="w-[49px] h-[49px] rounded-full"
-                        />
+                        <div className="">
+                          <Avatar className="border border-black rounded-full w-[49px] h-[49px] flex items-center justify-center">
+                            <AvatarImage
+                              src={product?.createdBy?.profileImage}
+                              alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                            />
+                            <AvatarFallback>{`${
+                              product?.createdBy?.firstName?.[0] ?? ""
+                            }${
+                              product?.createdBy?.lastName?.[0] ?? ""
+                            }`}</AvatarFallback>
+                          </Avatar>
+                        </div>
                         <div>
                           <p className="text-xs font-normal text-[#2A2A2A] leading-[150%] pb-1">
                             Created by

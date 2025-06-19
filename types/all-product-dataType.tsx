@@ -18,6 +18,7 @@ export interface ProductDataType {
   format: string;
   file: FileInfo;
   thumbnail: string[];
+  images: string[];
   createdBy: User;
   status: string;
   practiceAreas: string[];

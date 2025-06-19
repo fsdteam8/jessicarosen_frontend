@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function ProductDetails() {
   const params = useParams();
@@ -39,7 +40,7 @@ export default function ProductDetails() {
   // ];
 
   // State to track the currently selected main image
-  // const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
@@ -62,26 +63,36 @@ export default function ProductDetails() {
     );
   }
 
+const thumbnail =
+  Array.isArray(product?.thumbnail) && product.thumbnail.length > 0
+    ? product.thumbnail[0]
+    : product?.thumbnail;
+
+const images = Array.isArray(product?.images)
+  ? [thumbnail, ...product.images.filter((img) => img !== thumbnail && Boolean(img))]
+  : [thumbnail].filter(Boolean);
+
+
+console.log("ProductDetails images: 11", images);
+
   return (
     <div className="container mx-auto p-6 space-y-12">
       {/* Main Product Section */}
       <div className="grid md:grid-cols-2 gap-8">
         {/* Left side - Product Images */}
-        {/* <div className="space-y-4">
-          <div className="gap-4 flex">
+        <div className="space-y-4">
+          <div className="gap-4 flex ">
             <div className="w-[328px] h-[328px] relative">
               <Image
-                src={
-                  productImages[selectedImageIndex].src || "/placeholder.svg"
-                }
-                alt={productImages[selectedImageIndex].alt}
+                src={Array.isArray(images[selectedImageIndex]) ? "/placeholder.svg" : images[selectedImageIndex] || "/placeholder.svg"}
+                alt={product?.title || "Product image"}
                 fill
                 className="object-cover rounded-lg"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {productImages.slice(1).map((image, index) => (
+              {images.slice(1).map((image, index) => (
                 <div
                   key={index + 1}
                   className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
@@ -92,8 +103,8 @@ export default function ProductDetails() {
                   onClick={() => setSelectedImageIndex(index + 1)}
                 >
                   <Image
-                    src={image.src || "/placeholder.svg"}
-                    alt={image.alt}
+                    src={typeof image === "string" ? image : "/placeholder.svg"}
+                    alt={product?.title || "Product image"}
                     fill
                     className="object-cover"
                   />
@@ -108,8 +119,8 @@ export default function ProductDetails() {
               ))}
             </div>
           </div>
-
-          <div className="flex gap-2 pt-2">
+{/* 
+          <div className="flex gap-2 pt-2 border-2 border-red-500">
             <div
               className={`w-16 h-16 relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
                 selectedImageIndex === 0
@@ -126,7 +137,7 @@ export default function ProductDetails() {
                 }`}
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-2 pt-4">
             <span className="text-sm text-gray-600">Share:</span>
@@ -154,8 +165,8 @@ export default function ProductDetails() {
               </Button>
             </div>
           </div>
-        </div> */}
-        <div className=" w-full">
+        </div>
+        {/* <div className=" w-full">
           <Image
             src={
               Array.isArray(product?.thumbnail)
@@ -167,7 +178,7 @@ export default function ProductDetails() {
             height={328}
             className="w-full h-[328px] rounded-[8px] object-cover"
           />
-        </div>
+        </div> */}
 
         {/* Right side - Product Details */}
         <div className="">
@@ -228,11 +239,6 @@ export default function ProductDetails() {
                     {product?.createdBy?.lastName}
                   </p>
                 </div>
-                <div>
-                  <p className="text-base font-medium text-[#616161] leading-[120%]">
-                    15k Followers
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -283,14 +289,6 @@ export default function ProductDetails() {
               </span>
               <span className="text-lg text-[#424242] font-medium leading-[120%]">
                 {product?.format}
-              </span>
-            </div>
-            <div >
-              <span className="text-base text-[#616161] font-medium leading-[120%]">
-                Total Pages:{" "}
-              </span>
-              <span className="text-lg text-[#424242] font-medium leading-[120%]">
-                140
               </span>
             </div>
           </div>

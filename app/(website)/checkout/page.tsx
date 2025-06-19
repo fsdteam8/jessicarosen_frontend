@@ -125,7 +125,7 @@ export default function CheckoutPage() {
                     >
                       <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0">
                         <Image
-                          src={item.image || "/placeholder.svg"}
+                          src={item.thumbnail || "/placeholder.svg"}
                           alt={item.title}
                           fill
                           className="object-cover"

@@ -23,6 +23,7 @@ export default function CartPage() {
     getDiscount,
     // getTotal,
   } = useCart()
+
   console.log("Cart items:", items)
 
   
@@ -50,14 +51,14 @@ const handleTotalPrice = (id: string) => {
  
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col ">
 
       <main className="flex-1">
         {/* Hero Section */}
         
 
         <div className="container mx-auto px-4 py-12">
-          {items.length === 0 ? (
+          {items?.length === 0 ? (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <div className="mb-4">
                 <ShoppingCart className="h-16 w-16 mx-auto text-gray-400" />
@@ -87,13 +88,13 @@ const handleTotalPrice = (id: string) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {items.map((item) => (
+                    {items?.map((item) => (
                       <tr key={item.id} className="border-b">
                         <td className="py-4 px-6">
                           <div className="flex items-center">
                             <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0 mr-4">
                               <Image
-                                src={item.image || "/placeholder.svg"}
+                                src={item?.thumbnail || "/placeholder.svg"}
                                 alt={item.title}
                                 fill
                                 className="object-cover"

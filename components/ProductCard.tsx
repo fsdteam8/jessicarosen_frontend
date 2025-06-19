@@ -1,35 +1,43 @@
-"use client"
-import { Heart, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
-import { useCart } from "@/hooks/use-cart"
-import { useWishlist } from "@/hooks/use-wishlist"
-import Link from "next/link"
-import { ProductDataType } from "@/types/all-product-dataType"
+"use client";
+import { Heart, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
+import Link from "next/link";
+import { ProductDataType } from "@/types/all-product-dataType";
 
-export default function ProductCard({ product }: {product?: ProductDataType}) {
+export default function ProductCard({
+  product,
+}: {
+  product?: ProductDataType;
+}) {
   // console.log("ProductCard product:", product)
 
-  const { addItem } = useCart()
-  const { addItem: addToWish, removeItem: removeFromWish, items: wishlistItems } = useWishlist()
+  const { addItem } = useCart();
+  const {
+    addItem: addToWish,
+    removeItem: removeFromWish,
+    items: wishlistItems,
+  } = useWishlist();
 
   // Check if the product is already in the wishlist
-  const isInWishlist = wishlistItems.some((item) => item.id === product?._id)
+  const isInWishlist = wishlistItems.some((item) => item.id === product?._id);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addToCart = (item: any) => {
-    addItem({ ...item, quantity: 1 })
-  }
+    addItem({ ...item, quantity: 1 });
+  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const toggleWishlist = (item: any) => {
     if (isInWishlist) {
-      removeFromWish(item.id)
+      removeFromWish(item.id);
     } else {
-      addToWish({ ...item, quantity: 1 })
+      addToWish({ ...item, quantity: 1 });
     }
-  }
+  };
 
   return (
     <div className="bg-gray-50 p-4 flex items-center ">
@@ -51,13 +59,21 @@ export default function ProductCard({ product }: {product?: ProductDataType}) {
                   : "text-gray-400 hover:text-red-500 hover:bg-white/20"
               }`}
             >
-              <Heart className={`w-5 h-5 transition-all duration-200 ${isInWishlist ? "fill-red-500" : "fill-none"}`} />
+              <Heart
+                className={`w-5 h-5 transition-all duration-200 ${
+                  isInWishlist ? "fill-red-500" : "fill-none"
+                }`}
+              />
             </Button>
 
             {/* Book Image */}
             <div className="w-full">
               <Image
-                src={Array.isArray(product?.thumbnail) ? product?.thumbnail[0] : product?.thumbnail || "/placeholder.svg"}
+                src={
+                  Array.isArray(product?.thumbnail)
+                    ? product?.thumbnail[0] || "/placeholder.svg"
+                    : product?.thumbnail || "/placeholder.svg"
+                }
                 alt={product?.title || "Product Image"}
                 width={370}
                 height={180}
@@ -70,22 +86,35 @@ export default function ProductCard({ product }: {product?: ProductDataType}) {
           {/* Content Section */}
           <div className="flex-1 p-4 flex flex-col">
             {/* Product Title */}
-            <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-3 line-clamp-2">{product?.title}</h2>
+            <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-3 line-clamp-2">
+              {product?.title}
+            </h2>
 
-            <p dangerouslySetInnerHTML={{ __html: product?.description || "" }} className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3"/>
+            <p
+              dangerouslySetInnerHTML={{ __html: product?.description?.slice(0, 100) || "" }}
+              className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3 h-[30px]"
+            />
 
             {/* Price and Rating Row */}
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 text-base">Price :</span>
-                <span className="text-gray-400 text-base line-through">${product?.price}</span>
-                <span className="text-red-600 font-bold text-xl">${product?.discountPrice}</span>
+                <span className="text-gray-400 text-base line-through">
+                  ${product?.price}
+                </span>
+                <span className="text-red-600 font-bold text-xl">
+                  ${product?.discountPrice}
+                </span>
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-lg font-semibold text-gray-900">{product?.averageRating}</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  {product?.averageRating}
+                </span>
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-gray-500 text-sm">({product?.totalReviews} Reviews)</span>
+                <span className="text-gray-500 text-sm">
+                  ({product?.totalReviews} Reviews)
+                </span>
               </div>
             </div>
 
@@ -111,5 +140,5 @@ export default function ProductCard({ product }: {product?: ProductDataType}) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -38,7 +38,7 @@ export function CartSheet() {
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0">
-                    <Image src={item.image || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
+                    <Image src={item?.thumbnail || "/placeholder.svg"} alt={item.title} fill className="object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium truncate">{item.title}</h4>
