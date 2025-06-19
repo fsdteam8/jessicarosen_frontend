@@ -29,19 +29,7 @@ export function AccountLayout({
   };
   return (
     <div className="flex flex-col lg:mt-[80px]">
-      <main className="">
-        {/* Hero Section */}
-        {/* <HeroSection
-          title="Accounts"
-          description="Need assistance? We are here to help. To inquire about the products and services found on our website, please contact us by phone or e-mail, and we'll gladly assist you."
-          backgroundImage="/scales-of-justice.png"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Accounts", href: "/account" },
-            { label: "My Profile", href: "/account/profile" },
-          ]}
-        /> */}
-
+      <main className="">     
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-8">Accounts</h2>
 

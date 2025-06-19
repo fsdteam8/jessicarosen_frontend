@@ -2,20 +2,101 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Package, TrendingUp } from "lucide-react";
-// import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useQuery } from "@tanstack/react-query";
 import { ProductChart } from "./product-chart";
 import { ProductSellChart } from "./product-sell-chart";
 import { RevenueChart } from "./revenue-chart";
-// import { RevenueReport } from "./Revenue_report";
+import { useState } from "react";
 
 export function DashboardOverview() {
-  // const session = useSession();
-  // const token = session?.data?.user?.accessToken;
-  // console.log("Token:", token);
-  // console.log("Session Data:", session?.data?.user?.accessToken);
+  const { data: session, status } = useSession();
+  const token = session?.user?.accessToken;
+  const isLoggedIn = status === "authenticated";
+
+  const [revenueFilter, setRevenueFilter] = useState("month");
+
+  // Fetch dashboard summary
+  const {
+    data: dashboardResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["dashboard-overview"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/dashboard/dashboard-summary`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch dashboard data");
+      return res.json();
+    },
+    enabled: isLoggedIn && !!token,
+  });
+
+  // Fetch revenue report based on filter
+  const { data: revenue, isLoading: revenueLoading } = useQuery({
+    queryKey: ["revenue", revenueFilter],
+    queryFn: async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/dashboard/revenue-report?filter=${revenueFilter}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch revenue data");
+      const json = await res.json();
+
+      type RevenueItem = { month?: string; day?: string; date?: string; revenue: number };
+      return (json.data as RevenueItem[]).map((item) => {
+        if (revenueFilter === "month") {
+          return { date: item.month ?? "", thisMonth: item.revenue, lastMonth: 0 };
+        } else if (revenueFilter === "week") {
+          return { date: item.day ?? "", thisMonth: item.revenue, lastMonth: 0 };
+        } else if (revenueFilter === "day") {
+          return { date: item.date ?? "", thisMonth: item.revenue, lastMonth: 0 };
+        } else {
+          return { date: item.month ?? item.date ?? "", thisMonth: item.revenue, lastMonth: 0 };
+        }
+      });
+    },
+    enabled: isLoggedIn && !!token,
+  });
+
+  const dashboardData = dashboardResponse?.data;
+  const totalRevenue = dashboardData?.totalRevenue ?? 0;
+  const liveProducts = dashboardData?.liveProducts ?? 0;
+  const productSellData = dashboardData?.productSell ?? [];
+  const newProductsData = dashboardData?.newProducts ?? {
+    thisDay: 0,
+    thisWeek: 0,
+    thisMonth: 0,
+    thisYear: 0,
+  };
+
+  if (error) {
+    return (
+      <div className="space-y-[32px]">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
+          <p className="text-red-600">
+            Failed to load dashboard data. Please try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-[32px]">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
         <p className="text-gray-600">Dashboard</p>
@@ -23,15 +104,16 @@ export function DashboardOverview() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardContent className="pt-[24px] pb-[42px] px-[32px]">
-            <div className="flex items-center ">
-              <div className="mr-10">
-                <p className="text-[20px] mb-[8px] font-bold text-[#131313] ">
+        <Card className="bg-white">
+          <CardContent className="pt-6 pb-6 px-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xl mb-2 font-bold text-gray-900">
                   Total Revenue
                 </p>
-                <p className="text-[18px] font-medium text-[#424242]">
-                  <span className="text-green-500">●</span> 132,570
+                <p className="text-lg font-medium text-gray-600">
+                  <span className="text-green-500">●</span>{" "}
+                  {isLoading ? "Loading..." : totalRevenue.toLocaleString()}
                 </p>
               </div>
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -41,15 +123,16 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center ">
-              <div className="mr-10">
-                <p className="text-[20px] mb-[8px] font-bold text-[#131313] ">
+        <Card className="bg-white">
+          <CardContent className="pt-6 pb-6 px-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xl mb-2 font-bold text-gray-900">
                   Live Product
                 </p>
-                <p className="text-[18px] font-medium text-[#424242]">
-                  <span className="text-orange-500">●</span> 132,570
+                <p className="text-lg font-medium text-gray-600">
+                  <span className="text-orange-500">●</span>{" "}
+                  {isLoading ? "Loading..." : liveProducts.toLocaleString()}
                 </p>
               </div>
               <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
@@ -63,18 +146,26 @@ export function DashboardOverview() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1">
-          <RevenueChart />
+          <RevenueChart
+            revenueData={revenue || []}
+            isLoading={revenueLoading}
+            onFilterChange={setRevenueFilter}
+            currentFilter={revenueFilter}
+          />
         </div>
         <div className="lg:col-span-1">
-          <ProductChart />
+          <ProductChart
+            newProductsData={newProductsData}
+            isLoading={isLoading}
+          />
         </div>
         <div className="lg:col-span-1">
-          <ProductSellChart />
+          <ProductSellChart
+            productSellData={productSellData}
+            isLoading={isLoading}
+          />
         </div>
       </div>
-      {/* <div>
-        <RevenueReport/>
-      </div> */}
     </div>
   );
 }

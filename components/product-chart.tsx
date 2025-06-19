@@ -8,93 +8,204 @@ import {
   ChartTooltipContent,
 } from "./ui/chart";
 import { RadialBar, RadialBarChart } from "recharts";
+import { useState } from "react";
 
-export function ProductChart() {
+interface NewProductsData {
+  thisDay: number;
+  thisWeek: number;
+  thisMonth: number;
+  thisYear: number;
+}
+
+interface ProductChartProps {
+  newProductsData: NewProductsData;
+  isLoading: boolean;
+}
+
+export function ProductChart({
+  newProductsData,
+  isLoading,
+}: ProductChartProps) {
+  const [selectedPeriod, setSelectedPeriod] = useState<
+    "Day" | "Week" | "Month" | "Year"
+  >("Month");
+
+  // Define fixed colors for periods
+  const colors = {
+    thisDay: "#3B82F6", // blue-500
+    thisWeek: "#60A5FA", // blue-400
+    thisMonth: "#8B5CF6", // purple-500
+    thisYear: "#7C3AED", // purple-700
+  };
+
+  // Prepare chart data with fixed colors
   const chartData = [
-    { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-    { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-    { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-    { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-    { browser: "other", visitors: 90, fill: "var(--color-other)" },
+    {
+      period: "thisDay",
+      products: newProductsData.thisDay,
+      fill: colors.thisDay,
+    },
+    {
+      period: "thisWeek",
+      products: newProductsData.thisWeek,
+      fill: colors.thisWeek,
+    },
+    {
+      period: "thisMonth",
+      products: newProductsData.thisMonth,
+      fill: colors.thisMonth,
+    },
+    {
+      period: "thisYear",
+      products: newProductsData.thisYear,
+      fill: colors.thisYear,
+    },
   ];
 
   const chartConfig = {
-    visitors: {
-      label: "Visitors",
+    products: {
+      label: "Products",
     },
-    chrome: {
-      label: "Chrome",
-      color: "hsl(var(--chart-1))",
+    thisDay: {
+      label: "This Day",
+      color: colors.thisDay,
     },
-    safari: {
-      label: "Safari",
-      color: "hsl(var(--chart-2))",
+    thisWeek: {
+      label: "This Week",
+      color: colors.thisWeek,
     },
-    firefox: {
-      label: "Firefox",
-      color: "hsl(var(--chart-3))",
+    thisMonth: {
+      label: "This Month",
+      color: colors.thisMonth,
     },
-    edge: {
-      label: "Edge",
-      color: "hsl(var(--chart-4))",
-    },
-    other: {
-      label: "Other",
-      color: "hsl(var(--chart-5))",
+    thisYear: {
+      label: "This Year",
+      color: colors.thisYear,
     },
   } satisfies ChartConfig;
 
-  return (
-    <div className="">
-      {/* Circular progress chart placeholder */}
-      <Card className="flex flex-col h-[473px]  shadow-[0px_2px_6px_0px_#00000014] border-none">
-        <CardHeader>
-          <div className="flex  justify-between">
-            <div className="flex flex-col justify-between items-start ">
-              <CardTitle className="text-lg font-semibold">
-                Total New Products Report
-              </CardTitle>
-              <div className="flex mt-[12px]">
-                <div className="flex space-x-[29px] bg-[#E7E7E7] py-[13px] px-[16px] rounded-lg">
-                  <button>Day</button>
-                  <button>Week</button>
-                  <button className="bg-[#525773] text-white py-[8px] px-[14px] rounded-md">
-                    Month
-                  </button>
-                  <button>Year</button>
-                </div>
-              </div>
-            </div>
+  const periods = ["Day", "Week", "Month", "Year"] as const;
 
-            <div className="flex flex-col ">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span> This day</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-[#C6D2FD] rounded-full"></div>
-                <span> This Week</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                <span>Last Month</span>
-              </div>
+  const getCurrentValue = () => {
+    switch (selectedPeriod) {
+      case "Day":
+        return newProductsData.thisDay;
+      case "Week":
+        return newProductsData.thisWeek;
+      case "Month":
+        return newProductsData.thisMonth;
+      case "Year":
+        return newProductsData.thisYear;
+      default:
+        return newProductsData.thisMonth;
+    }
+  };
+
+  return (
+    <div>
+      <Card className="flex flex-col h-[473px] shadow-[0px_2px_6px_0px_#00000014] border-none bg-white">
+        <CardHeader>
+          <div className="flex justify-between items-center w-full">
+            {/* Title */}
+            <CardTitle className="text-lg font-semibold">
+              Total New Products Report
+            </CardTitle>
+
+            {/* Period buttons */}
+            <div className="flex space-x-3 bg-gray-200 py-2 px-3 rounded-lg">
+              {periods.map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={`py-1 px-3 rounded-md transition-colors ${
+                    selectedPeriod === period
+                      ? "bg-slate-600 text-white"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {period}
+                </button>
+              ))}
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 pb-0 ">
-          <ChartContainer
-            config={chartConfig}
-            className="mx-auto aspect-square max-h-[250px]"
-          >
-            <RadialBarChart data={chartData} innerRadius={30} outerRadius={110}>
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel nameKey="browser" />}
+        <CardContent className="flex-1 pb-0">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-gray-500">Loading chart data...</div>
+            </div>
+          ) : (
+            <div className="relative">
+              <ChartContainer
+                config={chartConfig}
+                className="mx-auto aspect-square max-h-[250px]"
+              >
+                <RadialBarChart
+                  data={chartData}
+                  innerRadius={30}
+                  outerRadius={110}
+                >
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent hideLabel nameKey="period" />}
+                  />
+                  <RadialBar dataKey="products" background />
+                </RadialBarChart>
+              </ChartContainer>
+
+              {/* Center text showing selected period value */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {getCurrentValue()}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    This {selectedPeriod}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* The legend below remains unchanged */}
+          <div className="flex flex-col space-y-2">
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colors.thisDay }}
               />
-              <RadialBar dataKey="visitors" background />
-            </RadialBarChart>
-          </ChartContainer>
+              <span className="text-sm">
+                This Day ({newProductsData.thisDay})
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colors.thisWeek }}
+              />
+              <span className="text-sm">
+                This Week ({newProductsData.thisWeek})
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colors.thisMonth }}
+              />
+              <span className="text-sm">
+                This Month ({newProductsData.thisMonth})
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colors.thisYear }}
+              />
+              <span className="text-sm">
+                This Year ({newProductsData.thisYear})
+              </span>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
