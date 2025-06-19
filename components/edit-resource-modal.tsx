@@ -372,13 +372,13 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
     }
   }
 
-  const handleRemoveThumbnail = () => {
-    if (formData.thumbnailPreview && formData.thumbnailPreview.startsWith("blob:")) {
-      URL.revokeObjectURL(formData.thumbnailPreview)
-    }
-    setFormData((prev) => ({ ...prev, thumbnail: null, thumbnailPreview: null }))
-    if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
-  }
+  // const handleRemoveThumbnail = () => {
+  //   if (formData.thumbnailPreview && formData.thumbnailPreview.startsWith("blob:")) {
+  //     URL.revokeObjectURL(formData.thumbnailPreview)
+  //   }
+  //   setFormData((prev) => ({ ...prev, thumbnail: null, thumbnailPreview: null }))
+  //   if (thumbnailInputRef.current) thumbnailInputRef.current.value = ""
+  // }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
@@ -518,18 +518,18 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
             </Card>
 
             {/* Images Section */}
-            <Card>
+            <Card className="cursor-default pointer-events-none opacity-50">
               <CardHeader>
                 <Label>Images</Label>
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
-                  <Label
+                  {/* <Label
                     htmlFor="images-upload-edit"
                     className="cursor-pointer text-sm font-medium text-primary hover:underline"
                   >
                     Upload New Images
-                  </Label>
+                  </Label> */}
                   <input
                     type="file"
                     accept="image/*"
@@ -729,7 +729,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                     ref={thumbnailInputRef}
                   />
                   {formData.thumbnailPreview ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 cursor-default pointer-events-none opacity-50">
                       <Image
                         width={128}
                         height={128}
@@ -745,14 +745,14 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                           New: {formData.thumbnail.name}
                         </p>
                       )}
-                      <Button
+                      {/* <Button
                         variant="outline"
                         size="sm"
                         onClick={handleRemoveThumbnail}
                         className="w-full text-red-500 border-red-500 hover:bg-red-50 hover:text-red-600 text-xs"
                       >
                         <X className="mr-1 h-3 w-3" /> Remove
-                      </Button>
+                      </Button> */}
                     </div>
                   ) : (
                     <label
@@ -771,7 +771,7 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                 <Label>Resource File</Label>
               </CardHeader>
               <CardContent className="pt-0 p-4">
-                <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                <div className="border-2 border-dashed rounded-lg p-4 text-center space-y-2 cursor-default pointer-events-none opacity-50">
                   <input
                     type="file"
                     onChange={handleFileChange}
