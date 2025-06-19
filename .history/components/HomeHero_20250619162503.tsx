@@ -13,7 +13,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 
 
-//monir added comments
+//
 
 interface PromoCode {
   _id: string;
