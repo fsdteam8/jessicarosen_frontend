@@ -235,7 +235,7 @@ export function useUpdateCartItem() {
   const token = session?.user?.accessToken || null;
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       itemId,
       quantity,
     }: {
@@ -327,6 +327,7 @@ export function useUpdateCartItem() {
     },
   });
 }
+
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
 

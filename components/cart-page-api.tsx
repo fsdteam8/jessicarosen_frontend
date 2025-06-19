@@ -288,7 +288,6 @@ export default function CartPageAPI() {
                               </button>
                             </div>
                           </td>
-
                           <td className="py-4 px-6 font-medium">
                             <div>
                               ${formatPrice(itemPrice)}
