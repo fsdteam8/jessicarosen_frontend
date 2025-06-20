@@ -5,15 +5,15 @@ import { persist } from "zustand/middleware";
 import { toast } from "@/hooks/use-toast";
 
 export type CartItem = {
-  id: string
-  title: string
-  image: string
-  thumbnail: string
-  price: number
-  discountPrice?: number
-  salePrice?: number
-  quantity: number
-}
+  thumbnail: string;
+  id: string;
+  title: string;
+  image: string;
+  price: number;
+  discountPrice?: number;
+  salePrice?: number;
+  quantity: number;
+};
 
 type CartState = {
   items: CartItem[];
