@@ -2331,6 +2331,8 @@
         "linux"
       ]
     },
+<<<<<<< HEAD
+=======
     "node_modules/@unrs/resolver-binding-wasm32-wasi": {
       "version": "1.9.0",
       "resolved": "https://registry.npmjs.org/@unrs/resolver-binding-wasm32-wasi/-/resolver-binding-wasm32-wasi-1.9.0.tgz",
@@ -2386,6 +2388,7 @@
         "win32"
       ]
     },
+>>>>>>> 49a17bf (refactor)
     "node_modules/acorn": {
       "version": "8.15.0",
       "resolved": "https://registry.npmjs.org/acorn/-/acorn-8.15.0.tgz",
