@@ -16,6 +16,9 @@ import { JessicaPagination } from "../ui/JessicaPagination";
 import { toast } from "@/hooks/use-toast";
 import { useAppSelector } from "@/redux/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useAppSelector } from "@/redux/hooks";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+
 interface ProductListProps {
   viewMode?: "grid" | "list";
 }

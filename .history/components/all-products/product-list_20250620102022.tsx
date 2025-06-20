@@ -13,9 +13,13 @@ import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { JessicaPagination } from "../ui/JessicaPagination";
+<<<<<<< HEAD
 import { toast } from "@/hooks/use-toast";
+=======
 import { useAppSelector } from "@/redux/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+>>>>>>> 0724e45 (all problem fix up)
+
 interface ProductListProps {
   viewMode?: "grid" | "list";
 }
