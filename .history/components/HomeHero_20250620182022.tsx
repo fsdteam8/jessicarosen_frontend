@@ -12,12 +12,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-<<<<<<< HEAD
-
-//monir added comments
-
-=======
->>>>>>> 6cf059c (new add downlod)
 interface PromoCode {
   _id: string;
   code: string;
@@ -103,6 +97,10 @@ function HeroPromoCarousel({ specialPromos }: HeroPromoCarouselProps) {
 }
 
 export default function HomeHero() {
+<<<<<<< HEAD
+  const session = useSession();
+  console.log(session, "session");
+=======
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const countryName =
     currentRegion === "canada"
@@ -152,6 +150,7 @@ export default function HomeHero() {
       </div>
     );
   }
+>>>>>>> 9d3c9f3 (new add downlod)
 
   return (
     <div className="w-full lg:my-[48px] my-5 bg-none">
@@ -204,10 +203,27 @@ export default function HomeHero() {
               <div className="flex items-center justify-center w-[95%] mz">
                 
 
+<<<<<<< HEAD
+              {/* Left-aligned button and discount info */}
+              <div className="lg:mt-6 text-start flex justify-between items-center">
+                <div className="lg:h-[54px] lg:w-[242px] ">
+                  <Button className="w-full h-full bg-[#E0B15E]">
+                    Explore Resources
+                  </Button>
+                </div>
+
+                <div className="lg:mt-4">
+                  <p className="text-[32px] font-bold text-[#E0B15E]">30%</p>
+                  <p className="text-base font-medium leading-[120%]">
+                    Purchase discount.
+                  </p>
+                </div>
+=======
                 {/* Discount info with Hero-specific carousel */}
                 {/* <div className="lg:mt-6 text-start flex justify-end items-center">
                   <HeroPromoCarousel specialPromos={specialPromoCodes} />
                 </div> */}
+>>>>>>> 9d3c9f3 (new add downlod)
               </div>
 
               <div className="lg:mt-6 text-start flex justify-between items-center">

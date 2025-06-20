@@ -501,6 +501,7 @@ export default function OrderHistoryPage() {
                       <Button
                         variant="outline"
                         size="icon"
+<<<<<<< HEAD
                         onClick={() =>
                           handleDownload(
                             order.orderId,
@@ -508,6 +509,9 @@ export default function OrderHistoryPage() {
                             order.price
                           )
                         }
+=======
+                        onClick={() => handleDownload(order.orderId, order.resourceName, order.price)}
+>>>>>>> 6cf059c (new add downlod)
                         className="text-white border-[#2c5d7c] bg-[#23547B] hover:bg-[#2c5d7c]/10"
                       >
                         <Download className="h-4 w-4" />
@@ -621,5 +625,9 @@ export default function OrderHistoryPage() {
         orderId={selectedOrderId}
       />
     </AccountLayout>
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> 6cf059c (new add downlod)
 }

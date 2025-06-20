@@ -12,12 +12,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-<<<<<<< HEAD
-
-//monir added comments
-
-=======
->>>>>>> 6cf059c (new add downlod)
 interface PromoCode {
   _id: string;
   code: string;
