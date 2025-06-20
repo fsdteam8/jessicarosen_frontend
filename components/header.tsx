@@ -1,163 +1,100 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
-import { Search, ShoppingCart, Heart, Menu, Mail, UserRound } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
-import { useCart } from "@/hooks/use-cart"
-import { useAuth } from "@/hooks/use-auth"
-import { CartSheet } from "@/components/cart-sheet"
-import Image from "next/image"
-import { useWishlist } from "@/hooks/use-wishlist"
-import { useSession } from "next-auth/react"
-import { useAppDispatch, useAppSelector } from "@/redux/hooks"
-import { type Region, setRegion } from "@/redux/features/regionSlice"
-import { SearchModal } from "@/components/search-modal"
-import { usePracticeAreas } from "@/hooks/use-practice-areas"
-import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown"
-import { useRouter } from "next/navigation"
-import { useQuery } from "@tanstack/react-query"
-import Autoplay from "embla-carousel-autoplay"
-
-interface PromoCode {
-  _id: string
-  code: string
-  discountValue: number
-  special: boolean
-  active: boolean
-}
-
-interface ApiResponse {
-  status: boolean
-  data: {
-    data: PromoCode[]
-  }
-}
-
-function HeaderPromoCarousel({ specialPromos }: { specialPromos: PromoCode[] }) {
-  const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
-
-  if (specialPromos.length === 0) {
-    return <span className="text-sm font-medium leading-[120%]">Special Offers: Save up to 30% Using Promo Code</span>
-  }
-
-  if (specialPromos.length === 1) {
-    return (
-      <span className="text-sm font-medium leading-[120%]">
-        Special Offers: Save up to {specialPromos[0].discountValue}% Using Promo Code {specialPromos[0].code}
-      </span>
-    )
-  }
-
-  return (
-    <Carousel
-      className="w-full max-w-lg mx-auto"
-      plugins={[plugin.current]}
-      onMouseEnter={plugin.current.stop}
-      onMouseLeave={plugin.current.reset}
-      opts={{
-        align: "center",
-        loop: true,
-      }}
-    >
-      <CarouselContent>
-        {specialPromos.map((promo) => (
-          <CarouselItem key={promo._id}>
-            <div className="text-sm font-medium leading-[120%] px-4 text-center">
-              Special Offers: Save up to {promo.discountValue}% Using Promo Code <span className="text-[#e0b15e]">{promo.code}</span>
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
-  )
-}
+import type React from "react";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Search,
+  ShoppingCart,
+  Heart,
+  Menu,
+  Mail,
+  UserRound,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/hooks/use-cart";
+import { useAuth } from "@/hooks/use-auth";
+import { CartSheet } from "@/components/cart-sheet";
+import Image from "next/image";
+import { useWishlist } from "@/hooks/use-wishlist";
+import { useSession, signOut } from "next-auth/react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { type Region, setRegion } from "@/redux/features/regionSlice";
+import { SearchModal } from "@/components/search-modal";
+import { usePracticeAreas } from "@/hooks/use-practice-areas";
+import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown";
+import { useRouter } from "next/navigation";
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isMounted, setIsMounted] = useState(false)
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const { getItemCount, setOpen } = useCart()
-  const { isAuthenticated, logout } = useAuth()
-  const { items } = useWishlist()
-  const dispatch = useAppDispatch()
-  const currentRegion = useAppSelector((state) => state.region.currentRegion)
-  const { data: practiceAreasData, isLoading: practiceAreasLoading } = usePracticeAreas()
-
-  // Fetch promo codes for header
-  const { data } = useQuery<ApiResponse>({
-    queryKey: ["header-promo"],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`)
-      if (!res.ok) {
-        throw new Error("Failed to fetch promo codes")
-      }
-      return res.json()
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 10 * 60 * 1000, // 10 minutes
-  })
-
-  // Filter special promo codes
-  const specialPromos = data?.data.data.filter((promo) => promo.special && promo.active) || []
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { getItemCount, setOpen } = useCart();
+  const { isAuthenticated, logout } = useAuth();
+  const { items } = useWishlist();
+  const dispatch = useAppDispatch();
+  const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const { data: practiceAreasData, isLoading: practiceAreasLoading } =
+    usePracticeAreas();
 
   const handleRegionChange = (region: Region) => {
-    dispatch(setRegion(region))
-  }
+    dispatch(setRegion(region));
+  };
 
-  const session = useSession()
-  const user = session?.data?.user
-
+  const session = useSession();
+  const user = session?.data?.user;
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
-  const itemCount = isMounted ? getItemCount() : 0
-  const wishlistCount = isMounted ? items.length : 0
+  const itemCount = isMounted ? getItemCount() : 0;
+  const wishlistCount = isMounted ? items.length : 0;
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (searchQuery.trim()) {
-      setIsSearchModalOpen(true)
-      setIsSearchOpen(false)
+      setIsSearchModalOpen(true);
+      setIsSearchOpen(false);
     }
-  }
+  };
 
   const handleSearchButtonClick = () => {
     if (searchQuery.trim()) {
-      setIsSearchModalOpen(true)
+      setIsSearchModalOpen(true);
     }
-  }
+  };
 
   const handleMobileSearchClick = () => {
     if (isSearchOpen && searchQuery.trim()) {
-      setIsSearchModalOpen(true)
-      setIsSearchOpen(false)
+      setIsSearchModalOpen(true);
+      setIsSearchOpen(false);
     } else {
-      setIsSearchOpen(!isSearchOpen)
+      setIsSearchOpen(!isSearchOpen);
     }
-  }
+  };
 
-  const handlePracticeAreaClick = (practiceAreaId: string, practiceAreaName: string) => {
+  const handlePracticeAreaClick = (
+    practiceAreaId: string,
+    practiceAreaName: string
+  ) => {
     router.push(
-      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&name=${encodeURIComponent(practiceAreaName)}`,
-    )
-  }
+      `/products?practiceArea=${encodeURIComponent(
+        practiceAreaId
+      )}&name=${encodeURIComponent(practiceAreaName)}`
+    );
+  };
 
   // Get first 5 practice areas for main navigation
-  const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || []
-  const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5
-
+  const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
+  const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white">
@@ -186,7 +123,12 @@ export function Header() {
                 }`}
               >
                 <span className="w-[48px] h-[24px]">
-                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
+                  <Image
+                    src="/images/flage.png"
+                    alt="Canada Flag"
+                    width={48}
+                    height={24}
+                  />
                 </span>
                 Lawbie Canada
               </Button>
@@ -200,7 +142,12 @@ export function Header() {
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
-                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
+                  <Image
+                    src="/images/flage1.png"
+                    alt="US Flag"
+                    fill
+                    className="object-contain"
+                  />
                 </span>
                 <span>Lawbie US</span>
               </Button>
@@ -247,7 +194,10 @@ export function Header() {
             </div>
 
             {/* Mobile Search Button */}
-            <button className="md:hidden text-gray-600 mr-3" onClick={handleMobileSearchClick}>
+            <button
+              className="md:hidden text-gray-600 mr-3"
+              onClick={handleMobileSearchClick}
+            >
               <Search className="text-2xl" />
             </button>
 
@@ -279,16 +229,24 @@ export function Header() {
                   <div className="absolute right-0 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-gray-700">
                       <p className="font-medium text-center">{user?.name}</p>
-                      <p className="text-gray-500 text-xs text-center border-b">{user?.email}</p>
+                      <p className="text-gray-500 text-xs text-center border-b">
+                        {user?.email}
+                      </p>
                     </div>
-                    <Link href="/account/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      href="/account/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       My Account
                     </Link>
-                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    <Link
+                      href="/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
                       My Orders
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={() => signOut()}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       Logout
@@ -315,14 +273,20 @@ export function Header() {
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
-                      className={`text-lg font-medium ${pathname === "/" ? "text-blue-600" : "hover:text-blue-600"}`}
+                      className={`text-lg font-medium ${
+                        pathname === "/"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
+                      }`}
                     >
                       Home
                     </Link>
                     <Link
                       href="/products"
                       className={`text-lg font-medium ${
-                        pathname === "/products" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/products"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       All Resources
@@ -330,7 +294,9 @@ export function Header() {
                     <Link
                       href="/blog"
                       className={`text-lg font-medium ${
-                        pathname === "/blog" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/blog"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Blog
@@ -338,11 +304,16 @@ export function Header() {
 
                     {/* Mobile Practice Areas */}
                     <div className="border-t pt-4 mt-4">
-                      <h3 className="text-sm font-semibold text-gray-500 mb-3">Practice Areas</h3>
+                      <h3 className="text-sm font-semibold text-gray-500 mb-3">
+                        Practice Areas
+                      </h3>
                       {practiceAreasLoading ? (
                         <div className="space-y-2">
                           {[...Array(3)].map((_, i) => (
-                            <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
+                            <div
+                              key={i}
+                              className="h-8 bg-gray-200 rounded animate-pulse"
+                            />
                           ))}
                         </div>
                       ) : (
@@ -350,7 +321,9 @@ export function Header() {
                           {practiceAreasData?.data?.map((area) => (
                             <button
                               key={area._id}
-                              onClick={() => handlePracticeAreaClick(area._id, area.name)}
+                              onClick={() =>
+                                handlePracticeAreaClick(area._id, area.name)
+                              }
                               className="w-full text-left text-base font-medium hover:text-blue-600 py-1"
                             >
                               {area.name}
@@ -363,13 +336,18 @@ export function Header() {
                     <Link
                       href="/wishlist"
                       className={`text-lg font-medium ${
-                        pathname === "/wishlist" ? "text-blue-600" : "hover:text-blue-600"
+                        pathname === "/wishlist"
+                          ? "text-blue-600"
+                          : "hover:text-blue-600"
                       }`}
                     >
                       Wishlist
                     </Link>
                     {isMounted && !isAuthenticated && (
-                      <Button asChild className="bg-blue-600 hover:bg-blue-700 mt-4">
+                      <Button
+                        asChild
+                        className="bg-blue-600 hover:bg-blue-700 mt-4"
+                      >
                         <Link href="/auth/login">Login</Link>
                       </Button>
                     )}
@@ -379,13 +357,23 @@ export function Header() {
                           <p className="font-medium">{user?.name}</p>
                           <p className="text-gray-500 text-sm">{user?.email}</p>
                         </div>
-                        <Link href="/account" className="text-lg font-medium hover:text-blue-600">
+                        <Link
+                          href="/account"
+                          className="text-lg font-medium hover:text-blue-600"
+                        >
                           My Account
                         </Link>
-                        <Link href="/orders" className="text-lg font-medium hover:text-blue-600">
+                        <Link
+                          href="/orders"
+                          className="text-lg font-medium hover:text-blue-600"
+                        >
                           My Orders
                         </Link>
-                        <Button variant="destructive" onClick={logout} className="mt-4">
+                        <Button
+                          variant="destructive"
+                          onClick={logout}
+                          className="mt-4"
+                        >
                           Logout
                         </Button>
                       </>
@@ -449,7 +437,11 @@ export function Header() {
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
                 autoFocus
               />
-              <Button type="submit" size="sm" className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3">
+              <Button
+                type="submit"
+                size="sm"
+                className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3"
+              >
                 <Search className="h-4 w-4 text-white" />
               </Button>
             </form>
@@ -463,7 +455,9 @@ export function Header() {
               <Link
                 href="/"
                 className={`font-medium transition-colors ${
-                  pathname === "/" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Home
@@ -471,7 +465,9 @@ export function Header() {
               <Link
                 href="/products"
                 className={`font-medium transition-colors ${
-                  pathname === "/products" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/products"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 All Resources
@@ -479,7 +475,9 @@ export function Header() {
               <Link
                 href="/blog"
                 className={`font-medium transition-colors ${
-                  pathname === "/blog" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
+                  pathname === "/blog"
+                    ? "text-blue-600"
+                    : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Blog
@@ -489,7 +487,10 @@ export function Header() {
               {practiceAreasLoading ? (
                 <div className="flex space-x-8">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+                    <div
+                      key={i}
+                      className="h-6 w-24 bg-gray-200 rounded animate-pulse"
+                    />
                   ))}
                 </div>
               ) : (
@@ -497,7 +498,9 @@ export function Header() {
                   {visiblePracticeAreas.map((area) => (
                     <button
                       key={area._id}
-                      onClick={() => handlePracticeAreaClick(area._id, area.name)}
+                      onClick={() =>
+                        handlePracticeAreaClick(area._id, area.name)
+                      }
                       className="font-medium transition-colors text-gray-700 hover:text-blue-600 truncate max-w-[150px]"
                       title={area.name}
                     >
@@ -522,10 +525,14 @@ export function Header() {
       </header>
 
       {/* Search Modal */}
-      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} initialQuery={searchQuery} />
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        initialQuery={searchQuery}
+      />
 
       {/* Cart Sheet */}
       <CartSheet />
     </>
-  )
+  );
 }
