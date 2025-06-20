@@ -50,7 +50,6 @@ export function Header() {
 
   const session = useSession();
   const user = session?.data?.user;
-
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
     setIsMounted(true);
@@ -96,7 +95,6 @@ export function Header() {
   // Get first 5 practice areas for main navigation
   const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
   const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
-
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white">
@@ -112,9 +110,7 @@ export function Header() {
               </span>
             </div>
             <div className="flex-1 text-center hidden lg:block">
-              <span className="text-sm font-medium leading-[120%]">
-                Special Offers: Save up to 30% Using Promo Code
-              </span>
+              <HeaderPromoCarousel specialPromos={specialPromos} />
             </div>
             <div className="hidden lg:flex items-center space-x-2">
               <Button

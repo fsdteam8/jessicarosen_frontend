@@ -5,6 +5,7 @@ import { persist } from "zustand/middleware";
 import { toast } from "@/hooks/use-toast";
 
 export type CartItem = {
+
   thumbnail: string;
   id: string;
   title: string;

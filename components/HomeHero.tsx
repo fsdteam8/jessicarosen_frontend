@@ -12,6 +12,7 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
+
 interface PromoCode {
   _id: string;
   code: string;
@@ -145,7 +146,7 @@ export default function HomeHero() {
       </div>
     );
   }
-
+  
   return (
     <div className="w-full lg:my-[48px] my-5 bg-none">
       {/* Hero Section */}
@@ -207,7 +208,14 @@ export default function HomeHero() {
                     <Button className="w-full h-full bg-[#E0B15E]">
                       Explore Resources
                     </Button>
-                  </Link>
+                    </Link>
+                  </div>
+                  <div className="lg:mt-4">
+                    <p className="text-[32px] font-bold text-[#E0B15E]"><HeroPromoCarousel specialPromos={specialPromoCodes} /></p>
+                    <p className="text-base font-medium leading-[120%]">
+                      Purchase discount.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="lg:mt-4">

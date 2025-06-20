@@ -319,7 +319,6 @@ export function useUpdateCartItem() {
     onSuccess: (data) => {
       // Update with server response
       queryClient.setQueryData(["cart"], data);
-
       toast({
         title: "Cart updated",
         description: "Item quantity has been updated.",
