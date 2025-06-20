@@ -10,7 +10,9 @@ interface Props {
 const AppProvider = ({ children }: Props) => {
   const queryClient = new QueryClient();
   return (
-    <QueryClientProvider client={queryClient}>{children}
+    <QueryClientProvider client={queryClient}>
+      
+      {children}
     
     {/* <Toaster position="top-right" /> */}
     
