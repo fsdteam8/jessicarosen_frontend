@@ -348,6 +348,31 @@ export default function OrderHistoryPage() {
     console.log("orderid", orderId);
   };
 
+  const handleDownload = (
+    orderId: string,
+    resourceName: string,
+    price: string
+  ) => {
+    console.log("download id ", orderId);
+
+    // Find the specific order item that matches the orderId, resourceName, and price
+    const orderItem = orders.find(
+      (order: OrderItem) =>
+        order.orderId === orderId &&
+        order.resourceName === resourceName &&
+        order.price === price
+    );
+
+    if (orderItem && orderItem.file && orderItem.file.url) {
+      // Open the file URL in a new tab
+      window.open(orderItem.file.url, "_blank");
+      console.log("Downloading file from:", orderItem.file.url);
+    } else {
+      console.error("File URL not found for this order");
+      // You could show a toast notification here if needed
+    }
+  };
+
   const handleDownload = (orderId: string, resourceName: string, price: string) => {
     console.log("download id ", orderId)
     
@@ -369,8 +394,8 @@ export default function OrderHistoryPage() {
   }
 
   const handleCloseModal = () => {
-    setSelectedOrderId(null)
-  }
+    setSelectedOrderId(null);
+  };
 
   // Function to get status styling
   const getStatusStyle = (status: string) => {
@@ -501,6 +526,7 @@ export default function OrderHistoryPage() {
                       <Button
                         variant="outline"
                         size="icon"
+<<<<<<< HEAD
                         onClick={() =>
                           handleDownload(
                             order.orderId,
@@ -508,6 +534,9 @@ export default function OrderHistoryPage() {
                             order.price
                           )
                         }
+=======
+                        onClick={() => handleDownload(order.orderId, order.resourceName, order.price)}
+>>>>>>> 6cf059c (new add downlod)
                         className="text-white border-[#2c5d7c] bg-[#23547B] hover:bg-[#2c5d7c]/10"
                       >
                         <Download className="h-4 w-4" />
@@ -621,5 +650,9 @@ export default function OrderHistoryPage() {
         orderId={selectedOrderId}
       />
     </AccountLayout>
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> 6cf059c (new add downlod)
 }

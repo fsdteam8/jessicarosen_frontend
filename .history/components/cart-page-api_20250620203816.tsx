@@ -57,7 +57,7 @@ export default function CartPageAPI() {
     try {
       await updateCartMutation.mutateAsync({
         itemId,
-        quantity: targetQuantity,
+        quantity: newQuantity,
       });
     } finally {
       setUpdatingItems((prev) => {
@@ -254,6 +254,7 @@ export default function CartPageAPI() {
                             <div className="flex items-center">
                               <button
                                 className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+<<<<<<< HEAD
                                 onClick={() => {
                                   const newQuantity = Math.max(
                                     1,
@@ -261,6 +262,14 @@ export default function CartPageAPI() {
                                   );
                                   handleQuantityChange(item._id, newQuantity);
                                 }}
+=======
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.resource._id,
+                                    item.quantity - 1
+                                  )
+                                }
+>>>>>>> 707db86 (refactor)
                                 disabled={isUpdating || item.quantity <= 1}
                               >
                                 <Minus className="h-3 w-3" />
@@ -274,6 +283,7 @@ export default function CartPageAPI() {
                               </div>
                               <button
                                 className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+<<<<<<< HEAD
                                 onClick={() => {
                                   const newQuantity = item.quantity + 1;
                                   handleQuantityChange(
@@ -281,6 +291,14 @@ export default function CartPageAPI() {
                                     newQuantity
                                   );
                                 }}
+=======
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.resource._id,
+                                    item.quantity + 1
+                                  )
+                                }
+>>>>>>> 707db86 (refactor)
                                 disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
@@ -304,9 +322,13 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
+<<<<<<< HEAD
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
                               }
+=======
+                              onClick={() => handleRemoveItem(item._id)}
+>>>>>>> 707db86 (refactor)
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >

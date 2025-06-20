@@ -390,6 +390,7 @@
         "node": ">= 10"
       }
     },
+  
     "node_modules/@next/swc-darwin-x64": {
       "version": "14.2.28",
       "resolved": "https://registry.npmjs.org/@next/swc-darwin-x64/-/swc-darwin-x64-14.2.28.tgz",
@@ -420,6 +421,23 @@
         "node": ">= 10"
       }
     },
+  
+
+    "node_modules/@next/swc-win32-x64-msvc": {
+      "version": "14.2.28",
+      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.28.tgz",
+      "integrity": "sha512-1gCmpvyhz7DkB1srRItJTnmR2UwQPAUXXIg9r0/56g3O8etGmwlX68skKXJOp9EejW3hhv7nSQUJ2raFiz4MoA==",
+      "cpu": [
+        "x64"
+      ],
+      "optional": true,
+      "os": [
+        "win32"
+      ],
+      "engines": {
+        "node": ">= 10"
+      }
+    },
     "node_modules/@next/swc-linux-x64-musl": {
       "version": "14.2.28",
       "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.2.28.tgz",
@@ -433,7 +451,7 @@
       ],
       "engines": {
         "node": ">= 10"
-      }
+      } 
     },
     "node_modules/@next/swc-win32-arm64-msvc": {
       "version": "14.2.28",
@@ -465,21 +483,7 @@
         "node": ">= 10"
       }
     },
-    "node_modules/@next/swc-win32-x64-msvc": {
-      "version": "14.2.28",
-      "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.28.tgz",
-      "integrity": "sha512-1gCmpvyhz7DkB1srRItJTnmR2UwQPAUXXIg9r0/56g3O8etGmwlX68skKXJOp9EejW3hhv7nSQUJ2raFiz4MoA==",
-      "cpu": [
-        "x64"
-      ],
-      "optional": true,
-      "os": [
-        "win32"
-      ],
-      "engines": {
-        "node": ">= 10"
-      }
-    },
+   
     "node_modules/@nodelib/fs.scandir": {
       "version": "2.1.5",
       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",

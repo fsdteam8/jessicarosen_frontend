@@ -12,6 +12,9 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
+
+//monir added comments
+
 interface PromoCode {
   _id: string;
   code: string;
@@ -26,6 +29,7 @@ interface ApiResponse {
     data: PromoCode[];
   };
 }
+
 interface HeroPromoCarouselProps {
   specialPromos: PromoCode[];
 }
@@ -195,6 +199,8 @@ export default function HomeHero() {
                 and researchers understand and apply legal principles.
               </p>
               <div className="flex items-center justify-center w-[95%] mz">
+                
+
                 {/* Discount info with Hero-specific carousel */}
                 {/* <div className="lg:mt-6 text-start flex justify-end items-center">
                   <HeroPromoCarousel specialPromos={specialPromoCodes} />
@@ -202,23 +208,21 @@ export default function HomeHero() {
               </div>
 
               <div className="lg:mt-6 text-start flex justify-between items-center">
-                <div className="lg:h-[54px] lg:w-[242px] ">
-                  <Link href="/products">
+                  <div className="lg:h-[54px] lg:w-[242px] ">
+                    <Link href="/products">
                     <Button className="w-full h-full bg-[#E0B15E]">
                       Explore Resources
                     </Button>
-                  </Link>
-                </div>
+                    </Link>
+                  </div>
 
-                <div className="lg:mt-4">
-                  <p className="text-[32px] font-bold text-[#E0B15E]">
-                    <HeroPromoCarousel specialPromos={specialPromoCodes} />
-                  </p>
-                  <p className="text-base font-medium leading-[120%]">
-                    Purchase discount.
-                  </p>
+                  <div className="lg:mt-4">
+                    <p className="text-[32px] font-bold text-[#E0B15E]"><HeroPromoCarousel specialPromos={specialPromoCodes} /></p>
+                    <p className="text-base font-medium leading-[120%]">
+                      Purchase discount.
+                    </p>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>

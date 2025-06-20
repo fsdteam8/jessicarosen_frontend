@@ -57,7 +57,7 @@ export default function CartPageAPI() {
     try {
       await updateCartMutation.mutateAsync({
         itemId,
-        quantity: targetQuantity,
+        quantity: newQuantity,
       });
     } finally {
       setUpdatingItems((prev) => {
