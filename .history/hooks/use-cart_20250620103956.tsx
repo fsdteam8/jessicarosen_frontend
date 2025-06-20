@@ -5,7 +5,17 @@ import { persist } from "zustand/middleware";
 import { toast } from "@/hooks/use-toast";
 
 export type CartItem = {
-  thumbnail: string;
+<<<<<<< HEAD
+  id: string
+  title: string
+  image: string
+  thumbnail: string
+  price: number
+  discountPrice?: number
+  salePrice?: number
+  quantity: number
+}
+=======
   id: string;
   title: string;
   image: string;
@@ -14,6 +24,7 @@ export type CartItem = {
   salePrice?: number;
   quantity: number;
 };
+>>>>>>> 3365dbe (refactor)
 
 type CartState = {
   items: CartItem[];
