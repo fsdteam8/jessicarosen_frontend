@@ -435,6 +435,8 @@
         "node": ">= 10"
       }
     },
+=======
+>>>>>>> a8d6b3e (refactor)
     "node_modules/@next/swc-linux-x64-gnu": {
       "version": "14.2.28",
       "resolved": "https://registry.npmjs.org/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.2.28.tgz",
@@ -465,6 +467,7 @@
         "node": ">= 10"
       }
     },
+<<<<<<< HEAD
     "node_modules/@next/swc-win32-arm64-msvc": {
       "version": "14.2.28",
       "resolved": "https://registry.npmjs.org/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-14.2.28.tgz",
@@ -495,6 +498,10 @@
         "node": ">= 10"
       }
     },
+<<<<<<< HEAD
+>>>>>>> 32ffc22 (refactor)
+=======
+>>>>>>> 9d3c9f3 (new add downlod)
     "node_modules/@next/swc-win32-x64-msvc": {
       "version": "14.2.28",
       "resolved": "https://registry.npmjs.org/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.28.tgz",
@@ -510,8 +517,8 @@
         "node": ">= 10"
       }
     },
-   
-   
+=======
+>>>>>>> a8d6b3e (refactor)
     "node_modules/@nodelib/fs.scandir": {
       "version": "2.1.5",
       "resolved": "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz",
@@ -1954,6 +1961,8 @@
         "react": "^18 || ^19"
       }
     },
+<<<<<<< HEAD
+=======
     "node_modules/@tybys/wasm-util": {
       "version": "0.9.0",
       "resolved": "https://registry.npmjs.org/@tybys/wasm-util/-/wasm-util-0.9.0.tgz",
@@ -1964,6 +1973,7 @@
         "tslib": "^2.4.0"
       }
     },
+>>>>>>> 32ffc22 (refactor)
     "node_modules/@types/d3-array": {
       "version": "3.2.1",
       "resolved": "https://registry.npmjs.org/@types/d3-array/-/d3-array-3.2.1.tgz",
@@ -2333,6 +2343,9 @@
       "integrity": "sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==",
       "dev": true
     },
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
     "node_modules/@unrs/resolver-binding-android-arm-eabi": {
       "version": "1.9.0",
       "resolved": "https://registry.npmjs.org/@unrs/resolver-binding-android-arm-eabi/-/resolver-binding-android-arm-eabi-1.9.0.tgz",
@@ -2502,10 +2515,13 @@
         "linux"
       ]
     },
+=======
+>>>>>>> a8d6b3e (refactor)
     "node_modules/@unrs/resolver-binding-linux-x64-gnu": {
       "version": "1.9.0",
       "resolved": "https://registry.npmjs.org/@unrs/resolver-binding-linux-x64-gnu/-/resolver-binding-linux-x64-gnu-1.9.0.tgz",
       "integrity": "sha512-WmFd5KINHIXj8o1mPaT8QRjA9HgSXhN1gl9Da4IZihARihEnOylu4co7i/yeaIpcfsI6sYs33cNZKyHYDh0lrA==",
+<<<<<<< HEAD
       "cpu": [
         "x64"
       ],
@@ -2570,10 +2586,13 @@
         "win32"
       ]
     },
+>>>>>>> 32ffc22 (refactor)
     "node_modules/@unrs/resolver-binding-win32-x64-msvc": {
       "version": "1.9.0",
       "resolved": "https://registry.npmjs.org/@unrs/resolver-binding-win32-x64-msvc/-/resolver-binding-win32-x64-msvc-1.9.0.tgz",
       "integrity": "sha512-k59o9ZyeyS0hAlcaKFezYSH2agQeRFEB7KoQLXl3Nb3rgkqT1NY9Vwy+SqODiLmYnEjxWJVRE/yq2jFVqdIxZw==",
+=======
+>>>>>>> a8d6b3e (refactor)
       "cpu": [
         "x64"
       ],
@@ -2583,7 +2602,19 @@
         "linux"
       ]
     },
-   
+    "node_modules/@unrs/resolver-binding-linux-x64-musl": {
+      "version": "1.9.0",
+      "resolved": "https://registry.npmjs.org/@unrs/resolver-binding-linux-x64-musl/-/resolver-binding-linux-x64-musl-1.9.0.tgz",
+      "integrity": "sha512-CYuXbANW+WgzVRIl8/QvZmDaZxrqvOldOwlbUjIM4pQ46FJ0W5cinJ/Ghwa/Ng1ZPMJMk1VFdsD/XwmCGIXBWg==",
+      "cpu": [
+        "x64"
+      ],
+      "dev": true,
+      "optional": true,
+      "os": [
+        "linux"
+      ]
+    },
     "node_modules/acorn": {
       "version": "8.15.0",
       "resolved": "https://registry.npmjs.org/acorn/-/acorn-8.15.0.tgz",
@@ -4328,6 +4359,8 @@
       "integrity": "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==",
       "dev": true
     },
+<<<<<<< HEAD
+=======
     "node_modules/fsevents": {
       "version": "2.3.3",
       "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz",
@@ -4341,6 +4374,7 @@
         "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
       }
     },
+>>>>>>> 32ffc22 (refactor)
     "node_modules/function-bind": {
       "version": "1.1.2",
       "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
