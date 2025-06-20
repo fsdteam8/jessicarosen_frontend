@@ -235,7 +235,11 @@ export function useUpdateCartItem() {
   const token = session?.user?.accessToken || null;
 
   return useMutation({
+<<<<<<< HEAD
+    mutationFn: ({
+=======
     mutationFn: async ({
+>>>>>>> 9556894 (monir done wel)
       itemId,
       quantity,
     }: {
@@ -245,6 +249,7 @@ export function useUpdateCartItem() {
       if (status === "unauthenticated" || !token) {
         throw new Error("Please login to update cart");
       }
+<<<<<<< HEAD
       return updateCartItem(itemId, { quantity }, token);
     },
     // Add optimistic update
@@ -320,13 +325,42 @@ export function useUpdateCartItem() {
       // Update with server response
       queryClient.setQueryData(["cart"], data);
 
+=======
+
+      console.log("Updating cart item:", { itemId, quantity }); // Debug log
+
+      const response = await updateCartItem(itemId, { quantity }, token);
+      return response;
+    },
+    onSuccess: (data) => {
+      // Update the cart data in the cache
+      queryClient.setQueryData(["cart"], data);
+
+      // Invalidate and refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+
+>>>>>>> 9556894 (monir done wel)
       toast({
         title: "Cart updated",
         description: "Item quantity has been updated.",
       });
     },
+<<<<<<< HEAD
   });
 }
+=======
+    onError: (error: Error) => {
+      console.error("Cart update error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update cart item",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+>>>>>>> 9556894 (monir done wel)
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
 

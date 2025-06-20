@@ -325,8 +325,22 @@ export function useUpdateCartItem() {
         description: "Item quantity has been updated.",
       });
     },
+<<<<<<< HEAD
   });
 }
+=======
+    onError: (error: Error) => {
+      console.error("Cart update error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update cart item",
+        variant: "destructive",
+      });
+    },
+  });
+}
+
+>>>>>>> 9556894 (monir done wel)
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
 

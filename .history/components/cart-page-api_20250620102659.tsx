@@ -220,7 +220,11 @@ export default function CartPageAPI() {
                         item.resource.discountPrice || item.resource.price;
                       const itemTotal = itemPrice * item.quantity;
 
+<<<<<<< HEAD
+                      console.log(item);
+=======
                       console.log(item.resource._id);
+>>>>>>> 9556894 (monir done wel)
                       return (
                         <tr
                           key={item._id}
@@ -236,7 +240,11 @@ export default function CartPageAPI() {
                                     item.resource.thumbnail ||
                                     "/placeholder.svg?height=64&width=64"
                                   }
+<<<<<<< HEAD
                                   alt={item.resource.title || "Product Image"}
+=======
+                                  alt={item.resource.title}
+>>>>>>> 9556894 (monir done wel)
                                   fill
                                   className="object-cover"
                                 />
@@ -255,6 +263,7 @@ export default function CartPageAPI() {
                             <div className="flex items-center">
                               <button
                                 className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+<<<<<<< HEAD
                                 onClick={() => {
                                   const newQuantity = Math.max(
                                     1,
@@ -262,6 +271,14 @@ export default function CartPageAPI() {
                                   );
                                   handleQuantityChange(item._id, newQuantity);
                                 }}
+=======
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.resource._id,
+                                    item.quantity - 1
+                                  )
+                                }
+>>>>>>> 9556894 (monir done wel)
                                 disabled={isUpdating || item.quantity <= 1}
                               >
                                 <Minus className="h-3 w-3" />
@@ -275,6 +292,7 @@ export default function CartPageAPI() {
                               </div>
                               <button
                                 className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+<<<<<<< HEAD
                                 onClick={() => {
                                   const newQuantity = item.quantity + 1;
                                   handleQuantityChange(
@@ -282,12 +300,24 @@ export default function CartPageAPI() {
                                     newQuantity
                                   );
                                 }}
+=======
+                                onClick={() =>
+                                  handleQuantityChange(
+                                    item.resource._id,
+                                    item.quantity + 1
+                                  )
+                                }
+>>>>>>> 9556894 (monir done wel)
                                 disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
                             </div>
                           </td>
+<<<<<<< HEAD
+
+=======
+>>>>>>> 9556894 (monir done wel)
                           <td className="py-4 px-6 font-medium">
                             <div>
                               ${formatPrice(itemPrice)}
@@ -305,9 +335,13 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
+<<<<<<< HEAD
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
                               }
+=======
+                              onClick={() => handleRemoveItem(item._id)}
+>>>>>>> 9556894 (monir done wel)
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >

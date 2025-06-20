@@ -288,6 +288,10 @@ export default function CartPageAPI() {
                               </button>
                             </div>
                           </td>
+<<<<<<< HEAD
+
+=======
+>>>>>>> 9556894 (monir done wel)
                           <td className="py-4 px-6 font-medium">
                             <div>
                               ${formatPrice(itemPrice)}
@@ -305,9 +309,13 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
+<<<<<<< HEAD
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
                               }
+=======
+                              onClick={() => handleRemoveItem(item._id)}
+>>>>>>> 9556894 (monir done wel)
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >

@@ -13,9 +13,13 @@ import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { JessicaPagination } from "../ui/JessicaPagination";
+<<<<<<< HEAD
 import { useAppSelector } from "@/redux/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import { toast } from "../ui/use-toast";
+=======
+import { toast } from "@/hooks/use-toast";
+>>>>>>> 707db86 (refactor)
+
 interface ProductListProps {
   viewMode?: "grid" | "list";
 }
