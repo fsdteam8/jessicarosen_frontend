@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { type Region, setRegion } from "@/redux/features/regionSlice";
 import { SearchModal } from "@/components/search-modal";
@@ -250,7 +250,7 @@ export function Header() {
                       My Orders
                     </Link>
                     <button
-                      onClick={() => signOut()}
+                      onClick={()=}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       Logout
