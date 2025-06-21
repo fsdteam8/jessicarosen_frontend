@@ -31,9 +31,13 @@ export default function AllFiltersDrawer({
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string>
   >({});
+  console.log({selectedFilters})
+  console.log({expandedCategories})
   const [activeFilters, setActiveFilters] = useState<
     { category: string; value: string }[]
   >([]);
+  console.log({activeFilters})
+  console.log({categories})
 
   // Toggle category expansion
   const toggleCategory = (category: string) => {

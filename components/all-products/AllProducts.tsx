@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 
 import FilterDropdown from "./filter-dropdown";
-import AllFiltersDrawer from "./all-filters-drawer";
+// import AllFiltersDrawer from "./all-filters-drawer";
 import SortDropdown from "./sort-dropdown";
 import ViewToggle from "./view-toggle";
 import ProductList from "./product-list";
@@ -12,6 +12,7 @@ import { PracticeAreaApiResponse } from "@/types/practice-area-data-type";
 import { ResourceTypeApiResponse } from "@/types/resource-type-data-type";
 import { CountriesApiResponse } from "@/types/countery-data-type";
 import { useAppSelector } from "@/redux/hooks";
+import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 
 export default function AllProducts() {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
@@ -31,6 +32,7 @@ export default function AllProducts() {
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  const [currentPage] = useState(1);
 
   // Fetch practice areas
   const { data } = useQuery<PracticeAreaApiResponse>({
@@ -129,41 +131,35 @@ export default function AllProducts() {
     { label: "Best Sellers (People)", value: "best sellers(people)" },
   ];
 
-  const filterCategories = [
-    { name: "Practice Areas", options: practiceAreas ?? [] },
-    { name: "Resource Types", options: resourceTypes ?? [] },
-    { name: "Prices", options: prices },
-    { name: "Format", options: formats },
-    {
-      name: "Region",
-      options: [
-        "North America",
-        "Europe",
-        "Asia",
-        "Africa",
-        "South America",
-        "Australia",
-      ],
-    },
-    { name: "Province", options: provinces ?? [] },
-    {
-      name: "Sort By",
-      options: sortOptions.map((option) => option.label),
-    },
-    {
-      name: "Language",
-      options: [
-        "English",
-        "French",
-        "Spanish",
-        "German",
-        "Chinese",
-        "Japanese",
-      ],
-    },
-  ];
+  // const filterCategories = [
+  //   { name: "Practice Areas", options: practiceAreas ?? [] },
+  //   { name: "Resource Types", options: resourceTypes ?? [] },
+  //   { name: "Prices", options: prices },
+  //   { name: "format", options: formats },
+  //   { name: "Province", options: provinces ?? [] },
+  //   {
+  //     name: "Sort By",
+  //     options: sortOptions.map((option) => option.label),
+  //   },
+  // ];
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+
+    // Fetching all products data
+    const { data: allProductData } =
+      useQuery<AllProductDataTypeResponse>({
+        queryKey: [
+          "all-products"
+        ],
+        queryFn: () =>
+          fetch(
+            `${
+              process.env.NEXT_PUBLIC_BACKEND_URL
+            }/api/v1/resource/get-all-resources?page=${currentPage}&limit=5000`
+          ).then((res) => res.json()),
+      });
+  
+    console.log(allProductData?.data?.length);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -172,7 +168,7 @@ export default function AllProducts() {
         <div className="flex justify-between items-center mb-2">
           <div>
             <div className="text-sm text-gray-500 mb-2">
-              15,000,000+ Results
+              {allProductData?.data?.length}+ Results
             </div>
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
               Resources
@@ -231,9 +227,9 @@ export default function AllProducts() {
 
               {/* Right: All Filters Drawer */}
 
-              <div className="flex-shrink-0">
+              {/* <div className="flex-shrink-0">
                 <AllFiltersDrawer categories={filterCategories} />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
