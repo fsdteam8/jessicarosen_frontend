@@ -249,6 +249,7 @@ export default function WishlistPage() {
         price: item.price,
         discountPrice: item.discountPrice,
         quantity: 1,
+        thumbnail: ""
       });
     }
   };
