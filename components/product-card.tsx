@@ -55,6 +55,7 @@ export function ProductCard({
       price,
       discountPrice,
       quantity: 1,
+      thumbnail: ""
     });
   };
 
