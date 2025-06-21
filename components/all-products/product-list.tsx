@@ -117,7 +117,7 @@ export default function ProductList({
         fetch(
           `${
             process.env.NEXT_PUBLIC_BACKEND_URL
-          }/api/v1/resource/get-all-resources?country=${countryName}&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+          }/api/v1/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
             practiceArea
               ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
               : ""
@@ -127,7 +127,9 @@ export default function ProductList({
               : ""
           }&format=${encodeURIComponent(
             format ?? ""
-          )}&price=${encodeURIComponent(price ?? "")}&states=${encodeURIComponent(states ?? "")}`
+          )}&price=${encodeURIComponent(
+            price ?? ""
+          )}&states=${encodeURIComponent(states ?? "")}`
         ).then((res) => res.json()),
     });
 
@@ -176,12 +178,12 @@ export default function ProductList({
             {viewMode === "grid" ? (
               // Grid View Layout
               <div className="flex flex-col h-full">
-                <div className="w-full">
+                <div className="w-full border-2 border-red-500">
                   <Image
                     src={
                       (Array.isArray(product?.thumbnail)
                         ? product?.thumbnail[0]
-                        : product?.thumbnail) || "/placeholder.svg"
+                        : product?.thumbnail) || "/images/no-image.jpg"
                     }
                     alt={product?.title}
                     width={324}
@@ -201,6 +203,7 @@ export default function ProductList({
                         <AvatarImage
                           src={product?.createdBy?.profileImage}
                           alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                          className="rounded-full w-[49px] h-[49px]"
                         />
                         <AvatarFallback>{`${
                           product?.createdBy?.firstName?.[0] ?? ""
@@ -296,7 +299,7 @@ export default function ProductList({
                       src={
                         Array.isArray(product?.thumbnail)
                           ? product?.thumbnail[0]
-                          : product?.thumbnail || "/placeholder.svg"
+                          : product?.thumbnail || "/images/no-image.jpg"
                       }
                       alt={product?.title}
                       width={324}
@@ -319,6 +322,7 @@ export default function ProductList({
                             <AvatarImage
                               src={product?.createdBy?.profileImage}
                               alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                              className=" rounded-full w-[49px] h-[49px]"
                             />
                             <AvatarFallback>{`${
                               product?.createdBy?.firstName?.[0] ?? ""

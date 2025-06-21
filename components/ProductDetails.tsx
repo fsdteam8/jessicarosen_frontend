@@ -15,30 +15,6 @@ export default function ProductDetails() {
   const params = useParams();
   console.log("ProductDetails params:", params?.id);
 
-  // Image gallery data
-  // const productImages = [
-  //   {
-  //     src: "/images/aboutUs.jpg",
-  //     alt: "Books and coffee setup",
-  //   },
-  //   {
-  //     src: "/images/cartimg.png",
-  //     alt: "Legal documents",
-  //   },
-  //   {
-  //     src: "/images/cartSubImg.png",
-  //     alt: "Business presentation",
-  //   },
-  //   {
-  //     src: "/images/aboutUs.jpg",
-  //     alt: "Office workspace",
-  //   },
-  //   {
-  //     src: "/images/cartSubImg.png",
-  //     alt: "Law books",
-  //   },
-  // ];
-
   // State to track the currently selected main image
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -84,7 +60,7 @@ console.log("ProductDetails images: 11", images);
           <div className="gap-4 flex ">
             <div className="w-[328px] h-[328px] relative">
               <Image
-                src={Array.isArray(images[selectedImageIndex]) ? "/placeholder.svg" : images[selectedImageIndex] || "/placeholder.svg"}
+                src={Array.isArray(images[selectedImageIndex]) ? "/images/no-image.jpg" : images[selectedImageIndex] || "/images/no-image.jpg"}
                 alt={product?.title || "Product image"}
                 fill
                 className="object-cover rounded-lg"
@@ -92,7 +68,7 @@ console.log("ProductDetails images: 11", images);
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {images.slice(1).map((image, index) => (
+              {images.slice(1,5).map((image, index) => (
                 <div
                   key={index + 1}
                   className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
@@ -103,7 +79,7 @@ console.log("ProductDetails images: 11", images);
                   onClick={() => setSelectedImageIndex(index + 1)}
                 >
                   <Image
-                    src={typeof image === "string" ? image : "/placeholder.svg"}
+                    src={typeof image === "string" ? image : "/images/no-image.jpg"}
                     alt={product?.title || "Product image"}
                     fill
                     className="object-cover"
@@ -119,25 +95,6 @@ console.log("ProductDetails images: 11", images);
               ))}
             </div>
           </div>
-{/* 
-          <div className="flex gap-2 pt-2 border-2 border-red-500">
-            <div
-              className={`w-16 h-16 relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
-                selectedImageIndex === 0
-                  ? "ring-2 ring-blue-500 ring-offset-2"
-                  : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-              }`}
-              onClick={() => setSelectedImageIndex(0)}
-            >
-              <div
-                className={`absolute inset-0 transition-opacity duration-200 ${
-                  selectedImageIndex === 0
-                    ? "bg-blue-500/10"
-                    : "hover:bg-black/5"
-                }`}
-              />
-            </div>
-          </div> */}
 
           <div className="flex items-center gap-2 pt-4">
             <span className="text-sm text-gray-600">Share:</span>
@@ -166,19 +123,6 @@ console.log("ProductDetails images: 11", images);
             </div>
           </div>
         </div>
-        {/* <div className=" w-full">
-          <Image
-            src={
-              Array.isArray(product?.thumbnail)
-                ? product?.thumbnail[0] || "/placeholder.svg"
-                : product?.thumbnail || "/placeholder.svg"
-            }
-            alt={product?.title || "Product image"}
-            width={664}
-            height={328}
-            className="w-full h-[328px] rounded-[8px] object-cover"
-          />
-        </div> */}
 
         {/* Right side - Product Details */}
         <div className="">
