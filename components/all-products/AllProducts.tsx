@@ -109,7 +109,6 @@ export default function AllProducts() {
     "Over $1000": [1000, Infinity],
   };
 
-
   const handlePriceSelect = (label: string) => {
     const range = priceRangeMap[label];
     if (range) {
@@ -120,7 +119,6 @@ export default function AllProducts() {
   };
 
   const formats = ["PDF", "Document"];
-
 
   const sortOptions = [
     { label: "Relevance", value: "relevance" },
@@ -184,7 +182,6 @@ export default function AllProducts() {
             <span className="text-base font-medium leading-[120%] whitespace-nowrap">
               Short By:
             </span>
-            {/* <SortDropdown options={sortOptions} defaultValue="best-reviewed" /> */}
             <SortDropdown
               options={sortOptions}
               defaultValue="Sort By"
@@ -230,7 +227,6 @@ export default function AllProducts() {
                   options={provinces}
                   onSelect={(value) => setSelectedProvince(value)}
                 />
-
               </div>
 
               {/* Right: All Filters Drawer */}
