@@ -12,10 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react"
+import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react"
 import dynamic from "next/dynamic"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import "react-quill/dist/quill.snow.css"
+import Image from "next/image"
+import { useSession } from "next-auth/react"
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
@@ -51,7 +53,11 @@ interface FormDataState {
   resourceType: string // Stores ID
   thumbnail: File | null
   file: File | null // Changed from 'document' to 'file'
+  images: File[] // New field for multiple images
 }
+
+// Define the path for the component if it's not the root page
+// const componentFilePath = "resource-form.tsx"
 
 export default function ResourceForm() {
   const { toast } = useToast()
@@ -60,6 +66,9 @@ export default function ResourceForm() {
   const [countryOpen, setCountryOpen] = useState(false)
   const [stateOpen, setStateOpen] = useState(false)
   const [stateSearch, setStateSearch] = useState("")
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
@@ -74,11 +83,16 @@ export default function ResourceForm() {
     resourceType: "",
     thumbnail: null,
     file: null, // Changed from 'document' to 'file'
+    images: [], // Initialize images as an empty array
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-  const API_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+
+  const session = useSession()
+  const API_TOKEN = session?.data?.user?.accessToken
+  // console.log("Token:", API_TOKEN);
+  // const API_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
 
   const modules = {
     toolbar: [
@@ -165,6 +179,11 @@ export default function ResourceForm() {
         submitData.append("file", currentFormData.file)
       }
 
+      // Append multiple images
+      currentFormData.images.forEach((imageFile) => {
+        submitData.append("images", imageFile) // Backend should handle multiple files with the same key
+      })
+
       const response = await fetch(`${API_BASE_URL}/resource`, {
         method: "POST",
         headers: { Authorization: `Bearer ${API_TOKEN}` },
@@ -216,15 +235,47 @@ export default function ResourceForm() {
 
   const handleThumbnailUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
-    if (file && !file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload only image files for thumbnail.",
-        variant: "destructive",
-      })
-      return
+
+    // Revoke the old object URL if it exists
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview)
     }
-    setFormData((prev) => ({ ...prev, thumbnail: file }))
+
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload only image files for thumbnail.",
+          variant: "destructive",
+        })
+        setFormData((prev) => ({ ...prev, thumbnail: null }))
+        setThumbnailPreview(null)
+        if (thumbnailInputRef.current) {
+          thumbnailInputRef.current.value = ""
+        }
+        return
+      }
+      setFormData((prev) => ({ ...prev, thumbnail: file }))
+      setThumbnailPreview(URL.createObjectURL(file))
+    } else {
+      // No file selected or selection cancelled
+      setFormData((prev) => ({ ...prev, thumbnail: null }))
+      setThumbnailPreview(null)
+      if (thumbnailInputRef.current) {
+        thumbnailInputRef.current.value = ""
+      }
+    }
+  }
+
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview)
+    }
+    setThumbnailPreview(null)
+    setFormData((prev) => ({ ...prev, thumbnail: null }))
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = ""
+    }
   }
 
   // Renamed from handleDocumentUpload to handleFileUpload
@@ -233,6 +284,43 @@ export default function ResourceForm() {
     setFormData((prev) => ({
       ...prev,
       file: uploadedFile, // Changed from 'document' to 'file'
+    }))
+  }
+
+  const handleImagesUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      const newFiles = Array.from(files)
+      // const newPreviews = newFiles.map((file) => URL.createObjectURL(file))
+
+      // Filter out non-image files
+      const imageFiles = newFiles.filter((file) => file.type.startsWith("image/"))
+      if (imageFiles.length !== newFiles.length) {
+        toast({
+          title: "Invalid file type",
+          description: "Some files were not images and were not added.",
+          variant: "destructive",
+        })
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...imageFiles],
+      }))
+      setImagePreviews((prev) => [...prev, ...imageFiles.map((file) => URL.createObjectURL(file))])
+    }
+    // Reset file input to allow selecting the same file(s) again if removed
+    if (event.target) {
+      event.target.value = ""
+    }
+  }
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    URL.revokeObjectURL(imagePreviews[indexToRemove])
+    setImagePreviews((prev) => prev.filter((_, index) => index !== indexToRemove))
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, index) => index !== indexToRemove),
     }))
   }
 
@@ -264,6 +352,9 @@ export default function ResourceForm() {
             type: formData.file.type,
           }
         : null,
+      images: formData.images.map(
+        (img) => `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`,
+      ),
     }
     console.log("Form Data (for logging):", dataToLog)
     submitResource(formData)
@@ -271,6 +362,16 @@ export default function ResourceForm() {
 
   const filteredStates =
     selectedCountry?.states.filter((state) => state.toLowerCase().includes(stateSearch.toLowerCase())) || []
+
+  useEffect(() => {
+    // Cleanup object URL on component unmount or when preview URL changes
+    return () => {
+      if (thumbnailPreview) {
+        URL.revokeObjectURL(thumbnailPreview)
+      }
+      imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
+    }
+  }, [thumbnailPreview,imagePreviews])
 
   return (
     <div className="max-w-9xl mx-auto p-6">
@@ -329,7 +430,7 @@ export default function ResourceForm() {
                     <SelectContent>
                       <SelectItem value="PDF">PDF</SelectItem>
                       {/* <SelectItem value="Audio">Audio</SelectItem>
-                      <SelectItem value="Video">Video</SelectItem> */}
+                    <SelectItem value="Video">Video</SelectItem> */}
                       <SelectItem value="Document">Doc</SelectItem>
                     </SelectContent>
                   </Select>
@@ -498,23 +599,52 @@ export default function ResourceForm() {
 
           {/* Thumbnail */}
           <Card>
+            <CardHeader>
+              <CardTitle>Thumbnail</CardTitle>
+            </CardHeader>
             <CardContent className="pt-6">
               <div className="space-y-2">
-                <Label>Thumbnail (Images Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                <Label htmlFor="thumbnail-upload">Thumbnail (Images Only)</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleThumbnailUpload}
                     className="hidden"
                     id="thumbnail-upload"
+                    ref={thumbnailInputRef}
                   />
-                  <label htmlFor="thumbnail-upload" className="cursor-pointer">
-                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-2 text-sm text-gray-600">
-                      {formData.thumbnail ? formData.thumbnail.name : "Click to upload thumbnail image"}
-                    </p>
-                  </label>
+                  {formData.thumbnail && thumbnailPreview ? (
+                    <div className="space-y-3">
+                      <Image
+                        width={100}
+                        height={100}
+                        src={thumbnailPreview || "/placeholder.svg"}
+                        alt="Thumbnail preview"
+                        className="max-h-40 w-auto mx-auto rounded-md object-contain"
+                      />
+                      <p className="text-sm text-gray-600 truncate" title={formData.thumbnail.name}>
+                        {formData.thumbnail.name}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRemoveThumbnail}
+                        className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <X className="mr-2 h-4 w-4" /> Remove Image
+                      </Button>
+                    </div>
+                  ) : (
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                    >
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                      <p className="text-sm text-gray-600">Click or drag to upload</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                    </label>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -542,6 +672,62 @@ export default function ResourceForm() {
                     </p>
                   </label>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Multiple Images Upload */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Upload Images</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="space-y-2">
+                <Label htmlFor="images-upload">Additional Images (Multiple)</Label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImagesUpload}
+                    className="hidden"
+                    id="images-upload"
+                  />
+                  <label
+                    htmlFor="images-upload"
+                    className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                  >
+                    <ImageIcon className="h-12 w-12 text-gray-400" />
+                    <p className="text-sm text-gray-600">Click or drag to upload images</p>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB each</p>
+                  </label>
+                </div>
+                {imagePreviews.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((previewUrl, index) => (
+                      <div key={index} className="relative group">
+                        <Image
+                          src={previewUrl || "/placeholder.svg"}
+                          alt={`Preview ${index + 1}`}
+                          width={100}
+                          height={100}
+                          className="w-full h-24 object-cover rounded-md"
+                        />
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <p className="text-xs text-gray-500 truncate mt-1" title={formData.images[index]?.name}>
+                          {formData.images[index]?.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
