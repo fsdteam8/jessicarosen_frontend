@@ -127,7 +127,9 @@ export default function ProductList({
               : ""
           }&format=${encodeURIComponent(
             format ?? ""
-          )}&price=${encodeURIComponent(price ?? "")}&states=${encodeURIComponent(states ?? "")}`
+          )}&price=${encodeURIComponent(
+            price ?? ""
+          )}&states=${encodeURIComponent(states ?? "")}`
         ).then((res) => res.json()),
     });
 
@@ -201,6 +203,7 @@ export default function ProductList({
                         <AvatarImage
                           src={product?.createdBy?.profileImage}
                           alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                          className="rounded-full w-[49px] h-[49px]"
                         />
                         <AvatarFallback>{`${
                           product?.createdBy?.firstName?.[0] ?? ""
@@ -319,6 +322,7 @@ export default function ProductList({
                             <AvatarImage
                               src={product?.createdBy?.profileImage}
                               alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
+                              className=" rounded-full w-[49px] h-[49px]"
                             />
                             <AvatarFallback>{`${
                               product?.createdBy?.firstName?.[0] ?? ""
