@@ -106,6 +106,7 @@ export default function ResourcesTable() {
     enabled: true,
   });
 
+  // console.log("Resources Data:", data);
   // Delete resource mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
