@@ -72,7 +72,7 @@ export default function ProductCard({
                 src={
                   Array.isArray(product?.thumbnail)
                     ? product?.thumbnail[0] || "/placeholder.svg"
-                    : product?.thumbnail || "/placeholder.svg"
+                    : product?.thumbnail || "/images/no-image.jpg"
                 }
                 alt={product?.title || "Product Image"}
                 width={370}
