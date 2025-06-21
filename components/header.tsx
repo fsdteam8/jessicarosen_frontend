@@ -28,6 +28,7 @@ import { SearchModal } from "@/components/search-modal";
 import { usePracticeAreas } from "@/hooks/use-practice-areas";
 import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown";
 import { useRouter } from "next/navigation";
+import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -43,6 +44,11 @@ export function Header() {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const { data: practiceAreasData, isLoading: practiceAreasLoading } =
     usePracticeAreas();
+
+
+    // Inside your component:
+// const dispatch = useDispatch();
+// const router = useRouter();
 
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
@@ -81,20 +87,42 @@ export function Header() {
     }
   };
 
-  const handlePracticeAreaClick = (
-    practiceAreaId: string,
-    practiceAreaName: string
-  ) => {
-    router.push(
-      `/products?practiceArea=${encodeURIComponent(
-        practiceAreaId
-      )}&name=${encodeURIComponent(practiceAreaName)}`
-    );
-  };
+  // const handlePracticeAreaClick = (
+  //   practiceAreaId: string,
+  //   practiceAreaName: string
+  // ) => {
+  //   router.push(
+  //     `/products?practiceArea=${encodeURIComponent(
+  //       practiceAreaId
+  //     )}&name=${encodeURIComponent(practiceAreaName)}`
+  //   );
+  // };
+
+
+
+  
+const handlePracticeAreaClick = (
+  practiceAreaId: string,
+  practiceAreaName: string
+) => {
+  // ✅ 1. Save to Redux
+  dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
+
+  // ✅ 2. Navigate to products page with query params
+  router.push(
+    `/products?practiceArea=${encodeURIComponent(
+      practiceAreaId
+    )}&name=${encodeURIComponent(practiceAreaName)}`
+  );
+};
 
   // Get first 5 practice areas for main navigation
   const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
   const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
+
+
+
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white">
@@ -513,12 +541,16 @@ export function Header() {
               {/* Dropdown for more practice areas */}
               {hasMoreAreas && (
                 <PracticeAreasDropdown
+                
                   visibleAreas={visiblePracticeAreas.map((area) => ({
                     _id: area._id,
                     name: area.name,
                   }))}
                 />
               )}
+
+
+
             </nav>
           </div>
         </div>

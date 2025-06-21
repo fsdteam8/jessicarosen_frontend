@@ -12,6 +12,8 @@ import { PracticeAreaApiResponse } from "@/types/practice-area-data-type";
 import { ResourceTypeApiResponse } from "@/types/resource-type-data-type";
 import { CountriesApiResponse } from "@/types/countery-data-type";
 import { useAppSelector } from "@/redux/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export default function AllProducts() {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
@@ -167,6 +169,8 @@ export default function AllProducts() {
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
+
+    const selectedArea = useSelector((state: RootState) => state.practiceArea.selectedArea)
   return (
     <div className="flex min-h-screen flex-col">
       {/* Main Content */}
@@ -175,6 +179,15 @@ export default function AllProducts() {
           <div>
             <div className="text-sm text-gray-500 mb-2">
               15,000,000+ Results
+              <div>
+      {selectedArea ? (
+        <p>
+          Showing content for: <strong>{selectedArea.name}</strong>
+        </p>
+      ) : (
+        <p>Please select a practice area.</p>
+      )}
+    </div>
             </div>
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
               Resources
