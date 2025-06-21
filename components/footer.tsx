@@ -35,7 +35,7 @@ export function Footer() {
             <h3 className="font-bold mb-4 text-gray-900">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about" className="text-gray-600 hover:text-gray-900">
+                <Link href="/about-us" className="text-gray-600 hover:text-gray-900">
                   About Us
                 </Link>
               </li>
@@ -45,13 +45,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/resources" className="text-gray-600 hover:text-gray-900">
+                <Link href="/products" className="text-gray-600 hover:text-gray-900">
                   Resources
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="text-gray-600 hover:text-gray-900">
-                  Contract
+                  Contact
                 </Link>
               </li>
             </ul>
@@ -61,25 +61,25 @@ export function Footer() {
             <h3 className="font-bold mb-4 text-gray-900">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/privacy" className="text-gray-600 hover:text-gray-900">
+                <Link href="/account/privacy" className="text-gray-600 hover:text-gray-900">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-gray-600 hover:text-gray-900">
+                <Link href="/account/terms" className="text-gray-600 hover:text-gray-900">
                   Terms Of Service
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/faq" className="text-gray-600 hover:text-gray-900">
                   FAQ
                 </Link>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <Link href="/help" className="text-gray-600 hover:text-gray-900">
                   Help Center
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
