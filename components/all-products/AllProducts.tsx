@@ -3,7 +3,6 @@
 import { Suspense, useState } from "react";
 
 import FilterDropdown from "./filter-dropdown";
-import CountryDropdown from "./country-dropdown";
 import AllFiltersDrawer from "./all-filters-drawer";
 import SortDropdown from "./sort-dropdown";
 import ViewToggle from "./view-toggle";
@@ -54,8 +53,6 @@ export default function AllProducts() {
     "Digital",
   ];
 
-  const countries = ["Canada", "USA (United States)"];
-
   const provinces = [
     "Ontario",
     "Alberta",
@@ -84,7 +81,6 @@ export default function AllProducts() {
     { name: "Resource Types", options: resourceTypes },
     { name: "Prices", options: prices },
     { name: "Format", options: formats },
-    { name: "Country", options: countries },
     {
       name: "Region",
       options: [
@@ -154,7 +150,6 @@ export default function AllProducts() {
                 />
                 <FilterDropdown title="Prices" options={prices} />
                 <FilterDropdown title="Format" options={formats} />
-                <CountryDropdown title="Country" options={countries} />
                 <FilterDropdown title="Province/State" options={provinces} />
               </div>
 
