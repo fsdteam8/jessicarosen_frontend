@@ -245,35 +245,87 @@ export function useUpdateCartItem() {
       if (status === "unauthenticated" || !token) {
         throw new Error("Please login to update cart");
       }
+      return updateCartItem(itemId, { quantity }, token);
+    },
+    // Add optimistic update
+    onMutate: async ({ itemId, quantity }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["cart"] });
 
-      console.log("Updating cart item:", { itemId, quantity }); // Debug log
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(["cart"]);
 
-      const response = await updateCartItem(itemId, { quantity }, token);
-      return response;
+      // Optimistically update the cache
+      queryClient.setQueryData(["cart"], (old: CartResponse | undefined) => {
+        if (!old?.data?.items) return old;
+
+        const updatedItems = old.data.items.map((item) =>
+          item._id === itemId ? { ...item, quantity } : item
+        );
+
+        // Recalculate totals
+        const subtotal = updatedItems.reduce((sum, item) => {
+          const price = item.resource.discountPrice || item.resource.price;
+          return sum + price * item.quantity;
+        }, 0);
+
+        const itemCount = updatedItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            items: updatedItems,
+            subtotal,
+            itemCount,
+            total: subtotal,
+          },
+          subtotal,
+          itemCount,
+          total: subtotal,
+        };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousCart };
+    },
+    onError: (error, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart);
+      }
+
+      if (error.message.includes("Unauthorized")) {
+        toast({
+          title: "Authentication Required",
+          description: "Please login to update cart",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update cart item",
+          variant: "destructive",
+        });
+      }
+    },
+    // Always refetch after error or success
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onSuccess: (data) => {
-      // Update the cart data in the cache
+      // Update with server response
       queryClient.setQueryData(["cart"], data);
-
-      // Invalidate and refetch to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-
       toast({
         title: "Cart updated",
         description: "Item quantity has been updated.",
       });
     },
-    onError: (error: Error) => {
-      console.error("Cart update error:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update cart item",
-        variant: "destructive",
-      });
-    },
   });
 }
-
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
 

@@ -315,6 +315,40 @@ export default function ProfilePage() {
     fileInputRef.current?.click()
   }
 
+  const handelSubmitMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/apply`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to submit");
+      }
+
+      return email;
+    },
+    onSuccess: () => {},
+    onError: (error) => {
+      console.error("Delete failed:", error);
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (data?.email) {
+      handelSubmitMutation.mutate(data.email);
+    } else {
+      toast.error("Email is not available.");
+    }
+  };
+
   // Handle image delete
   const handleImageDelete = () => {
     if (window.confirm("Are you sure you want to delete your profile image?")) {
@@ -360,7 +394,9 @@ export default function ProfilePage() {
                   )}
                   <Image
                     key={imageKey} // Force re-render when imageKey changes
-                    src={`${data?.profileImage || "/images/not-imge.png"}?t=${imageKey}`} // Cache busting
+                    src={`${
+                      data?.profileImage || "/images/not-imge.png"
+                    }?t=${imageKey}`} // Cache busting
                     alt="Profile"
                     width={128}
                     height={128}
@@ -386,21 +422,22 @@ export default function ProfilePage() {
                       <Camera className="w-4 h-4" />
                     )}
                   </Button>
-                  {data?.profileImage && data.profileImage !== "/images/not-imge.png" && (
-                    <Button
-                      size="sm"
-                      className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600 disabled:opacity-50"
-                      onClick={handleImageDelete}
-                      disabled={deleteImageMutation.isPending || uploadImageMutation.isPending}
-                      title="Delete current image"
-                    >
-                      {deleteImageMutation.isPending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
+                  {data?.profileImage &&
+                    data.profileImage !== "/images/not-imge.png" && (
+                      <Button
+                        size="sm"
+                        className="w-8 h-8 p-0 rounded-full bg-red-500 hover:bg-red-600"
+                        onClick={handleImageDelete}
+                        disabled={deleteImageMutation.isPending}
+                        title="Delete current image"
+                      >
+                        {deleteImageMutation.isPending ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    )}
                 </div>
                 {/* Hidden file input */}
                 <input
@@ -425,8 +462,10 @@ export default function ProfilePage() {
                 </p>
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={() => (window.location.href = "/dashboard")}
-                  disabled={isAnyOperationPending}
+                  onClick={() => {
+                    handleSubmit();
+                    window.location.href = "/dashboard";
+                  }}
                 >
                   <SquareArrowOutUpRight className="mr-2" />
                   Go To Dashboard

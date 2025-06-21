@@ -224,6 +224,6 @@ export default function HomeHero() {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>
+  );
 }
