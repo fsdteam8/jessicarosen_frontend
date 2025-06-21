@@ -16,6 +16,7 @@ import { Check, ChevronDown, FileText, ImageIcon } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useState } from "react"
 import "react-quill/dist/quill.snow.css"
+import { useSession } from "next-auth/react"
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
@@ -77,8 +78,11 @@ export default function ResourceForm() {
   })
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
-  const API_TOKEN =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+  // const API_TOKEN =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODNlZDVlYTY0ODUxNzk2MWZlYmQ2OGQiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDk3NDM4MTQsImV4cCI6MTc1MDM0ODYxNH0.jJksgiUUh5MM8Y1O8e8pZWFWAhG0g8oY4MYqPkMkuSI"
+  
+  const session = useSession();
+  const API_TOKEN = session?.data?.user?.accessToken
 
   const modules = {
     toolbar: [
