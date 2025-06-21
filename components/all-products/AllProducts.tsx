@@ -12,6 +12,8 @@ import { PracticeAreaApiResponse } from "@/types/practice-area-data-type";
 import { ResourceTypeApiResponse } from "@/types/resource-type-data-type";
 import { CountriesApiResponse } from "@/types/countery-data-type";
 import { useAppSelector } from "@/redux/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
 
 export default function AllProducts() {
@@ -145,21 +147,19 @@ export default function AllProducts() {
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
-    // Fetching all products data
-    const { data: allProductData } =
-      useQuery<AllProductDataTypeResponse>({
-        queryKey: [
-          "all-products"
-        ],
-        queryFn: () =>
-          fetch(
-            `${
-              process.env.NEXT_PUBLIC_BACKEND_URL
-            }/api/v1/resource/get-all-resources?page=${currentPage}&limit=5000`
-          ).then((res) => res.json()),
-      });
-  
-    console.log(allProductData?.data?.length);
+  const selectedArea = useSelector(
+    (state: RootState) => state.practiceArea.selectedArea
+  );
+  // Fetching all products data
+  const { data: allProductData } = useQuery<AllProductDataTypeResponse>({
+    queryKey: ["all-products"],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?page=${currentPage}&limit=5000`
+      ).then((res) => res.json()),
+  });
+
+  console.log(allProductData?.data?.length);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -168,6 +168,16 @@ export default function AllProducts() {
         <div className="flex justify-between items-center mb-2">
           <div>
             <div className="text-sm text-gray-500 mb-2">
+              {/* 15,000,000+ Results */}
+              <div>
+                {selectedArea ? (
+                  <p>
+                    Showing content for: <strong>{selectedArea.name}</strong>
+                  </p>
+                ) : (
+                  <p>Please select a practice area.</p>
+                )}
+              </div>
               {allProductData?.data?.length}+ Results
             </div>
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">

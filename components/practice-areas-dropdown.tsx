@@ -4,6 +4,8 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePracticeAreas } from "@/hooks/use-practice-areas";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
 
 interface PracticeAreasDropdownProps {
   visibleAreas: Array<{ _id: string; name: string }>;
@@ -40,17 +42,36 @@ export function PracticeAreasDropdown({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // const handlePracticeAreaClick = (
+  //   practiceAreaId: string,
+  //   practiceAreaName: string
+  // ) => {
+  //   setIsOpen(false);
+  //   router.push(
+  //     `/products?practiceArea=${encodeURIComponent(
+  //       practiceAreaId
+  //     )}&name=${encodeURIComponent(practiceAreaName)}`
+  //   );
+  // };
+
+const dispatch = useDispatch();
   const handlePracticeAreaClick = (
-    practiceAreaId: string,
-    practiceAreaName: string
-  ) => {
-    setIsOpen(false);
-    router.push(
-      `/products?practiceArea=${encodeURIComponent(
-        practiceAreaId
-      )}&name=${encodeURIComponent(practiceAreaName)}`
-    );
-  };
+  practiceAreaId: string,
+  practiceAreaName: string
+) => {
+  // ✅ Save selected area to Redux
+  dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
+
+  // ✅ Navigate to products page with query params
+  router.push(
+    `/products?practiceArea=${encodeURIComponent(
+      practiceAreaId
+    )}&name=${encodeURIComponent(practiceAreaName)}`
+  );
+
+  // ✅ Close dropdown
+  setIsOpen(false);
+};
 
   if (remainingAreas.length === 0) {
     return null;
