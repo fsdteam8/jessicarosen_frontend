@@ -101,7 +101,7 @@ console.log("Cart Data:", cartData);
               Continue Shopping
             </Button>
             <Link
-              href="/products"
+              href="/cart"
               className="text-sm text-blue-500 hover:underline mt-2"
             >
               Go to cart page
