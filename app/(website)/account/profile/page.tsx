@@ -177,16 +177,19 @@ export default function ProfilePage() {
 
   // Image upload function
   const uploadImage = async (file: File) => {
-    const formData = new FormData()
-    formData.append("profileImage", file)
+    const formData = new FormData();
+    formData.append("profileImage", file);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    })
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
 
     const response = await res.json()
 
@@ -199,12 +202,15 @@ export default function ProfilePage() {
 
   // Image delete function
   const deleteImage = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/upload-avatar/${userId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     const response = await res.json()
 
@@ -237,9 +243,9 @@ export default function ProfilePage() {
   const uploadImageMutation = useMutation({
     mutationFn: uploadImage,
     onSuccess: (response) => {
-      toast.success(response.message || "Image uploaded successfully")
-      setImageKey((prev) => prev + 1) // Force image re-render
-      queryClient.invalidateQueries({ queryKey: ["user", userId] })
+      toast.success(response.message || "Image uploaded successfully");
+      setImageKey((prev) => prev + 1); // Force image re-render
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to upload image")
@@ -250,9 +256,9 @@ export default function ProfilePage() {
   const deleteImageMutation = useMutation({
     mutationFn: deleteImage,
     onSuccess: (response) => {
-      toast.success(response.message || "Image deleted successfully")
-      setImageKey((prev) => prev + 1) // Force image re-render
-      queryClient.invalidateQueries({ queryKey: ["user", userId] })
+      toast.success(response.message || "Image deleted successfully");
+      setImageKey((prev) => prev + 1); // Force image re-render
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
       toast.error(error.message || "Failed to delete image")
@@ -274,7 +280,7 @@ export default function ProfilePage() {
         profileImage: data?.profileImage || "",
       })
       // Update image key when data changes to force re-render
-      setImageKey((prev) => prev + 1)
+      setImageKey((prev) => prev + 1);
     }
   }, [data])
 
@@ -296,11 +302,17 @@ export default function ProfilePage() {
     if (file) {
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file")
-        return
+        toast.error("Please select a valid image file");
+        return;
       }
 
       // Validate file size (e.g., max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+    // Validate file size (e.g., max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size should be less than 5MB")
         return
@@ -312,8 +324,42 @@ export default function ProfilePage() {
 
   // Handle image upload button click
   const handleImageUpload = () => {
-    fileInputRef.current?.click()
+  fileInputRef.current?.click()
   }
+
+  // const handelSubmitMutation = useMutation({
+  //   mutationFn: async (email: string) => {
+  //     const response = await fetch(
+  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/apply`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       throw new Error(errorData.message || "Failed to submit");
+  //     }
+
+  //     return email;
+  //   },
+  //   onSuccess: () => {},
+  //   onError: (error) => {
+  //     console.error("Delete failed:", error);
+  //   },
+  // });
+
+  // const handleSubmit = async () => {
+  //   if (data?.email) {
+  //     handelSubmitMutation.mutate(data.email);
+  //   } else {
+  //     toast.error("Email is not available.");
+  //   }
+  // };
 
   const handelSubmitMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -348,7 +394,6 @@ export default function ProfilePage() {
       toast.error("Email is not available.");
     }
   };
-
   // Handle image delete
   const handleImageDelete = () => {
     if (window.confirm("Are you sure you want to delete your profile image?")) {
@@ -548,5 +593,5 @@ export default function ProfilePage() {
       </AccountLayout>
       <LegalDoc />
     </div>
-  )
+);
 }
