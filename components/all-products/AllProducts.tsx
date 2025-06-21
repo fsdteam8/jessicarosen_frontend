@@ -109,6 +109,7 @@ export default function AllProducts() {
     "Over $1000": [1000, Infinity],
   };
 
+
   const handlePriceSelect = (label: string) => {
     const range = priceRangeMap[label];
     if (range) {
@@ -119,6 +120,7 @@ export default function AllProducts() {
   };
 
   const formats = ["PDF", "Document"];
+
 
   const sortOptions = [
     { label: "Relevance", value: "relevance" },
@@ -228,6 +230,7 @@ export default function AllProducts() {
                   options={provinces}
                   onSelect={(value) => setSelectedProvince(value)}
                 />
+
               </div>
 
               {/* Right: All Filters Drawer */}

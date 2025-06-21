@@ -12,9 +12,11 @@ import {
   LogOut,
   ChevronDown,
   ChevronRight,
+  Settings,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
+import SetupPopup from "./SetupPopup";
 
 interface SidebarProps {
   open: boolean;
@@ -22,6 +24,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
+  const [showPopup, setShowPopup] = useState(false);
   const pathname = usePathname();
   const [resourceListOpen, setResourceListOpen] = useState(true);
 
@@ -55,17 +58,15 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       icon: TrendingUp,
       current: pathname === "/dashboard/sales",
     },
-    // {
-    //   name: "Setting",
-    //   href: "/dashboard/settings",
-    //   icon: Settings,
-    //   current: pathname === "/dashboard/settings",
-    // },
+    {
+      name: "Settings",
+      icon: Settings,
+      onClick: () => setShowPopup(true),
+    },
   ];
 
   return (
     <>
-      {/* Mobile backdrop */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden"
@@ -73,7 +74,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         />
       )}
 
-      {/* Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-50 w-64 bg-slate-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
@@ -81,7 +81,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="flex items-center h-16 px-6 mb-[46px]">
             <div className="flex items-center space-x-2">
               <Image
@@ -94,7 +93,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
             </div>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
             {navigation.map((item) => (
               <div key={item.name}>
@@ -138,9 +136,20 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                       </div>
                     )}
                   </div>
+                ) : item.onClick ? (
+                  <button
+                    onClick={item.onClick}
+                    className={cn(
+                      "flex w-full items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                      "text-slate-300 hover:bg-slate-700 hover:text-white"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </button>
                 ) : (
                   <Link
-                    href={item.href}
+                    href={item.href!}
                     className={cn(
                       "flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                       item.current
@@ -156,7 +165,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
             ))}
           </nav>
 
-          {/* Logout */}
           <div className="p-4">
             <Button
               variant="ghost"
@@ -169,6 +177,9 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           </div>
         </div>
       </div>
+
+      {/* Popup component */}
+      <SetupPopup open={showPopup} onOpenChange={setShowPopup} />
     </>
   );
 }

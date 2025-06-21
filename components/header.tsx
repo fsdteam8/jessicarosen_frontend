@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { type Region, setRegion } from "@/redux/features/regionSlice";
 import { SearchModal } from "@/components/search-modal";
@@ -50,7 +50,6 @@ export function Header() {
 
   const session = useSession();
   const user = session?.data?.user;
-
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
     setIsMounted(true);
@@ -96,7 +95,6 @@ export function Header() {
   // Get first 5 practice areas for main navigation
   const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
   const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
-
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white">
@@ -112,9 +110,7 @@ export function Header() {
               </span>
             </div>
             <div className="flex-1 text-center hidden lg:block">
-              <span className="text-sm font-medium leading-[120%]">
-                Special Offers: Save up to 30% Using Promo Code
-              </span>
+              <HeaderPromoCarousel specialPromos={specialPromos} />
             </div>
             <div className="hidden lg:flex items-center space-x-2">
               <Button
@@ -250,7 +246,7 @@ export function Header() {
                       My Orders
                     </Link>
                     <button
-                      onClick={logout}
+                      onClick={() => signOut()}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       Logout
