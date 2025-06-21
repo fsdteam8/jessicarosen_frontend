@@ -238,6 +238,7 @@ import { useCart } from "@/hooks/use-cart";
 export default function WishlistPage() {
   const { items, removeItem, clearWishlist } = useWishlist();
   const { addItem } = useCart();
+  console.log("items", items);
 
   const handleAddToCart = (id: string) => {
     const item = items.find((item) => item.id === id);
