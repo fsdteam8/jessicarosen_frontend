@@ -110,7 +110,7 @@ export function Header() {
               </span>
             </div>
             <div className="flex-1 text-center hidden lg:block">
-              <HeaderPromoCarousel specialPromos={specialPromos} />
+              {/* <HeaderPromoCarousel specialPromos={specialPromos} /> */}
             </div>
             <div className="hidden lg:flex items-center space-x-2">
               <Button
