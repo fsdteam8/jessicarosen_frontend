@@ -13,9 +13,10 @@ interface FilterDropdownProps {
   title: string
   options: string[]
   icon?: React.ReactNode
+  onSelect: (value: string) => void
 }
 
-export default function FilterDropdown({ title, options, icon }: FilterDropdownProps) {
+export default function FilterDropdown({ title, options, icon, onSelect }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState<string | undefined>(undefined)
   const [searchQuery, setSearchQuery] = useState("")
@@ -35,7 +36,7 @@ export default function FilterDropdown({ title, options, icon }: FilterDropdownP
   }, [])
 
   // Filter options based on search query
-  const filteredOptions = options.filter((option) => option.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredOptions = options?.filter((option) => option.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -49,7 +50,7 @@ export default function FilterDropdown({ title, options, icon }: FilterDropdownP
       </Button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden">
+        <div className="absolute z-10 mt-1 w-64 bg-white rounded-md shadow-lg border border-gray-200 overflow-hidden">
           <div className="p-3">
             <div className="relative mb-3">
               <Input
@@ -61,7 +62,14 @@ export default function FilterDropdown({ title, options, icon }: FilterDropdownP
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
             <div className="max-h-60 overflow-y-auto">
-              <RadioGroup value={selected} onValueChange={setSelected}>
+              <RadioGroup
+                value={selected}
+                onValueChange={(value) => {
+                  setSelected(value)
+                  onSelect(value)
+                   setIsOpen(false);
+                }}
+              >
                 {filteredOptions.length > 0 ? (
                   filteredOptions.map((option) => (
                     <div key={option} className="flex items-center space-x-2 py-1">

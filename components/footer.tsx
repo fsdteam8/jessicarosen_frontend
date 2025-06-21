@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 export function Footer() {
@@ -88,9 +87,8 @@ export function Footer() {
               Subscribe Our <span className="text-[#2c5d7c]">NEWSLETTER</span>
             </h3>
             <p className="text-sm text-gray-600 mb-4">Connect with us on social media and stay in the loop.</p>
-            <div className="flex">
-              <Input type="email" placeholder="Enter Your Email..." className="rounded-r-none border-r-0" />
-              <Button className="rounded-l-none bg-[#2c5d7c] hover:bg-[#1e4258]">Subscribe</Button>
+            <div>
+              <NewsLetterForm/>
             </div>
           </div>
         </div>
@@ -105,6 +103,7 @@ export function Footer() {
 
 import { ReactNode } from "react"
 import Image from "next/image"
+import NewsLetterForm from "./NewsLetterForm"
 
 function SocialButton({ icon }: { icon: ReactNode }) {
   return (
