@@ -19,6 +19,20 @@ import { toast } from "sonner"; // ✅ Ensure you have this
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+// Move interfaces outside the component
+interface CartResource {
+  _id: string;
+  title: string;
+  thumbnail?: string;
+  price: number;
+  discountPrice?: number;
+}
+
+interface CartItem {
+  id: string;
+  resource: CartResource;
+}
+
 export function CartSheet() {
   const { items, isOpen, setOpen, removeItem, getSubtotal, getTotal } = useCart();
   const queryClient = useQueryClient();
@@ -96,7 +110,7 @@ console.log("Cart Data:", cartData);
         ) : (
           <>
             <div className="space-y-4 mb-6">
-              {cartData.map((item) => (
+              {cartData.map((item: CartItem) => (
                 <div key={item.id} className="flex items-center gap-4">
                   <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0">
                     <Image
