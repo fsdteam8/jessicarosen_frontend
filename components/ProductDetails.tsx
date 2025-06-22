@@ -12,8 +12,10 @@ import { useState, useMemo } from "react"
 import ProductCard from "@/components/ProductCard" // Adjust the path based on your file structure
 
 export default function ProductDetails() {
+
   const params = useParams()
   console.log("ProductDetails params:", params?.id)
+
 
   // State to track the currently selected main image
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -102,11 +104,13 @@ export default function ProductDetails() {
           <div className="gap-4 flex ">
             <div className="w-[328px] h-[328px] relative">
               <Image
+
                 src={
                   Array.isArray(images[selectedImageIndex])
                     ? "/placeholder.svg"
                     : images[selectedImageIndex] || "/placeholder.svg"
                 }
+
                 alt={product?.title || "Product image"}
                 fill
                 className="object-cover rounded-lg"
@@ -114,7 +118,7 @@ export default function ProductDetails() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {images.slice(1).map((image, index) => (
+              {images.slice(1,5).map((image, index) => (
                 <div
                   key={index + 1}
                   className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
@@ -125,7 +129,7 @@ export default function ProductDetails() {
                   onClick={() => setSelectedImageIndex(index + 1)}
                 >
                   <Image
-                    src={typeof image === "string" ? image : "/placeholder.svg"}
+                    src={typeof image === "string" ? image : "/images/no-image.jpg"}
                     alt={product?.title || "Product image"}
                     fill
                     className="object-cover"
