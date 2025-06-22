@@ -3,18 +3,22 @@ import { Heart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import Link from "next/link";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner"; // or use your own toast library
 import { ProductDataType } from "@/types/all-product-dataType";
+// import { addToCartAPI } from "@/lib/api/cart";
+import { useAuth } from "@/hooks/use-auth"; // adjust if your auth is different
+import { addToCartAPI } from "@/lib/cart";
+import { useSession } from "next-auth/react";
 
 export default function ProductCard({
   product,
 }: {
   product?: ProductDataType;
 }) {
-  // console.log("ProductCard product:", product)
-
   const { addItem } = useCart();
   const {
     addItem: addToWish,
@@ -22,20 +26,36 @@ export default function ProductCard({
     items: wishlistItems,
   } = useWishlist();
 
-  // Check if the product is already in the wishlist
+
+    const session = useSession()
+    const token = session?.data?.user?.accessToken
+  // const { token } = useAuth(); // replace with your actual way to get token
+
   const isInWishlist = wishlistItems.some((item) => item.id === product?._id);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const addToCart = (item: any) => {
-    addItem({ ...item, quantity: 1 });
-  };
+  const mutation = useMutation({
+    mutationFn: () =>
+      addToCartAPI({
+        resourceId: product?._id || "",
+        quantity: 1,
+        token,
+      }),
+    onSuccess: (data) => {
+      toast.success(data.message || "Item added to cart");
+      addItem({ ...product, quantity: 1 }); // Sync local cart
+    },
+    onError: (error: unknown) => {
+      toast.error("Failed to add to cart");
+      console.error(error);
+    },
+  });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const toggleWishlist = (item: any) => {
+  const toggleWishlist = () => {
+    if (!product) return;
     if (isInWishlist) {
-      removeFromWish(item.id);
+      removeFromWish(product._id);
     } else {
-      addToWish({ ...item, quantity: 1 });
+      addToWish({ ...product, quantity: 1 });
     }
   };
 
@@ -52,7 +72,7 @@ export default function ProductCard({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => toggleWishlist(product)}
+              onClick={toggleWishlist}
               className={`absolute top-3 right-3 h-8 w-8 z-10 transition-all duration-200 ${
                 isInWishlist
                   ? "text-red-500 bg-white/90 hover:bg-white shadow-md"
@@ -91,7 +111,9 @@ export default function ProductCard({
             </h2>
 
             <p
-              dangerouslySetInnerHTML={{ __html: product?.description?.slice(0, 100) || "" }}
+              dangerouslySetInnerHTML={{
+                __html: product?.description?.slice(0, 100) || "",
+              }}
               className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3 h-[30px]"
             />
 
@@ -121,10 +143,11 @@ export default function ProductCard({
             {/* Action Buttons */}
             <div className="flex gap-2 mt-auto w-full">
               <Button
-                onClick={() => addToCart(product)}
+                onClick={() => mutation.mutate()}
+                disabled={mutation.isPending}
                 className="flex-1 bg-[#23547B] hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
               >
-                Add To Cart
+                {mutation.isPending ? "Adding..." : "Add To Cart"}
               </Button>
 
               <Link href={`/products/${product?._id}`} className="flex-1">
