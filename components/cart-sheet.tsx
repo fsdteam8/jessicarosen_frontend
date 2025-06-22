@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import { formatPrice } from "@/lib/utils";
+// import { formatPrice } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner"; // ✅ Ensure you have this
@@ -34,7 +34,7 @@ interface CartItem {
 }
 
 export function CartSheet() {
-  const { items, isOpen, setOpen, removeItem, getSubtotal, getTotal } = useCart();
+  const { items, isOpen, setOpen, removeItem,  } = useCart();
   const queryClient = useQueryClient();
   const session = useSession();
   const token = session?.data?.user?.accessToken;
