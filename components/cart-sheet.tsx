@@ -149,11 +149,12 @@ console.log("Cart Data:", cartData);
                 <span className="text-muted-foreground">
                   Subtotal ({items.length} items):
                 </span>
-                <span>${formatPrice(getSubtotal())}</span>
+                {/* <span>${formatPrice(getSubtotal())}</span> */}
+                <span>${cart?.subtotal}</span>
               </div>
               <div className="flex justify-between font-medium">
                 <span>Total:</span>
-                <span>${formatPrice(getTotal())}</span>
+                <span>${cart?.subtotal}</span>
               </div>
             </div>
 
