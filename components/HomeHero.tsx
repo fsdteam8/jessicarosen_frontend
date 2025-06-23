@@ -82,12 +82,6 @@ function HeroPromoCarousel({ specialPromos }: HeroPromoCarouselProps) {
                 <p className="text-[32px] font-bold text-[#E0B15E]">
                   {promo.discountValue}%
                 </p>
-                {/* <p className="text-base font-medium leading-[120%]">
-                  Purchase discount.
-                </p>
-                <p className="text-sm text-[#E0B15E] mt-1">
-                  Code: {promo.code}
-                </p> */}
               </div>
             </CarouselItem>
           ))}
@@ -197,18 +191,12 @@ export default function HomeHero() {
                 and researchers understand and apply legal principles.
               </p>
               <div className="flex items-center justify-center w-[95%] mz">
-                
-
-                {/* Discount info with Hero-specific carousel */}
-                {/* <div className="lg:mt-6 text-start flex justify-end items-center">
-                  <HeroPromoCarousel specialPromos={specialPromoCodes} />
-                </div> */}
               </div>
 
               <div className="lg:mt-6 text-start flex justify-between items-center">
                   <div className="lg:h-[54px] lg:w-[242px] ">
                     <Link href="/products">
-                    <Button className="w-full h-full bg-[#E0B15E]">
+                    <Button className="w-full h-full text-lg font-bold text-black hover:text-white bg-[#E0B15E]">
                       Explore Resources
                     </Button>
                     </Link>

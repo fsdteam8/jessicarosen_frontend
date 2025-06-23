@@ -1,127 +1,141 @@
-"use client";
+"use client"
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import {
-  Search,
-  ShoppingCart,
-  Heart,
-  Menu,
-  Mail,
-  UserRound,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/use-auth";
-import { CartSheet } from "@/components/cart-sheet";
-import Image from "next/image";
-import { useWishlist } from "@/hooks/use-wishlist";
-import { useSession, signOut } from "next-auth/react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { type Region, setRegion } from "@/redux/features/regionSlice";
-import { SearchModal } from "@/components/search-modal";
-import { usePracticeAreas } from "@/hooks/use-practice-areas";
-import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown";
-import { useRouter } from "next/navigation";
-import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
+import type React from "react"
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
+import { Search, ShoppingCart, Heart, Menu, Mail, UserRound } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useCart } from "@/hooks/use-cart"
+import { useAuth } from "@/hooks/use-auth"
+import { CartSheet } from "@/components/cart-sheet"
+import Image from "next/image"
+import { useWishlist } from "@/hooks/use-wishlist"
+import { useSession, signOut } from "next-auth/react"
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+import { type Region, setRegion } from "@/redux/features/regionSlice"
+import { SearchModal } from "@/components/search-modal"
+import { usePracticeAreas } from "@/hooks/use-practice-areas"
+import { PracticeAreasDropdown } from "@/components/practice-areas-dropdown"
+import { useRouter } from "next/navigation"
+import { setSelectedArea } from "@/redux/features/practiceAreaSlice"
+import { useQuery } from "@tanstack/react-query"
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
+
+interface PromoCodeCreator {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+}
+
+interface PromoCode {
+  _id: string
+  code: string
+  discountType: string
+  discountValue: number
+  expiryDate: string
+  usageLimit: number
+  special: boolean
+  active: boolean
+  usedCount: number
+  createdBy: PromoCodeCreator
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
+
+interface PromoCodeResponse {
+  data: {
+    data: PromoCode[]
+  }
+}
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const { getItemCount, setOpen } = useCart();
-  const { isAuthenticated, logout } = useAuth();
-  const { items } = useWishlist();
-  const dispatch = useAppDispatch();
-  const currentRegion = useAppSelector((state) => state.region.currentRegion);
-  const { data: practiceAreasData, isLoading: practiceAreasLoading } =
-    usePracticeAreas();
-
-
-    // Inside your component:
-// const dispatch = useDispatch();
-// const router = useRouter();
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isMounted, setIsMounted] = useState(false)
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+  const { getItemCount, setOpen } = useCart()
+  const { isAuthenticated, logout } = useAuth()
+  const { items } = useWishlist()
+  const dispatch = useAppDispatch()
+  const currentRegion = useAppSelector((state) => state.region.currentRegion)
+  const { data: practiceAreasData, isLoading: practiceAreasLoading } = usePracticeAreas()
 
   const handleRegionChange = (region: Region) => {
-    dispatch(setRegion(region));
-  };
+    dispatch(setRegion(region))
+  }
 
-  const session = useSession();
-  const user = session?.data?.user;
+  const session = useSession()
+  const user = session?.data?.user
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
-  const itemCount = isMounted ? getItemCount() : 0;
-  const wishlistCount = isMounted ? items.length : 0;
+  const itemCount = isMounted ? getItemCount() : 0
+  const wishlistCount = isMounted ? items.length : 0
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (searchQuery.trim()) {
-      setIsSearchModalOpen(true);
-      setIsSearchOpen(false);
+      setIsSearchModalOpen(true)
+      setIsSearchOpen(false)
     }
-  };
+  }
 
   const handleSearchButtonClick = () => {
     if (searchQuery.trim()) {
-      setIsSearchModalOpen(true);
+      setIsSearchModalOpen(true)
     }
-  };
+  }
 
   const handleMobileSearchClick = () => {
     if (isSearchOpen && searchQuery.trim()) {
-      setIsSearchModalOpen(true);
-      setIsSearchOpen(false);
+      setIsSearchModalOpen(true)
+      setIsSearchOpen(false)
     } else {
-      setIsSearchOpen(!isSearchOpen);
+      setIsSearchOpen(!isSearchOpen)
     }
-  };
+  }
 
-  // const handlePracticeAreaClick = (
-  //   practiceAreaId: string,
-  //   practiceAreaName: string
-  // ) => {
-  //   router.push(
-  //     `/products?practiceArea=${encodeURIComponent(
-  //       practiceAreaId
-  //     )}&name=${encodeURIComponent(practiceAreaName)}`
-  //   );
-  // };
+  const handlePracticeAreaClick = (practiceAreaId: string, practiceAreaName: string) => {
+    dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }))
 
-
-
-  
-const handlePracticeAreaClick = (
-  practiceAreaId: string,
-  practiceAreaName: string
-) => {
-  // ✅ 1. Save to Redux
-  dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
-
-  // ✅ 2. Navigate to products page with query params
-  router.push(
-    `/products?practiceArea=${encodeURIComponent(
-      practiceAreaId
-    )}&name=${encodeURIComponent(practiceAreaName)}`
-  );
-};
+    router.push(
+      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&name=${encodeURIComponent(practiceAreaName)}`,
+    )
+  }
 
   // Get first 5 practice areas for main navigation
-  const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || [];
-  const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5;
+  const visiblePracticeAreas = practiceAreasData?.data?.slice(0, 5) || []
+  const hasMoreAreas = (practiceAreasData?.data?.length || 0) > 5
 
+  const { data } = useQuery<PromoCodeResponse>({
+    queryKey: ["hero-promo"],
+    queryFn: async (): Promise<PromoCodeResponse> => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`)
+      if (!res.ok) {
+        throw new Error("Failed to fetch promo codes")
+      }
+      return res.json()
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 10 * 60 * 1000, // 10 minutes
+  })
 
+  // Filter special promo codes
+  const specialPromoCodes: PromoCode[] =
+    data?.data.data.filter((promo: PromoCode) => promo.special && promo.active) || []
 
+  console.log("spacialPromoCodes", specialPromoCodes)
 
   return (
     <>
@@ -138,7 +152,37 @@ const handlePracticeAreaClick = (
               </span>
             </div>
             <div className="flex-1 text-center hidden lg:block">
-              {/* <HeaderPromoCarousel specialPromos={specialPromos} /> */}
+              {specialPromoCodes.length > 0 ? (
+                <Carousel
+                  opts={{
+                    align: "center",
+                    loop: true,
+                  }}
+                  plugins={[
+                    Autoplay({
+                      delay: 4000,
+                    }),
+                  ]}
+                  className="w-full max-w-md mx-auto"
+                >
+                  <CarouselContent>
+                    {specialPromoCodes.map((promo: PromoCode) => (
+                      <CarouselItem key={promo._id}>
+                        <div className="text-center">
+                          <span className="text-sm font-medium">
+                            Save up to {promo.discountValue}% Using Promo Code{" "}
+                            <span className="font-bold text-yellow-300">{promo.code}</span>
+                          </span>
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {/* <CarouselPrevious className="hidden sm:flex -left-12 bg-white/20 border-white/30 text-white hover:bg-white/30" />
+                  <CarouselNext className="hidden sm:flex -right-12 bg-white/20 border-white/30 text-white hover:bg-white/30" /> */}
+                </Carousel>
+              ) : (
+                <span className="text-sm">Welcome to Lawbie - Your Legal Resource Hub</span>
+              )}
             </div>
             <div className="hidden lg:flex items-center space-x-2">
               <Button
@@ -151,12 +195,7 @@ const handlePracticeAreaClick = (
                 }`}
               >
                 <span className="w-[48px] h-[24px]">
-                  <Image
-                    src="/images/flage.png"
-                    alt="Canada Flag"
-                    width={48}
-                    height={24}
-                  />
+                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
                 </span>
                 Lawbie Canada
               </Button>
@@ -170,12 +209,7 @@ const handlePracticeAreaClick = (
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
-                  <Image
-                    src="/images/flage1.png"
-                    alt="US Flag"
-                    fill
-                    className="object-contain"
-                  />
+                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
                 </span>
                 <span>Lawbie US</span>
               </Button>
@@ -222,10 +256,7 @@ const handlePracticeAreaClick = (
             </div>
 
             {/* Mobile Search Button */}
-            <button
-              className="md:hidden text-gray-600 mr-3"
-              onClick={handleMobileSearchClick}
-            >
+            <button className="md:hidden text-gray-600 mr-3" onClick={handleMobileSearchClick}>
               <Search className="text-2xl" />
             </button>
 
@@ -257,20 +288,12 @@ const handlePracticeAreaClick = (
                   <div className="absolute right-0 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-gray-700">
                       <p className="font-medium text-center">{user?.name}</p>
-                      <p className="text-gray-500 text-xs text-center border-b">
-                        {user?.email}
-                      </p>
+                      <p className="text-gray-500 text-xs text-center border-b">{user?.email}</p>
                     </div>
-                    <Link
-                      href="/account/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
+                    <Link href="/account/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       My Account
                     </Link>
-                    <Link
-                      href="/orders"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
+                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       My Orders
                     </Link>
                     <button
@@ -301,20 +324,14 @@ const handlePracticeAreaClick = (
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
-                      className={`text-lg font-medium ${
-                        pathname === "/"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
-                      }`}
+                      className={`text-lg font-medium ${pathname === "/" ? "text-blue-600" : "hover:text-blue-600"}`}
                     >
                       Home
                     </Link>
                     <Link
                       href="/products"
                       className={`text-lg font-medium ${
-                        pathname === "/products"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
+                        pathname === "/products" ? "text-blue-600" : "hover:text-blue-600"
                       }`}
                     >
                       All Resources
@@ -322,9 +339,7 @@ const handlePracticeAreaClick = (
                     <Link
                       href="/blog"
                       className={`text-lg font-medium ${
-                        pathname === "/blog"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
+                        pathname === "/blog" ? "text-blue-600" : "hover:text-blue-600"
                       }`}
                     >
                       Blog
@@ -332,16 +347,11 @@ const handlePracticeAreaClick = (
 
                     {/* Mobile Practice Areas */}
                     <div className="border-t pt-4 mt-4">
-                      <h3 className="text-sm font-semibold text-gray-500 mb-3">
-                        Practice Areas
-                      </h3>
+                      <h3 className="text-sm font-semibold text-gray-500 mb-3">Practice Areas</h3>
                       {practiceAreasLoading ? (
                         <div className="space-y-2">
                           {[...Array(3)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="h-8 bg-gray-200 rounded animate-pulse"
-                            />
+                            <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
                           ))}
                         </div>
                       ) : (
@@ -349,9 +359,7 @@ const handlePracticeAreaClick = (
                           {practiceAreasData?.data?.map((area) => (
                             <button
                               key={area._id}
-                              onClick={() =>
-                                handlePracticeAreaClick(area._id, area.name)
-                              }
+                              onClick={() => handlePracticeAreaClick(area._id, area.name)}
                               className="w-full text-left text-base font-medium hover:text-blue-600 py-1"
                             >
                               {area.name}
@@ -364,18 +372,13 @@ const handlePracticeAreaClick = (
                     <Link
                       href="/wishlist"
                       className={`text-lg font-medium ${
-                        pathname === "/wishlist"
-                          ? "text-blue-600"
-                          : "hover:text-blue-600"
+                        pathname === "/wishlist" ? "text-blue-600" : "hover:text-blue-600"
                       }`}
                     >
                       Wishlist
                     </Link>
                     {isMounted && !isAuthenticated && (
-                      <Button
-                        asChild
-                        className="bg-blue-600 hover:bg-blue-700 mt-4"
-                      >
+                      <Button asChild className="bg-blue-600 hover:bg-blue-700 mt-4">
                         <Link href="/auth/login">Login</Link>
                       </Button>
                     )}
@@ -385,23 +388,13 @@ const handlePracticeAreaClick = (
                           <p className="font-medium">{user?.name}</p>
                           <p className="text-gray-500 text-sm">{user?.email}</p>
                         </div>
-                        <Link
-                          href="/account"
-                          className="text-lg font-medium hover:text-blue-600"
-                        >
+                        <Link href="/account" className="text-lg font-medium hover:text-blue-600">
                           My Account
                         </Link>
-                        <Link
-                          href="/orders"
-                          className="text-lg font-medium hover:text-blue-600"
-                        >
+                        <Link href="/orders" className="text-lg font-medium hover:text-blue-600">
                           My Orders
                         </Link>
-                        <Button
-                          variant="destructive"
-                          onClick={logout}
-                          className="mt-4"
-                        >
+                        <Button variant="destructive" onClick={logout} className="mt-4">
                           Logout
                         </Button>
                       </>
@@ -465,11 +458,7 @@ const handlePracticeAreaClick = (
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
                 autoFocus
               />
-              <Button
-                type="submit"
-                size="sm"
-                className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3"
-              >
+              <Button type="submit" size="sm" className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3">
                 <Search className="h-4 w-4 text-white" />
               </Button>
             </form>
@@ -483,9 +472,7 @@ const handlePracticeAreaClick = (
               <Link
                 href="/"
                 className={`font-medium transition-colors ${
-                  pathname === "/"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                  pathname === "/" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Home
@@ -493,9 +480,7 @@ const handlePracticeAreaClick = (
               <Link
                 href="/products"
                 className={`font-medium transition-colors ${
-                  pathname === "/products"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                  pathname === "/products" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 All Resources
@@ -503,9 +488,7 @@ const handlePracticeAreaClick = (
               <Link
                 href="/blog"
                 className={`font-medium transition-colors ${
-                  pathname === "/blog"
-                    ? "text-blue-600"
-                    : "text-gray-700 hover:text-blue-600"
+                  pathname === "/blog" ? "text-blue-600" : "text-gray-700 hover:text-blue-600"
                 }`}
               >
                 Blog
@@ -515,10 +498,7 @@ const handlePracticeAreaClick = (
               {practiceAreasLoading ? (
                 <div className="flex space-x-8">
                   {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-6 w-24 bg-gray-200 rounded animate-pulse"
-                    />
+                    <div key={i} className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
                   ))}
                 </div>
               ) : (
@@ -526,9 +506,7 @@ const handlePracticeAreaClick = (
                   {visiblePracticeAreas.map((area) => (
                     <button
                       key={area._id}
-                      onClick={() =>
-                        handlePracticeAreaClick(area._id, area.name)
-                      }
+                      onClick={() => handlePracticeAreaClick(area._id, area.name)}
                       className="font-medium transition-colors text-gray-700 hover:text-blue-600 truncate max-w-[150px]"
                       title={area.name}
                     >
@@ -541,30 +519,22 @@ const handlePracticeAreaClick = (
               {/* Dropdown for more practice areas */}
               {hasMoreAreas && (
                 <PracticeAreasDropdown
-                
                   visibleAreas={visiblePracticeAreas.map((area) => ({
                     _id: area._id,
                     name: area.name,
                   }))}
                 />
               )}
-
-
-
             </nav>
           </div>
         </div>
       </header>
 
       {/* Search Modal */}
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-        initialQuery={searchQuery}
-      />
+      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} initialQuery={searchQuery} />
 
       {/* Cart Sheet */}
       <CartSheet />
     </>
-  );
+  )
 }
