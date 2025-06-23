@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
@@ -20,7 +19,14 @@ import Image from "next/image"
 import { useSession } from "next-auth/react"
 
 // Import React Quill dynamically to avoid SSR issues
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false })
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[300px] border border-gray-300 rounded-md flex items-center justify-center">
+      Loading editor...
+    </div>
+  ),
+})
 
 interface Country {
   _id: string
@@ -49,15 +55,12 @@ interface FormDataState {
   country: string
   states: string[]
   description: string
-  practiceArea: string // Stores ID
-  resourceType: string // Stores ID
+  practiceArea: string
+  resourceType: string
   thumbnail: File | null
-  file: File | null // Changed from 'document' to 'file'
-  images: File[] // New field for multiple images
+  file: File | null
+  images: File[]
 }
-
-// Define the path for the component if it's not the root page
-// const componentFilePath = "resource-form.tsx"
 
 export default function ResourceForm() {
   const { toast } = useToast()
@@ -68,6 +71,7 @@ export default function ResourceForm() {
   const [stateSearch, setStateSearch] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [isClient, setIsClient] = useState(false)
   const thumbnailInputRef = useRef<HTMLInputElement>(null)
 
   const [formData, setFormData] = useState<FormDataState>({
@@ -82,17 +86,18 @@ export default function ResourceForm() {
     practiceArea: "",
     resourceType: "",
     thumbnail: null,
-    file: null, // Changed from 'document' to 'file'
-    images: [], // Initialize images as an empty array
+    file: null,
+    images: [],
   })
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL
+  const { data: session } = useSession()
+  const API_TOKEN = session?.user?.accessToken
 
-  const session = useSession()
-  const API_TOKEN = session?.data?.user?.accessToken
-  // console.log("Token:", API_TOKEN);
-  // const API_TOKEN =
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
+  // Set isClient to true after component mounts
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const modules = {
     toolbar: [
@@ -107,10 +112,13 @@ export default function ResourceForm() {
   const formats = ["header", "bold", "italic", "underline", "strike", "list", "bullet", "align"]
 
   const { data: countriesData, isLoading: isLoadingCountries } = useQuery<Country[]>({
-    queryKey: ["countries"],
+    queryKey: ["countries-all"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/country-state/all`, {
-        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      const response = await fetch(`${API_BASE_URL}/api/v1/country-state/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
       })
       if (!response.ok) throw new Error("Failed to fetch countries")
       const data = await response.json()
@@ -119,10 +127,13 @@ export default function ResourceForm() {
   })
 
   const { data: practiceAreasData, isLoading: isLoadingPracticeAreas } = useQuery<PracticeArea[]>({
-    queryKey: ["practiceAreas"],
+    queryKey: ["practiceAreas-all"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/practice-area/all`, {
-        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      const response = await fetch(`${API_BASE_URL}/api/v1/practice-area/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
       })
       if (!response.ok) throw new Error("Failed to fetch practice areas")
       const data = await response.json()
@@ -131,10 +142,13 @@ export default function ResourceForm() {
   })
 
   const { data: resourceTypesData, isLoading: isLoadingResourceTypes } = useQuery<ResourceType[]>({
-    queryKey: ["resourceTypes"],
+    queryKey: ["resourceTypes-all"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/resource-type/all`, {
-        headers: { Authorization: `Bearer ${API_TOKEN}`, "Content-Type": "application/json" },
+      const response = await fetch(`${API_BASE_URL}/api/v1/resource-type/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
       })
       if (!response.ok) throw new Error("Failed to fetch resource types")
       const data = await response.json()
@@ -175,16 +189,14 @@ export default function ResourceForm() {
         submitData.append("thumbnail", currentFormData.thumbnail)
       }
       if (currentFormData.file) {
-        // Changed from currentFormData.document
         submitData.append("file", currentFormData.file)
       }
 
-      // Append multiple images
       currentFormData.images.forEach((imageFile) => {
-        submitData.append("images", imageFile) // Backend should handle multiple files with the same key
+        submitData.append("images", imageFile)
       })
 
-      const response = await fetch(`${API_BASE_URL}/resource`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/resource`, {
         method: "POST",
         headers: { Authorization: `Bearer ${API_TOKEN}` },
         body: submitData,
@@ -221,7 +233,11 @@ export default function ResourceForm() {
   const handleCountrySelect = (country: Country) => {
     setSelectedCountry(country)
     setSelectedStates([])
-    setFormData((prev) => ({ ...prev, country: country.countryName, states: [] }))
+    setFormData((prev) => ({
+      ...prev,
+      country: country.countryName,
+      states: [],
+    }))
     setCountryOpen(false)
   }
 
@@ -236,7 +252,6 @@ export default function ResourceForm() {
   const handleThumbnailUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null
 
-    // Revoke the old object URL if it exists
     if (thumbnailPreview) {
       URL.revokeObjectURL(thumbnailPreview)
     }
@@ -258,7 +273,6 @@ export default function ResourceForm() {
       setFormData((prev) => ({ ...prev, thumbnail: file }))
       setThumbnailPreview(URL.createObjectURL(file))
     } else {
-      // No file selected or selection cancelled
       setFormData((prev) => ({ ...prev, thumbnail: null }))
       setThumbnailPreview(null)
       if (thumbnailInputRef.current) {
@@ -278,12 +292,11 @@ export default function ResourceForm() {
     }
   }
 
-  // Renamed from handleDocumentUpload to handleFileUpload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = event.target.files?.[0] || null // Renamed variable for clarity
+    const uploadedFile = event.target.files?.[0] || null
     setFormData((prev) => ({
       ...prev,
-      file: uploadedFile, // Changed from 'document' to 'file'
+      file: uploadedFile,
     }))
   }
 
@@ -291,9 +304,7 @@ export default function ResourceForm() {
     const files = event.target.files
     if (files) {
       const newFiles = Array.from(files)
-      // const newPreviews = newFiles.map((file) => URL.createObjectURL(file))
 
-      // Filter out non-image files
       const imageFiles = newFiles.filter((file) => file.type.startsWith("image/"))
       if (imageFiles.length !== newFiles.length) {
         toast({
@@ -309,7 +320,6 @@ export default function ResourceForm() {
       }))
       setImagePreviews((prev) => [...prev, ...imageFiles.map((file) => URL.createObjectURL(file))])
     }
-    // Reset file input to allow selecting the same file(s) again if removed
     if (event.target) {
       event.target.value = ""
     }
@@ -346,9 +356,9 @@ export default function ResourceForm() {
       thumbnail: formData.thumbnail
         ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
         : null,
-      file: formData.file // Changed from 'File' and formData.document
+      file: formData.file
         ? {
-            url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`, // Example URL
+            url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
             type: formData.file.type,
           }
         : null,
@@ -364,378 +374,391 @@ export default function ResourceForm() {
     selectedCountry?.states.filter((state) => state.toLowerCase().includes(stateSearch.toLowerCase())) || []
 
   useEffect(() => {
-    // Cleanup object URL on component unmount or when preview URL changes
     return () => {
       if (thumbnailPreview) {
         URL.revokeObjectURL(thumbnailPreview)
       }
       imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl))
     }
-  }, [thumbnailPreview,imagePreviews])
+  }, [thumbnailPreview, imagePreviews])
 
   return (
-    <div className="max-w-9xl mx-auto p-6">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Section */}
-        <div className="lg:col-span-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Resource</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* ... other form fields remain the same ... */}
-              <div className="space-y-2">
-                <Label htmlFor="title">Add Title</Label>
-                <Input
-                  id="title"
-                  placeholder="Add your title..."
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Section */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">Add Resource</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
+                  <Label htmlFor="title" className="text-base">
+                    Add Title
+                  </Label>
                   <Input
-                    id="price"
-                    placeholder="Add price.."
-                    value={formData.price}
-                    onChange={(e) => handleInputChange("price", e.target.value)}
+                    id="title"
+                    className="h-[49px] border border-gray-500"
+                    placeholder="Add your title..."
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="discountPrice">Discount Price</Label>
-                  <Input
-                    id="discountPrice"
-                    placeholder="Add Discount Price.."
-                    value={formData.discountPrice}
-                    onChange={(e) => handleInputChange("discountPrice", e.target.value)}
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="price" className="text-base font-semibold">
+                      Price
+                    </Label>
+                    <Input
+                      className="h-[49px] border border-gray-500"
+                      id="price"
+                      placeholder="Add price.."
+                      value={formData.price}
+                      onChange={(e) => handleInputChange("price", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="discountPrice">
+                      Discount Price
+                    </Label>
+                    <Input
+                      id="discountPrice"
+                      className="h-[49px] border border-gray-500"
+                      placeholder="Add Discount Price.."
+                      value={formData.discountPrice}
+                      onChange={(e) => handleInputChange("discountPrice", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="quantity">
+                      Quantity
+                    </Label>
+                    <Input
+                      id="quantity"
+                      className="h-[49px] border border-gray-500"
+                      placeholder="Add Quantity.."
+                      value={formData.quantity}
+                      onChange={(e) => handleInputChange("quantity", e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="format">
+                      Format
+                    </Label>
+                    <Select value={formData.format} onValueChange={(value) => handleInputChange("format", value)}>
+                      <SelectTrigger className="h-[49px] border border-gray-500">
+                        <SelectValue placeholder="Add format.." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PDF">PDF</SelectItem>
+                        <SelectItem value="Document">Doc</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={countryOpen}
+                          className="w-full justify-between h-[49px] border"
+                          disabled={isLoadingCountries}
+                        >
+                          {selectedCountry ? selectedCountry.countryName : "Select country..."}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search country..." />
+                          <CommandList>
+                            <CommandEmpty>No country found.</CommandEmpty>
+                            <CommandGroup>
+                              {countriesData?.map((country: Country) => (
+                                <CommandItem
+                                  key={country._id}
+                                  value={country.countryName}
+                                  onSelect={() => handleCountrySelect(country)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedCountry?._id === country._id ? "opacity-100" : "opacity-0",
+                                    )}
+                                  />
+                                  {country.countryName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>States</Label>
+                    <Popover open={stateOpen} onOpenChange={setStateOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={stateOpen}
+                          className="w-full justify-between h-[49px] border"
+                          disabled={!selectedCountry}
+                        >
+                          {selectedStates.length > 0
+                            ? `${selectedStates.length} state(s) selected`
+                            : "Select states..."}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search states..."
+                            value={stateSearch}
+                            onValueChange={setStateSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No state found.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredStates.map((state) => (
+                                <CommandItem key={state} value={state} onSelect={() => handleStateToggle(state)}>
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedStates.includes(state) ? "opacity-100" : "opacity-0",
+                                    )}
+                                  />
+                                  {state}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="quantity">Quantity</Label>
-                  <Input
-                    id="quantity"
-                    placeholder="Add Quantity.."
-                    value={formData.quantity}
-                    onChange={(e) => handleInputChange("quantity", e.target.value)}
-                  />
+                  <Label htmlFor="description">Description</Label>
+                  <div className="rounded-md border border-gray-300 h-[300px] overflow-hidden">
+                    {isClient && (
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.description}
+                        onChange={(content) => handleInputChange("description", content)}
+                        modules={modules}
+                        formats={formats}
+                        className="h-[300px] rounded-md"
+                        style={{ height: "300px" }}
+                      />
+                    )}
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="space-y-6">
+            {/* Practice Area & Resource Type */}
+            <Card>
+              <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="format">Format</Label>
-                  <Select value={formData.format} onValueChange={(value) => handleInputChange("format", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Add format.." />
+                  <Label className="text-base font-semibold">Practice Area</Label>
+                  <Select
+                    value={formData.practiceArea}
+                    onValueChange={(value) => handleInputChange("practiceArea", value)}
+                  >
+                    <SelectTrigger className="h-[49px] border border-gray-400">
+                      <SelectValue placeholder="Select a practice area" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PDF">PDF</SelectItem>
-                      {/* <SelectItem value="Audio">Audio</SelectItem>
-                    <SelectItem value="Video">Video</SelectItem> */}
-                      <SelectItem value="Document">Doc</SelectItem>
+                      {isLoadingPracticeAreas ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        practiceAreasData?.map((area: PracticeArea) => (
+                          <SelectItem key={area._id} value={area._id}>
+                            {area.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Country</Label>
-                  <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={countryOpen}
-                        className="w-full justify-between"
-                        disabled={isLoadingCountries}
-                      >
-                        {selectedCountry ? selectedCountry.countryName : "Select country..."}
-                        <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput placeholder="Search country..." />
-                        <CommandList>
-                          <CommandEmpty>No country found.</CommandEmpty>
-                          <CommandGroup>
-                            {countriesData?.map((country: Country) => (
-                              <CommandItem
-                                key={country._id}
-                                value={country.countryName}
-                                onSelect={() => handleCountrySelect(country)}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    selectedCountry?._id === country._id ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                                {country.countryName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                <div className="space-y-2 mt-4">
+                  <Label className="text-base font-semibold">Resource Type</Label>
+                  <Select
+                    value={formData.resourceType}
+                    onValueChange={(value) => handleInputChange("resourceType", value)}
+                  >
+                    <SelectTrigger className="h-[49px] border border-gray-400">
+                      <SelectValue placeholder="Select a resource type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingResourceTypes ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        resourceTypesData?.map((type: ResourceType) => (
+                          <SelectItem key={type._id} value={type._id}>
+                            {type.resourceTypeName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Thumbnail */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Thumbnail</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label>States</Label>
-                  <Popover open={stateOpen} onOpenChange={setStateOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={stateOpen}
-                        className="w-full justify-between"
-                        disabled={!selectedCountry}
-                      >
-                        {selectedStates.length > 0 ? `${selectedStates.length} state(s) selected` : "Select states..."}
-                        <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command>
-                        <CommandInput
-                          placeholder="Search states..."
-                          value={stateSearch}
-                          onValueChange={setStateSearch}
-                        />
-                        <CommandList>
-                          <CommandEmpty>No state found.</CommandEmpty>
-                          <CommandGroup>
-                            {filteredStates.map((state) => (
-                              <CommandItem key={state} value={state} onSelect={() => handleStateToggle(state)}>
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    selectedStates.includes(state) ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                                {state}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <div className="border rounded-md">
-                  {typeof window !== "undefined" && (
-                    <ReactQuill
-                      theme="snow"
-                      value={formData.description}
-                      onChange={(content) => handleInputChange("description", content)}
-                      modules={modules}
-                      formats={formats}
-                      className="min-h-[150px]"
+                  <Label htmlFor="thumbnail-upload">Thumbnail (Images Only)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                      id="thumbnail-upload"
+                      ref={thumbnailInputRef}
                     />
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="space-y-6">
-          {/* Practice Area & Resource Type */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <Label>Practice Area</Label>
-                <Select
-                  value={formData.practiceArea}
-                  onValueChange={(value) => handleInputChange("practiceArea", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a practice area" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoadingPracticeAreas ? (
-                      <SelectItem value="loading" disabled>
-                        Loading...
-                      </SelectItem>
+                    {formData.thumbnail && thumbnailPreview ? (
+                      <div className="space-y-3">
+                        <Image
+                          width={100}
+                          height={100}
+                          src={thumbnailPreview || "/placeholder.svg"}
+                          alt="Thumbnail preview"
+                          className="max-h-40 w-auto mx-auto rounded-md object-contain"
+                        />
+                        <p className="text-sm text-gray-600 truncate" title={formData.thumbnail.name}>
+                          {formData.thumbnail.name}
+                        </p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleRemoveThumbnail}
+                          className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                        >
+                          <X className="mr-2 h-4 w-4" /> Remove Image
+                        </Button>
+                      </div>
                     ) : (
-                      practiceAreasData?.map((area: PracticeArea) => (
-                        <SelectItem key={area._id} value={area._id}>
-                          {area.name}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 mt-4">
-                <Label>Resource Type</Label>
-                <Select
-                  value={formData.resourceType}
-                  onValueChange={(value) => handleInputChange("resourceType", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a resource type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLoadingResourceTypes ? (
-                      <SelectItem value="loading" disabled>
-                        Loading...
-                      </SelectItem>
-                    ) : (
-                      resourceTypesData?.map((type: ResourceType) => (
-                        <SelectItem key={type._id} value={type._id}>
-                          {type.resourceTypeName}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Thumbnail */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Thumbnail</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail-upload">Thumbnail (Images Only)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleThumbnailUpload}
-                    className="hidden"
-                    id="thumbnail-upload"
-                    ref={thumbnailInputRef}
-                  />
-                  {formData.thumbnail && thumbnailPreview ? (
-                    <div className="space-y-3">
-                      <Image
-                        width={100}
-                        height={100}
-                        src={thumbnailPreview || "/placeholder.svg"}
-                        alt="Thumbnail preview"
-                        className="max-h-40 w-auto mx-auto rounded-md object-contain"
-                      />
-                      <p className="text-sm text-gray-600 truncate" title={formData.thumbnail.name}>
-                        {formData.thumbnail.name}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemoveThumbnail}
-                        className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                      <label
+                        htmlFor="thumbnail-upload"
+                        className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
                       >
-                        <X className="mr-2 h-4 w-4" /> Remove Image
-                      </Button>
-                    </div>
-                  ) : (
+                        <ImageIcon className="h-12 w-12 text-gray-400" />
+                        <p className="text-sm text-gray-600">Click or drag to upload</p>
+                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* File Upload */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-2">
+                  <Label>File (PDF, Word, etc.)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-600">
+                        {formData.file ? formData.file.name : "Click to upload file"}
+                      </p>
+                    </label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Multiple Images Upload */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Images</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="images-upload">Additional Images (Multiple)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImagesUpload}
+                      className="hidden"
+                      id="images-upload"
+                    />
                     <label
-                      htmlFor="thumbnail-upload"
+                      htmlFor="images-upload"
                       className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
                     >
                       <ImageIcon className="h-12 w-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">Click or drag to upload</p>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                      <p className="text-sm text-gray-600">Click or drag to upload images</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB each</p>
                     </label>
+                  </div>
+                  {imagePreviews.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((previewUrl, index) => (
+                        <div key={index} className="relative group">
+                          <Image
+                            src={previewUrl || "/placeholder.svg"}
+                            alt={`Preview ${index + 1}`}
+                            width={100}
+                            height={100}
+                            className="w-full h-24 object-cover rounded-md"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleRemoveImage(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <p className="text-xs text-gray-500 truncate mt-1" title={formData.images[index]?.name}>
+                            {formData.images[index]?.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* File Upload (formerly Document Upload) */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <Label>File (PDF, Word, etc.)</Label> {/* Changed label */}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                  <input
-                    type="file" // type="file" is generic for all file inputs
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                    onChange={handleFileUpload} // Changed to handleFileUpload
-                    className="hidden"
-                    id="file-upload" // Changed id
-                  />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    {" "}
-                    {/* Changed htmlFor */}
-                    <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                    <p className="mt-2 text-sm text-gray-600">
-                      {formData.file ? formData.file.name : "Click to upload file"} {/* Changed to formData.file */}
-                    </p>
-                  </label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Multiple Images Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Images</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="images-upload">Additional Images (Multiple)</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImagesUpload}
-                    className="hidden"
-                    id="images-upload"
-                  />
-                  <label
-                    htmlFor="images-upload"
-                    className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
-                  >
-                    <ImageIcon className="h-12 w-12 text-gray-400" />
-                    <p className="text-sm text-gray-600">Click or drag to upload images</p>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB each</p>
-                  </label>
-                </div>
-                {imagePreviews.length > 0 && (
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {imagePreviews.map((previewUrl, index) => (
-                      <div key={index} className="relative group">
-                        <Image
-                          src={previewUrl || "/placeholder.svg"}
-                          alt={`Preview ${index + 1}`}
-                          width={100}
-                          height={100}
-                          className="w-full h-24 object-cover rounded-md"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleRemoveImage(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                        <p className="text-xs text-gray-500 truncate mt-1" title={formData.images[index]?.name}>
-                          {formData.images[index]?.name}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submit Button */}
-          <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Publishing..." : "Publish Resources"}
-          </Button>
+            {/* Submit Button */}
+            <Button onClick={handleSubmit} className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "Publishing..." : "Publish Resources"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
