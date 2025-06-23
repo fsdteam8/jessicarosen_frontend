@@ -51,6 +51,7 @@ export default function CartPageAPI() {
     console.log(
       `Updating item ${itemId} from ${currentItem.quantity} to ${targetQuantity}`
     );
+    console.log("Updating cart item:", itemId, "to quantity:", targetQuantity);
 
     setUpdatingItems((prev) => new Set(prev).add(itemId));
 
@@ -276,10 +277,7 @@ export default function CartPageAPI() {
                                 className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
                                 onClick={() => {
                                   const newQuantity = item.quantity + 1;
-                                  handleQuantityChange(
-                                    item.resource._id,
-                                    newQuantity
-                                  );
+                                  handleQuantityChange(item._id, newQuantity); // <-- FIXED: use item._id
                                 }}
                                 disabled={isUpdating}
                               >
@@ -304,9 +302,7 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() =>
-                                handleRemoveItem(item.resource._id)
-                              }
+                              onClick={() => handleRemoveItem(item._id)} // <-- FIXED: use item._id
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >
