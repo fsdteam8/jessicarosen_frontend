@@ -98,7 +98,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="bg-gray-50 p-4 flex items-center">
+
+    <div className=" ">
+
       <Card
         className="h-auto w-full bg-white shadow-lg border-8 border-white overflow-hidden"
         style={{ borderRadius: "16px" }}
