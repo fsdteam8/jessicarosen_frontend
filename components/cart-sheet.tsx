@@ -34,7 +34,7 @@ interface CartItem {
 }
 
 export function CartSheet() {
-  const { items, isOpen, setOpen, removeItem,  } = useCart();
+  const { items, isOpen, setOpen, removeItem } = useCart();
   const queryClient = useQueryClient();
   const session = useSession();
   const token = session?.data?.user?.accessToken;
@@ -56,7 +56,7 @@ export function CartSheet() {
 
   const cart = data?.data;
   const cartData = cart?.items || [];
-console.log("Cart Data:", cartData);
+  console.log("Cart Data:", cartData);
   // ✅ Delete item from API
   const deleteItemMutation = useMutation({
     mutationFn: async (resourceId: string) => {
@@ -126,14 +126,17 @@ console.log("Cart Data:", cartData);
                     </h4>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <span>
-                        Price: ${item?.resource?.discountPrice || item?.resource?.price}
+                        Price: $
+                        {item?.resource?.discountPrice || item?.resource?.price}
                       </span>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => deleteItemMutation.mutate(item?.resource?._id)}
+                    onClick={() =>
+                      deleteItemMutation.mutate(item?.resource?._id)
+                    }
                     className="text-red-500 hover:text-red-700"
                   >
                     <X className="h-4 w-4" />
