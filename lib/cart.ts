@@ -1,3 +1,4 @@
+// lib/api/add-to-cart-api.ts
 
 export interface AddToCartRequest {
   resourceId: string;
@@ -22,24 +23,27 @@ export interface AddToCartResponse {
   };
 }
 
-
-
 export const addToCartAPI = async ({
   resourceId,
   quantity,
   token,
 }: AddToCartRequest): Promise<AddToCartResponse> => {
+  if (!token) {
+    throw new Error("Please login first");
+  }
+
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ resourceId, quantity }),
   });
 
   if (!res.ok) {
-    throw new Error("Failed to add item to cart");
+    const errorBody = await res.text();
+    throw new Error(`Failed to add item to cart: ${errorBody}`);
   }
 
   return res.json();
