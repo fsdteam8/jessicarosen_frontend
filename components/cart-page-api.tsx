@@ -20,7 +20,7 @@ import {
   useClearCart,
 } from "@/hooks/use-cart-api";
 import { formatPrice } from "@/lib/utils";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 
 export default function CartPageAPI() {
@@ -35,24 +35,32 @@ export default function CartPageAPI() {
 
   // console.log(session, cartData);
 
+  // Add a ref to track pending updates
+  const pendingUpdates = useRef<Map<string, number>>(new Map());
+
   const handleQuantityChange = async (
     itemId: string,
     targetQuantity: number
   ) => {
-    if (targetQuantity < 1) return; // Prevent invalid quantities
+    if (targetQuantity < 1) return;
 
     // Get the current quantity from the most up-to-date cart data
     const currentItem = items.find((item) => item._id === itemId);
     if (!currentItem) return;
 
+    // Check if we have a pending update for this item
+    const pendingQuantity = pendingUpdates.current.get(itemId);
+    const currentQuantity = pendingQuantity ?? currentItem.quantity;
+
     // Prevent unnecessary API calls if quantity hasn't changed
-    if (currentItem.quantity === targetQuantity) return;
+    if (currentQuantity === targetQuantity) return;
 
     console.log(
-      `Updating item ${itemId} from ${currentItem.quantity} to ${targetQuantity}`
+      `Updating item ${itemId} from ${currentQuantity} to ${targetQuantity}`
     );
-    console.log("Updating cart item:", itemId, "to quantity:", targetQuantity);
 
+    // Update pending quantity immediately
+    pendingUpdates.current.set(itemId, targetQuantity);
     setUpdatingItems((prev) => new Set(prev).add(itemId));
 
     try {
@@ -60,6 +68,13 @@ export default function CartPageAPI() {
         itemId,
         quantity: targetQuantity,
       });
+
+      // Clear pending update after successful API call
+      pendingUpdates.current.delete(itemId);
+    } catch (error) {
+      // Revert pending update on error
+      pendingUpdates.current.delete(itemId);
+      throw error;
     } finally {
       setUpdatingItems((prev) => {
         const newSet = new Set(prev);
@@ -67,6 +82,20 @@ export default function CartPageAPI() {
         return newSet;
       });
     }
+  };
+  // Modified increment/decrement functions
+  const handleIncrement = (item: any) => {
+    const pendingQuantity = pendingUpdates.current.get(item._id);
+    const currentQuantity = pendingQuantity ?? item.quantity;
+    const newQuantity = currentQuantity + 1;
+    handleQuantityChange(item.resource._id, newQuantity);
+  };
+
+  const handleDecrement = (item: any) => {
+    const pendingQuantity = pendingUpdates.current.get(item._id);
+    const currentQuantity = pendingQuantity ?? item.quantity;
+    const newQuantity = Math.max(1, currentQuantity - 1);
+    handleQuantityChange(item.resource._id, newQuantity);
   };
 
   const handleRemoveItem = async (itemId: string) => {
@@ -215,15 +244,20 @@ export default function CartPageAPI() {
                   </thead>
                   <tbody className="divide-y">
                     {items.map((item) => {
-                      const isUpdating = updatingItems.has(item._id);
+                      const isUpdating = updatingItems.has(item.resource._id);
                       const itemPrice =
                         item.resource.discountPrice || item.resource.price;
                       const itemTotal = itemPrice * item.quantity;
 
-                      console.log(item.resource._id);
+                      console.log(
+                        item.resource._id,
+                        item.quantity,
+                        itemPrice,
+                        itemTotal
+                      );
                       return (
                         <tr
-                          key={item._id}
+                          key={item.resource._id}
                           className={`border-b ${
                             isUpdating ? "opacity-50" : ""
                           }`}
@@ -255,31 +289,27 @@ export default function CartPageAPI() {
                             <div className="flex items-center">
                               <button
                                 className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                                onClick={() => {
-                                  const newQuantity = Math.max(
-                                    1,
-                                    item.quantity - 1
-                                  );
-                                  handleQuantityChange(item._id, newQuantity);
-                                }}
-                                disabled={isUpdating || item.quantity <= 1}
+                                onClick={() => handleDecrement(item)}
+                                // disabled={isUpdating}
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
+
                               <div className="h-8 w-16 text-center border-y border-x-0 flex items-center justify-center">
                                 {isUpdating ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
                                 ) : (
-                                  item.quantity
+                                  // Show pending quantity if available, otherwise show current quantity
+                                  pendingUpdates.current.get(
+                                    item.resource._id
+                                  ) ?? item.quantity
                                 )}
                               </div>
+
                               <button
                                 className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                                onClick={() => {
-                                  const newQuantity = item.quantity + 1;
-                                  handleQuantityChange(item._id, newQuantity); // <-- FIXED: use item._id
-                                }}
-                                disabled={isUpdating}
+                                onClick={() => handleIncrement(item)}
+                                // disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
@@ -302,7 +332,9 @@ export default function CartPageAPI() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleRemoveItem(item._id)} // <-- FIXED: use item._id
+                              onClick={() =>
+                                handleRemoveItem(item.resource._id)
+                              } // <-- FIXED: use item._id
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >
