@@ -25,7 +25,7 @@ export function AddToCartButton({
   const addToCartMutation = useAddToCart();
   // const { isAuthenticated } = useAuth();
 
-  const {  status } = useSession();
+  const { status } = useSession();
   const isAuthenticated = status === "authenticated";
 
   const handleAddToCart = async () => {
