@@ -19,7 +19,7 @@ interface PracticeAreasResponse {
 
 const fetchPracticeAreas = async (): Promise<PracticeAreasResponse> => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/practice-area/all"
+    `${process.env.NEXT_PUBLIC_API_URL}/practice-area/all`
   );
 
   if (!response.ok) {

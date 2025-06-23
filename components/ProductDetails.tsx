@@ -1,3 +1,4 @@
+
 "use client"
 
 import Image from "next/image"
@@ -10,12 +11,26 @@ import type { AllProductDataTypeResponse } from "@/types/all-product-dataType"
 import { useQuery } from "@tanstack/react-query"
 import { useState, useMemo } from "react"
 import ProductCard from "@/components/ProductCard" // Adjust the path based on your file structure
+import Reviews from "./productDetails/reviews"
+import QuestionsAnswers from "./productDetails/questions-answers"
+import { useSession } from "next-auth/react"
 
 export default function ProductDetails() {
-
   const params = useParams()
-  console.log("ProductDetails params:", params?.id)
+  const session = useSession()
+  // Replace this line:
+  // const userId = session?.data?.user?.id;
 
+  // With this more robust approach:
+  const userId = session?.data?.user.id
+  // Add this after the session declaration:
+  console.log("Full session data:", session?.data)
+  console.log("User data:", session?.data?.user)
+  console.log("Extracted userId:", userId)
+  const resourceId = params?.id
+  console.log("user", session?.data?.user.id)
+  // console.log("ProductDetails id:",resourceId);
+  // console.log("userId", userId)
 
   // State to track the currently selected main image
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -56,7 +71,7 @@ export default function ProductDetails() {
       : [product.practiceAreas]
 
     return categoryData.data
-      .filter((item: AllProductDataTypeResponse['data'][number]) => {
+      .filter((item: AllProductDataTypeResponse["data"][number]) => {
         // Skip the current product
         if (item._id === product._id) {
           return false
@@ -104,13 +119,11 @@ export default function ProductDetails() {
           <div className="gap-4 flex ">
             <div className="w-[328px] h-[328px] relative">
               <Image
-
                 src={
                   Array.isArray(images[selectedImageIndex])
                     ? "/placeholder.svg"
                     : images[selectedImageIndex] || "/placeholder.svg"
                 }
-
                 alt={product?.title || "Product image"}
                 fill
                 className="object-cover rounded-lg"
@@ -118,7 +131,7 @@ export default function ProductDetails() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {images.slice(1,5).map((image, index) => (
+              {images.slice(1, 5).map((image, index) => (
                 <div
                   key={index + 1}
                   className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
@@ -446,7 +459,17 @@ export default function ProductDetails() {
           </ul>
         </div>
       </div>
+      {/* reviews section */}
+      {/* Replace the Reviews component call with: */}
+      {userId ? (
+        <Reviews resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")} userId={userId} />
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-gray-600">Please log in to write a review.</p>
+        </div>
+      )}
+      {/* question and ans section */}
+      <QuestionsAnswers />
     </div>
   )
 }
-

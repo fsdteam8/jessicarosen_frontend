@@ -304,7 +304,24 @@ export default function ResourceForm() {
     const files = event.target.files
     if (files) {
       const newFiles = Array.from(files)
+      const currentImageCount = formData.images.length
+      const maxImages = 4
+      const remainingSlots = maxImages - currentImageCount
 
+      // If already at limit, prevent any new uploads
+      if (remainingSlots <= 0) {
+        toast({
+          title: "Image limit reached",
+          description: "You can only upload a maximum of 4 images.",
+          variant: "destructive",
+        })
+        if (event.target) {
+          event.target.value = ""
+        }
+        return
+      }
+
+      // Filter out non-image files
       const imageFiles = newFiles.filter((file) => file.type.startsWith("image/"))
       if (imageFiles.length !== newFiles.length) {
         toast({
@@ -314,11 +331,22 @@ export default function ResourceForm() {
         })
       }
 
+      // Limit to remaining slots
+      const filesToAdd = imageFiles.slice(0, remainingSlots)
+
+      if (filesToAdd.length < imageFiles.length) {
+        toast({
+          title: "Image limit reached",
+          description: `Only ${filesToAdd.length} image(s) were added. Maximum of 4 images allowed.`,
+          variant: "destructive",
+        })
+      }
+
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...imageFiles],
+        images: [...prev.images, ...filesToAdd],
       }))
-      setImagePreviews((prev) => [...prev, ...imageFiles.map((file) => URL.createObjectURL(file))])
+      setImagePreviews((prev) => [...prev, ...filesToAdd.map((file) => URL.createObjectURL(file))])
     }
     if (event.target) {
       event.target.value = ""
@@ -705,8 +733,13 @@ export default function ResourceForm() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="images-upload">Additional Images (Multiple)</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <Label htmlFor="images-upload">Additional Images ({formData.images.length}/4 maximum)</Label>
+                  <div
+                    className={cn(
+                      "border-2 border-dashed rounded-lg p-6 text-center",
+                      formData.images.length >= 4 ? "border-gray-200 bg-gray-50" : "border-gray-300",
+                    )}
+                  >
                     <input
                       type="file"
                       accept="image/*"
@@ -714,14 +747,24 @@ export default function ResourceForm() {
                       onChange={handleImagesUpload}
                       className="hidden"
                       id="images-upload"
+                      disabled={formData.images.length >= 4}
                     />
                     <label
                       htmlFor="images-upload"
-                      className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                      className={cn(
+                        "flex flex-col items-center justify-center space-y-2 py-4",
+                        formData.images.length >= 4 ? "cursor-not-allowed opacity-50" : "cursor-pointer",
+                      )}
                     >
                       <ImageIcon className="h-12 w-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">Click or drag to upload images</p>
-                      <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB each</p>
+                      <p className="text-sm text-gray-600">
+                        {formData.images.length >= 4 ? "Maximum 4 images reached" : "Click or drag to upload images"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formData.images.length >= 4
+                          ? "Remove an image to add more"
+                          : "PNG, JPG, GIF up to 5MB each (Max 4 images)"}
+                      </p>
                     </label>
                   </div>
                   {imagePreviews.length > 0 && (
