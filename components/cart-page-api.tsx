@@ -42,7 +42,7 @@ export default function CartPageAPI() {
     if (targetQuantity < 1) return; // Prevent invalid quantities
 
     // Get the current quantity from the most up-to-date cart data
-    const currentItem = items.find((item) => item._id === itemId);
+    const currentItem = items.find((item) => item.resource._id === itemId);
     if (!currentItem) return;
 
     // Prevent unnecessary API calls if quantity hasn't changed
@@ -51,6 +51,7 @@ export default function CartPageAPI() {
     console.log(
       `Updating item ${itemId} from ${currentItem.quantity} to ${targetQuantity}`
     );
+    console.log("Updating cart item:", itemId, "to quantity:", targetQuantity);
 
     setUpdatingItems((prev) => new Set(prev).add(itemId));
 
@@ -259,9 +260,12 @@ export default function CartPageAPI() {
                                     1,
                                     item.quantity - 1
                                   );
-                                  handleQuantityChange(item._id, newQuantity);
+                                  handleQuantityChange(
+                                    item.resource._id,
+                                    newQuantity
+                                  );
                                 }}
-                                disabled={isUpdating || item.quantity <= 1}
+                                // disabled={isUpdating || item.quantity <= 1}
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
@@ -279,9 +283,9 @@ export default function CartPageAPI() {
                                   handleQuantityChange(
                                     item.resource._id,
                                     newQuantity
-                                  );
+                                  ); // <-- FIXED: use item._id
                                 }}
-                                disabled={isUpdating}
+                                // disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
@@ -306,7 +310,7 @@ export default function CartPageAPI() {
                               size="icon"
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
-                              }
+                              } // <-- FIXED: use item._id
                               className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               disabled={isUpdating}
                             >

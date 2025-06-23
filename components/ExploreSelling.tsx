@@ -24,7 +24,7 @@ const ExploreSelling = () => {
       queryKey: ["all-products", countryName],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&status=approved`
         ).then((res) => res.json()),
       enabled: !!countryName,
     });
@@ -102,7 +102,6 @@ const ExploreSelling = () => {
             </div>
           </>
         )}
-        
       </div>
     </div>
   );
