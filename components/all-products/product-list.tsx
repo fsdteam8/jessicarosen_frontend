@@ -6,7 +6,7 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-import { useAddToCart } from "@/hooks/use-cart-api"; // Updated import
+import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api"; // <-- import hooks
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
@@ -48,7 +48,9 @@ export default function ProductList({
       ? "USA"
       : null;
   const [currentPage, setCurrentPage] = useState(1);
-  const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart(); // Updated to use the proper hook
+  const { data: cartData } = useCart(); // <-- get cart data
+  const { mutateAsync: addToCart, isPending: isAddingToCart } = useAddToCart();
+  const updateCartMutation = useUpdateCartItem();
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
@@ -62,19 +64,24 @@ export default function ProductList({
 
   const handleAddToCart = async (product: any) => {
     try {
-      if (status === "unauthenticated") {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to add items to cart",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Find if product is already in cart
+      const cartItem = cartData?.data?.items?.find(
+        (item) => item.resource._id === product._id
+      );
 
-      await addToCart({
-        resourceId: product._id,
-        quantity: 1,
-      });
+      if (cartItem) {
+        // Use cart item's _id for update
+        await updateCartMutation.mutateAsync({
+          itemId: cartItem._id, // <-- use cart item _id
+          quantity: cartItem.quantity + 1,
+        });
+      } else {
+        // Add new item to cart
+        await addToCart({
+          resourceId: product._id,
+          quantity: 1,
+        });
+      }
 
       toast({
         title: "Success",
