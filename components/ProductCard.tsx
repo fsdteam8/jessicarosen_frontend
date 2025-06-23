@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { addToCartAPI } from "@/lib/cart";
 import { useSession } from "next-auth/react";
@@ -43,36 +43,43 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const isInWishlist = wishlistItems.some((item) => item.id === product?._id);
 
-  const mutation = useMutation({
-    mutationFn: () =>
-      addToCartAPI({
-        resourceId: product?._id ?? "",
+  const queryClient = useQueryClient();
+
+const mutation = useMutation({
+  mutationFn: () =>
+    addToCartAPI({
+      resourceId: product?._id ?? "",
+      quantity: 1,
+      token,
+    }),
+  onSuccess: (data) => {
+    toast.success(data.message || "Item added to cart");
+
+    // ✅ Invalidate 'cart' query to refetch updated cart
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+
+    // Optional: update local UI
+    if (product) {
+      addItem({
+        id: product._id,
+        title: product.title,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        image: Array.isArray(product.thumbnail)
+          ? product.thumbnail[0] || "/placeholder.svg"
+          : product.thumbnail || "/images/no-image.jpg",
+        thumbnail: Array.isArray(product.thumbnail)
+          ? product.thumbnail[0] || "/placeholder.svg"
+          : product.thumbnail || "/images/no-image.jpg",
         quantity: 1,
-        token,
-      }),
-    onSuccess: (data) => {
-      toast.success(data.message || "Item added to cart");
-      if (product) {
-        addItem({
-          id: product._id,
-          title: product.title,
-          price: product.price,
-          discountPrice: product.discountPrice,
-          image: Array.isArray(product.thumbnail)
-            ? product.thumbnail[0] || "/placeholder.svg"
-            : product.thumbnail || "/images/no-image.jpg",
-          thumbnail: Array.isArray(product.thumbnail)
-            ? product.thumbnail[0] || "/placeholder.svg"
-            : product.thumbnail || "/images/no-image.jpg",
-          quantity: 1,
-        });
-      }
-    },
-    onError: (error) => {
-      toast.error("Failed to add to cart");
-      console.error("Add to cart error:", error);
-    },
-  });
+      });
+    }
+  },
+  onError: (error) => {
+    toast.error("Failed to add to cart");
+    console.error("Add to cart error:", error);
+  },
+});
 
   const toggleWishlist = () => {
     if (!product) return;
