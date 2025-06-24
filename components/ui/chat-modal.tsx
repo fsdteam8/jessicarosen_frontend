@@ -9,7 +9,6 @@ import { Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 
-// Sender details
 interface Sender {
   _id: string
   firstName: string
@@ -18,7 +17,6 @@ interface Sender {
   role: "ADMIN" | "SELLER"
 }
 
-// Individual message structure
 interface Message {
   message: string
   sender: Sender
@@ -27,7 +25,6 @@ interface Message {
   createdAt: string
 }
 
-// Messages wrapper
 interface MessagesData {
   _id: string
   resource: string
@@ -37,7 +34,6 @@ interface MessagesData {
   __v: number
 }
 
-// API response format
 interface ApiResponse {
   status: boolean
   message: string
@@ -46,7 +42,6 @@ interface ApiResponse {
   }
 }
 
-// Component props
 interface ChatModalProps {
   isOpen: boolean
   onClose: () => void
@@ -71,6 +66,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
 
   useEffect(() => {
     if (isOpen && resourceId) {
+      setMessages([]) // ✅ Clear old messages when switching chats
       fetchMessages()
     }
   }, [isOpen, resourceId])
@@ -80,6 +76,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
 
     try {
       setIsLoading(true)
+      setMessages([])
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/message/${resourceId}`, {
         headers: {
@@ -96,10 +93,8 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
       if (data.status && data.data.messages.messages) {
         const rawMessages = data.data.messages.messages
 
-        // Deduplicate messages by _id
         const uniqueMessages = Array.from(new Map(rawMessages.map((m) => [m._id, m])).values())
 
-        // Sort by createdAt
         const sorted = uniqueMessages.sort(
           (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         )
@@ -136,7 +131,6 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
         throw new Error("Failed to send message")
       }
 
-      // Refresh messages after sending
       await fetchMessages()
     } catch (error) {
       console.error("Failed to send message:", error)
@@ -168,8 +162,10 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {isLoading && messages.length === 0 ? (
+          {isLoading ? (
             <div className="text-center text-muted-foreground">Loading messages...</div>
+          ) : messages.length === 0 ? (
+            <div className="text-center text-muted-foreground">No messages found.</div>
           ) : (
             messages.map((message) => {
               const isCurrentUser = session?.data?.user?.email === message.sender.email
