@@ -9,7 +9,7 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
     queryKey: ["blog-single", params.slug], // add slug to queryKey for caching
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/blog/${params.slug}`
+        `${process.env.NEXT_PUBLIC_API_URL}/blog/${params.slug}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch blogs");

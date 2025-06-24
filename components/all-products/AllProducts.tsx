@@ -40,9 +40,9 @@ export default function AllProducts() {
   const { data } = useQuery<PracticeAreaApiResponse>({
     queryKey: ["practice-areas"],
     queryFn: () =>
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/practice-area/all`
-      ).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/practice-area/all`).then(
+        (res) => res.json()
+      ),
   });
 
   console.log("Practice Areas Data:", data?.data);
@@ -53,9 +53,9 @@ export default function AllProducts() {
   const { data: resourceTypeData } = useQuery<ResourceTypeApiResponse>({
     queryKey: ["resource-types"],
     queryFn: () =>
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource-type/all`
-      ).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/resource-type/all`).then(
+        (res) => res.json()
+      ),
   });
 
   console.log("Resource Types Data:", resourceTypeData);
@@ -71,9 +71,9 @@ export default function AllProducts() {
   const { data: countryData } = useQuery<CountriesApiResponse>({
     queryKey: ["all-countries"],
     queryFn: () =>
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/country-state/all`
-      ).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/country-state/all`).then(
+        (res) => res.json()
+      ),
   });
 
   console.log(countryData?.data);
@@ -155,7 +155,7 @@ export default function AllProducts() {
     queryKey: ["all-products"],
     queryFn: () =>
       fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?page=${currentPage}&limit=5000`
+        `${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources?page=${currentPage}&limit=5000`
       ).then((res) => res.json()),
   });
 

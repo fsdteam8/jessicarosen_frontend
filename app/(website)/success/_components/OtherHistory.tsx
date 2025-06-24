@@ -40,7 +40,7 @@ const OtherHistory = () => {
   const { data, isLoading, error, isError } = useQuery<OrdersResponse>({
     queryKey: ["order-history"],
     queryFn: () =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/orders`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

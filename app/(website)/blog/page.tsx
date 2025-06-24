@@ -27,9 +27,7 @@ export default function BlogPage() {
   const { data: blogsResponse, isLoading } = useQuery({
     queryKey: ["blog"],
     queryFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/blog`
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog`);
       if (!res.ok) {
         throw new Error("Failed to fetch blogs");
       }
@@ -45,9 +43,7 @@ export default function BlogPage() {
   console.log("latestThreeBlogs", latestThreeBlogs);
   console.log("allBlogs ", allBlogs);
 
-  console.log("images", latestThreeBlogs)
-
-  
+  console.log("images", latestThreeBlogs);
 
   return (
     <div className="min-h-screen flex flex-col">

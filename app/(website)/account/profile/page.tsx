@@ -1,46 +1,52 @@
 // @typescript-eslint/no-explicit-any
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
-import { AccountLayout } from "@/components/account/account-layout"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { SquareArrowOutUpRight, Camera, Trash2, Loader2, SquarePen } from "lucide-react"
-import LegalDoc from "@/components/HomePage/LegalDoc"
-import { useSession } from "next-auth/react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import { AccountLayout } from "@/components/account/account-layout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  SquareArrowOutUpRight,
+  Camera,
+  Trash2,
+  Loader2,
+  SquarePen,
+} from "lucide-react";
+import LegalDoc from "@/components/HomePage/LegalDoc";
+import { useSession } from "next-auth/react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface Address {
-  country: string
-  cityState: string
-  roadArea: string
-  postalCode: number
-  taxId: string
+  country: string;
+  cityState: string;
+  roadArea: string;
+  postalCode: number;
+  taxId: string;
 }
 
 interface UserData {
-  firstName: string
-  lastName: string
-  email: string
-  phoneNumber: string
-  address: Address
-  profileImage: string
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  address: Address;
+  profileImage: string;
 }
 
 interface data {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  country: string
-  cityState: string
-  roadArea: string
-  postalCode: number
-  taxId: string
-  profileImage: string
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  cityState: string;
+  roadArea: string;
+  postalCode: number;
+  taxId: string;
+  profileImage: string;
 }
 
 // Loading Component
@@ -74,19 +80,23 @@ const ProfileLoadingSkeleton = () => (
       </div>
     </div>
   </div>
-)
+);
 
 // Error Component
 const ProfileError = ({ onRetry }: { onRetry: () => void }) => (
   <div className="flex flex-col items-center justify-center py-12">
     <div className="text-red-500 text-6xl mb-4">⚠️</div>
-    <h3 className="text-xl font-semibold text-gray-800 mb-2">Failed to load profile data</h3>
-    <p className="text-gray-600 mb-4">Something went wrong while fetching your profile information.</p>
+    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+      Failed to load profile data
+    </h3>
+    <p className="text-gray-600 mb-4">
+      Something went wrong while fetching your profile information.
+    </p>
     <Button onClick={onRetry} className="bg-[#2c5d7c] hover:bg-[#1e4258]">
       Try Again
     </Button>
   </div>
-)
+);
 
 // Loading Overlay Component
 const LoadingOverlay = ({ message }: { message: string }) => (
@@ -96,10 +106,10 @@ const LoadingOverlay = ({ message }: { message: string }) => (
       <p className="text-sm font-medium text-gray-700">{message}</p>
     </div>
   </div>
-)
+);
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -111,69 +121,75 @@ export default function ProfilePage() {
     postalCode: 0,
     taxId: "",
     profileImage: "",
-  })
-  const [imageKey, setImageKey] = useState(0) // Force image re-render
-  const [imageLoading, setImageLoading] = useState(false)
+  });
+  const [imageKey, setImageKey] = useState(0); // Force image re-render
+  const [imageLoading, setImageLoading] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const { data: session } = useSession()
-  const userId = session?.user?.id
-  const token = session?.user?.accessToken
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const token = session?.user?.accessToken;
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const fetchUserById = async (userId: string) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    if (!res.ok) throw new Error("Failed to fetch user data")
+    if (!res.ok) throw new Error("Failed to fetch user data");
 
-    const response = await res.json()
-    return response.data as UserData
-  }
+    const response = await res.json();
+    return response.data as UserData;
+  };
 
   const updateUserById = async ({
     userId,
     token,
     data,
   }: {
-    userId: string
-    token: string
-    data: typeof formData
+    userId: string;
+    token: string;
+    data: typeof formData;
   }) => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        phoneNumber: data.phone,
-        address: {
-          country: data.country,
-          cityState: data.cityState,
-          roadArea: data.roadArea,
-          postalCode: data.postalCode,
-          taxId: data.taxId,
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/user/${userId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        profileImage: data.profileImage,
-      }),
-    })
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          phoneNumber: data.phone,
+          address: {
+            country: data.country,
+            cityState: data.cityState,
+            roadArea: data.roadArea,
+            postalCode: data.postalCode,
+            taxId: data.taxId,
+          },
+          profileImage: data.profileImage,
+        }),
+      }
+    );
 
-    const response = await res.json()
+    const response = await res.json();
 
     if (!res.ok) {
-      throw new Error(response.message || "Failed to update user")
+      throw new Error(response.message || "Failed to update user");
     }
 
-    return response // Return full response for message access
-  }
+    return response; // Return full response for message access
+  };
 
   // Image upload function
   const uploadImage = async (file: File) => {
@@ -191,14 +207,14 @@ export default function ProfilePage() {
       }
     );
 
-    const response = await res.json()
+    const response = await res.json();
 
     if (!res.ok) {
-      throw new Error(response.message || "Failed to upload image")
+      throw new Error(response.message || "Failed to upload image");
     }
 
-    return response
-  }
+    return response;
+  };
 
   // Image delete function
   const deleteImage = async () => {
@@ -212,32 +228,33 @@ export default function ProfilePage() {
       }
     );
 
-    const response = await res.json()
+    const response = await res.json();
 
     if (!res.ok) {
-      throw new Error(response.message || "Failed to delete image")
+      throw new Error(response.message || "Failed to delete image");
     }
 
-    return response
-  }
+    return response;
+  };
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["user", userId],
     queryFn: () => fetchUserById(userId!),
     enabled: !!userId && !!token,
-  })
+  });
 
   const updateMutation = useMutation({
-    mutationFn: (data: data) => updateUserById({ userId: userId!, token: token!, data }),
+    mutationFn: (data: data) =>
+      updateUserById({ userId: userId!, token: token!, data }),
     onSuccess: (response) => {
-      toast.success(response.message || "Profile updated successfully")
-      queryClient.invalidateQueries({ queryKey: ["user", userId] })
-      setIsEditing(false)
+      toast.success(response.message || "Profile updated successfully");
+      queryClient.invalidateQueries({ queryKey: ["user", userId] });
+      setIsEditing(false);
     },
     onError: () => {
-      toast.error("Failed to update profile")
+      toast.error("Failed to update profile");
     },
-  })
+  });
 
   // Image upload mutation
   const uploadImageMutation = useMutation({
@@ -248,9 +265,9 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to upload image")
+      toast.error(error.message || "Failed to upload image");
     },
-  })
+  });
 
   // Image delete mutation
   const deleteImageMutation = useMutation({
@@ -261,9 +278,9 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Failed to delete image")
+      toast.error(error.message || "Failed to delete image");
     },
-  })
+  });
 
   useEffect(() => {
     if (data) {
@@ -278,27 +295,27 @@ export default function ProfilePage() {
         postalCode: Number(data.address?.postalCode) || 0,
         taxId: data.address?.taxId || "",
         profileImage: data?.profileImage || "",
-      })
+      });
       // Update image key when data changes to force re-render
       setImageKey((prev) => prev + 1);
     }
-  }, [data])
+  }, [data]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: name === "postalCode" ? Number(value) : value,
-    }))
-  }
+    }));
+  };
 
   const handleUpdate = () => {
-    updateMutation.mutate(formData)
-  }
+    updateMutation.mutate(formData);
+  };
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
       // Validate file type
       if (!file.type.startsWith("image/")) {
@@ -308,29 +325,29 @@ export default function ProfilePage() {
 
       // Validate file size (e.g., max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB");
+        toast.error("Image size should be less than 5MB");
         return;
       }
 
-    // Validate file size (e.g., max 5MB)
+      // Validate file size (e.g., max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image size should be less than 5MB")
-        return
+        toast.error("Image size should be less than 5MB");
+        return;
       }
 
-      uploadImageMutation.mutate(file)
+      uploadImageMutation.mutate(file);
     }
-  }
+  };
 
   // Handle image upload button click
   const handleImageUpload = () => {
-  fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   // const handelSubmitMutation = useMutation({
   //   mutationFn: async (email: string) => {
   //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/apply`,
+  //       `${process.env.NEXT_PUBLIC_API_URL}/seller/apply`,
   //       {
   //         method: "POST",
   //         headers: {
@@ -364,7 +381,7 @@ export default function ProfilePage() {
   const handelSubmitMutation = useMutation({
     mutationFn: async (email: string) => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/apply`,
+        `${process.env.NEXT_PUBLIC_API_URL}/seller/apply`,
         {
           method: "POST",
           headers: {
@@ -397,23 +414,25 @@ export default function ProfilePage() {
   // Handle image delete
   const handleImageDelete = () => {
     if (window.confirm("Are you sure you want to delete your profile image?")) {
-      deleteImageMutation.mutate()
+      deleteImageMutation.mutate();
     }
-  }
+  };
 
   // Handle image load start
   const handleImageLoadStart = () => {
-    setImageLoading(true)
-  }
+    setImageLoading(true);
+  };
 
   // Handle image load complete
   const handleImageLoad = () => {
-    setImageLoading(false)
-  }
+    setImageLoading(false);
+  };
 
   // Check if any operation is in progress
   const isAnyOperationPending =
-    updateMutation.isPending || uploadImageMutation.isPending || deleteImageMutation.isPending
+    updateMutation.isPending ||
+    uploadImageMutation.isPending ||
+    deleteImageMutation.isPending;
 
   return (
     <div>
@@ -426,8 +445,15 @@ export default function ProfilePage() {
           <div className="rounded-lg mb-10">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px] relative">
               {/* Loading overlay for profile section */}
-              {(uploadImageMutation.isPending || deleteImageMutation.isPending) && (
-                <LoadingOverlay message={uploadImageMutation.isPending ? "Uploading image..." : "Deleting image..."} />
+              {(uploadImageMutation.isPending ||
+                deleteImageMutation.isPending) && (
+                <LoadingOverlay
+                  message={
+                    uploadImageMutation.isPending
+                      ? "Uploading image..."
+                      : "Deleting image..."
+                  }
+                />
               )}
 
               <div className="relative">
@@ -458,7 +484,10 @@ export default function ProfilePage() {
                     size="sm"
                     className="w-8 h-8 p-0 rounded-full bg-[#2c5d7c] hover:bg-[#1e4258] disabled:opacity-50"
                     onClick={handleImageUpload}
-                    disabled={uploadImageMutation.isPending || deleteImageMutation.isPending}
+                    disabled={
+                      uploadImageMutation.isPending ||
+                      deleteImageMutation.isPending
+                    }
                     title="Upload new image"
                   >
                     {uploadImageMutation.isPending ? (
@@ -503,7 +532,8 @@ export default function ProfilePage() {
                   {formData.lastName.toLowerCase()}
                 </p>
                 <p className="text-gray-700">
-                  {formData.roadArea}, {formData.cityState}, {formData.country}, {formData.postalCode}
+                  {formData.roadArea}, {formData.cityState}, {formData.country},{" "}
+                  {formData.postalCode}
                 </p>
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
@@ -520,7 +550,9 @@ export default function ProfilePage() {
 
             <div className="bg-[#6459490D] p-6 rounded-[12px] relative">
               {/* Loading overlay for form section */}
-              {updateMutation.isPending && <LoadingOverlay message="Updating profile..." />}
+              {updateMutation.isPending && (
+                <LoadingOverlay message="Updating profile..." />
+              )}
 
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Personal Information</h3>
@@ -536,7 +568,7 @@ export default function ProfilePage() {
                     </>
                   ) : (
                     <>
-                     <SquarePen className="mr-2" />
+                      <SquarePen className="mr-2" />
                       {isEditing ? "Save" : "Update"}
                     </>
                   )}
@@ -561,7 +593,9 @@ export default function ProfilePage() {
                   { label: "TAX ID", name: "taxId" },
                 ].map(({ label, name, type = "text", span, readOnly }) => (
                   <div key={name} className={span ? "md:col-span-2" : ""}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {label}
+                    </label>
                     {isEditing && !readOnly ? (
                       <Input
                         name={name}
@@ -593,5 +627,5 @@ export default function ProfilePage() {
       </AccountLayout>
       <LegalDoc />
     </div>
-);
+  );
 }
