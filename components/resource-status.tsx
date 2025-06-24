@@ -77,6 +77,8 @@ export interface ApiResponse {
   data: Resource[];
 }
 
+
+
 export function ResourceStatus() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,8 +100,6 @@ export function ResourceStatus() {
 
   const session = useSession();
   const token = session?.data?.user?.accessToken;
-  // const token =
-  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODFhZGYyYjVmYzQyNjAwMGM4MWQ2Y2UiLCJyb2xlIjoiU0VMTEVSIiwiaWF0IjoxNzUwMDU0Mjc1LCJleHAiOjE3NTA2NTkwNzV9.2HLQzofcpP-dZgsdKe1wrin7-XL-IrtH77tQbQcC5Hg"
 
   // Fetch resources
   const {
