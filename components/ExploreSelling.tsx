@@ -65,13 +65,13 @@ const ExploreSelling = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-[#E9EEF2] py-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
         <div className="text-center mb-12">
           <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
             Explore Top Selling Resources in{" "}
-            {currentRegion === "canada" ? "Canada" : "United States"}
+            {currentRegion === "canada" ? "Canada" : "US"}
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Widely used materials that help students, legal professionals, and

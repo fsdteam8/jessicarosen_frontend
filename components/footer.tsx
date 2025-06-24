@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 export function Footer() {
   return (
-    <footer className="bg-white py-16 border-t">
+    <footer className="bg-white pt-[56px] border-t">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -18,7 +18,7 @@ export function Footer() {
                 height={50}
                 className="h-10 w-auto mb-2"/>
             </Link>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4">
               &apos;Connecting hearts through meaningful dedications, fostering deeper bonds, creating lasting memories, and
               celebrating the beauty of shared emotions.&apos;
             </p>
@@ -34,22 +34,22 @@ export function Footer() {
             <h3 className="font-bold mb-4 text-gray-900">Company</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/about-us" className="text-gray-600 hover:text-gray-900">
+                <Link href="/about-us" className="text-#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-600 hover:text-gray-900">
+                <Link href="/blog" className="text-[#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/products" className="text-gray-600 hover:text-gray-900">
+                <Link href="/products" className="text-[#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   Resources
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-600 hover:text-gray-900">
+                <Link href="/contact" className="text-[#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   Contact
                 </Link>
               </li>
@@ -60,22 +60,22 @@ export function Footer() {
             <h3 className="font-bold mb-4 text-gray-900">Support</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/account/privacy" className="text-gray-600 hover:text-gray-900">
+                <Link href="/account/privacy" className="text-[#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/account/terms" className="text-gray-600 hover:text-gray-900">
+                <Link href="/account/terms" className="text-[#363636] font-normal tracking-[0%] leading-[120%] hover:text-gray-900">
                   Terms Of Service
                 </Link>
               </li>
               {/* <li>
-                <Link href="/faq" className="text-gray-600 hover:text-gray-900">
+                <Link href="/faq" className="text-[#2A2A2A] hover:text-gray-900">
                   FAQ
                 </Link>
               </li> */}
               {/* <li>
-                <Link href="/help" className="text-gray-600 hover:text-gray-900">
+                <Link href="/help" className="text-[#2A2A2A] hover:text-gray-900">
                   Help Center
                 </Link>
               </li> */}
@@ -84,16 +84,16 @@ export function Footer() {
 
           <div>
             <h3 className="font-bold mb-4 text-gray-900">
-              Subscribe Our <span className="text-[#2c5d7c]">NEWSLETTER</span>
+              Subscribe To Our <span className="text-[#2c5d7c]">NEWSLETTER</span>
             </h3>
-            <p className="text-sm text-gray-600 mb-4">Connect with us on social media and stay in the loop.</p>
+            <p className="text-sm text-[#2A2A2A] font-normal tracking-[0%] leading-[120%] mb-4">Connect with us on social media and stay in the loop.</p>
             <div>
               <NewsLetterForm/>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-200 pt-6 text-center text-sm text-gray-600">
+        <div className="border-t border-[#5A5A5A] py-4 text-center leading-[120%] tracking-[0%] text-base font-medium text-[#363636]">
           © 2025 Lawbie. All Rights Reserved
         </div>
       </div>

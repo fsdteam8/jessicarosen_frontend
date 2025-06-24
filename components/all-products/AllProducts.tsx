@@ -174,8 +174,7 @@ export default function AllProducts() {
         <div className="flex justify-between items-center mb-2">
           <div>
             <div className="text-sm text-gray-500 mb-2">
-              {/* 15,000,000+ Results */}
-              <div>
+              {/* <div>
                 {selectedArea ? (
                   <p>
                     Showing content for: <strong>{selectedArea.name}</strong>
@@ -183,7 +182,7 @@ export default function AllProducts() {
                 ) : (
                   <p>Please select a practice area.</p>
                 )}
-              </div>
+              </div> */}
               {allProductData?.data?.length}+ Results
             </div>
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
