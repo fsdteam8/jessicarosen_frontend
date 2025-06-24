@@ -8,16 +8,20 @@ import { useSession } from "next-auth/react";
 
 interface CouponRequest {
   code: string;
+  price: string;
 }
 
 interface CouponResponse {
+  status: boolean;
   success: boolean;
   message: string;
   data: {
     code: string;
     discount: number;
     type: "percentage" | "fixed";
-    isValid: boolean;
+    discountType: string;
+    finalPrice: string | number;
+    discountAmount: string | number;
   };
 }
 
