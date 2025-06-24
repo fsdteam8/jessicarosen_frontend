@@ -469,7 +469,10 @@ export default function ProductDetails() {
         </div>
       )}
       {/* question and ans section */}
-      <QuestionsAnswers />
+      <QuestionsAnswers
+        resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
+        userId={userId ?? ""}
+      />
     </div>
   )
 }
