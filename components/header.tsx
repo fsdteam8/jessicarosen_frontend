@@ -178,12 +178,12 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
   0
 );
 
-
 // useEffect(() => {
 //   if (cartResponse?.data?.items) {
 //     console.log("Header Cart Items:", cartResponse.data.items);
 //   }
 // }, [cartResponse]);
+
 
   return (
     <>
