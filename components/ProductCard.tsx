@@ -32,6 +32,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+ 
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
