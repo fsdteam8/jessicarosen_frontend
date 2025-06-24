@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, useRef } from "react"
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -10,35 +9,31 @@ import { Send } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useSession } from "next-auth/react"
 
-// Sender details (user who sent the message)
 interface Sender {
   _id: string
   firstName: string
   lastName: string
   email: string
-  role: "ADMIN" | "SELLER" // Extend with other roles if needed (e.g., "CUSTOMER")
+  role: "ADMIN" | "SELLER"
 }
 
-// Individual message structure
 interface Message {
   message: string
   sender: Sender
   read: boolean
   _id: string
-  createdAt: string // Or `Date` if parsing ISO strings
+  createdAt: string
 }
 
-// Container for all messages in a conversation
 interface MessagesData {
   _id: string
-  resource: string // Likely a reference to a chat/thread ID
+  resource: string
   messages: Message[]
-  createdAt: string // Or `Date`
-  updatedAt: string // Or `Date`
-  __v: number // Version key (Mongoose convention)
+  createdAt: string
+  updatedAt: string
+  __v: number
 }
 
-// Top-level API response structure
 interface ApiResponse {
   status: boolean
   message: string
@@ -71,12 +66,18 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
 
   useEffect(() => {
     if (isOpen && resourceId) {
+      setMessages([]) // ✅ Clear old messages when switching chats
       fetchMessages()
     }
   }, [isOpen, resourceId])
 
-  const fetchAdminMessages = async () => {
+  const fetchMessages = async () => {
+    if (!resourceId) return
+
     try {
+      setIsLoading(true)
+      setMessages([])
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/message/${resourceId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,52 +85,24 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to fetch admin messages")
+        throw new Error("Failed to fetch messages")
       }
 
       const data: ApiResponse = await response.json()
 
       if (data.status && data.data.messages.messages) {
-        return data.data.messages.messages
+        const rawMessages = data.data.messages.messages
+
+        const uniqueMessages = Array.from(new Map(rawMessages.map((m) => [m._id, m])).values())
+
+        const sorted = uniqueMessages.sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+
+        setMessages(sorted)
+      } else {
+        setMessages([])
       }
-      return []
-    } catch (error) {
-      console.error("Failed to fetch admin messages:", error)
-      return []
-    }
-  }
-
-  const fetchMessages = async () => {
-    if (!resourceId) return
-
-    try {
-      setIsLoading(true)
-
-      // Fetch both regular messages and admin messages concurrently
-      const [regularMessagesResponse, adminMessages] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/message/${resourceId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }),
-        fetchAdminMessages(),
-      ])
-
-      let regularMessages: Message[] = []
-
-      if (regularMessagesResponse.ok) {
-        const data: ApiResponse = await regularMessagesResponse.json()
-        if (data.status && data.data.messages.messages) {
-          regularMessages = data.data.messages.messages
-        }
-      }
-
-      // Combine and sort messages by creation date
-      const allMessages = [...regularMessages, ...adminMessages].sort(
-        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      )
-
-      setMessages(allMessages)
     } catch (error) {
       console.error("Failed to fetch messages:", error)
     } finally {
@@ -140,10 +113,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
   const sendMessage = async () => {
     if (!newMessage.trim() || isLoading || !resourceId) return
 
-    const messageToSend = {
-      message: newMessage,
-    }
-
+    const messageToSend = { message: newMessage }
     setNewMessage("")
     setIsLoading(true)
 
@@ -161,7 +131,6 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
         throw new Error("Failed to send message")
       }
 
-      // Refresh messages after sending
       await fetchMessages()
     } catch (error) {
       console.error("Failed to send message:", error)
@@ -193,8 +162,10 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {isLoading && messages.length === 0 ? (
+          {isLoading ? (
             <div className="text-center text-muted-foreground">Loading messages...</div>
+          ) : messages.length === 0 ? (
+            <div className="text-center text-muted-foreground">No messages found.</div>
           ) : (
             messages.map((message) => {
               const isCurrentUser = session?.data?.user?.email === message.sender.email
@@ -210,7 +181,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
                     <div
                       className={cn(
                         "rounded-2xl px-4 py-2 text-sm",
-                        isCurrentUser ? "bg-slate-600 text-white" : "bg-gray-100 text-gray-900",
+                        isCurrentUser ? "bg-slate-600 text-white" : "bg-gray-100 text-gray-900"
                       )}
                     >
                       {message.message}
