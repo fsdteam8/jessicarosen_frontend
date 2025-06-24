@@ -185,7 +185,7 @@ export default function ProductList({
             {viewMode === "grid" ? (
               // Grid View Layout
               <div className="flex flex-col h-full">
-                <div className="w-full border-2 border-red-500">
+                <div className="w-full">
                   <Image
                     src={
                       (Array.isArray(product?.thumbnail)

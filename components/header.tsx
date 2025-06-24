@@ -135,7 +135,7 @@ export function Header() {
   const specialPromoCodes: PromoCode[] =
     data?.data.data.filter((promo: PromoCode) => promo.special && promo.active) || []
 
-  console.log("spacialPromoCodes", specialPromoCodes)
+
 
   return (
     <>
