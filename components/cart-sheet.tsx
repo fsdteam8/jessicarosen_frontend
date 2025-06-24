@@ -56,7 +56,10 @@ export function CartSheet() {
 
   const cart = data?.data;
   const cartData = cart?.items || [];
-  console.log("Cart Data:", cartData);
+  // console.log("Cart Data:", cartData);
+
+
+  
   // ✅ Delete item from API
   const deleteItemMutation = useMutation({
     mutationFn: async (resourceId: string) => {
