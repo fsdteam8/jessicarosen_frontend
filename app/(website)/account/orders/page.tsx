@@ -274,6 +274,7 @@ import { Button } from "@/components/ui/button";
 import { DocumentDetailsModal } from "@/components/account/document-details-modal";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import LegalDoc from "@/components/HomePage/LegalDoc";
 
 type OrderItem = {
   date: string; // e.g., "Jun 12, 2025"
@@ -614,6 +615,8 @@ export default function OrderHistoryPage() {
         )}
       </div>
 
+        <LegalDoc />
+
       {/* Modal */}
       <DocumentDetailsModal
         isOpen={!!selectedOrderId}
@@ -621,5 +624,6 @@ export default function OrderHistoryPage() {
         orderId={selectedOrderId}
       />
     </AccountLayout>
+    
   );
 }

@@ -184,7 +184,7 @@ export default function HomeHero() {
               </div>
 
               <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
-                Deal Of The Day!
+                Deal Of The <span className="text-[#E0B15E]">Day</span>!
               </h1>
               <p className="text-base font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
                 Widely used materials that help students, legal professionals,
@@ -196,14 +196,14 @@ export default function HomeHero() {
               <div className="lg:mt-6 text-start flex justify-between items-center">
                   <div className="lg:h-[54px] lg:w-[242px] ">
                     <Link href="/products">
-                    <Button className="w-full h-full text-lg font-bold text-black hover:text-white bg-[#E0B15E]">
+                    <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
                       Explore Resources
                     </Button>
                     </Link>
                   </div>
                   <div className="lg:mt-4">
                     <p className="text-[32px] font-bold text-[#E0B15E]"><HeroPromoCarousel specialPromos={specialPromoCodes} /></p>
-                    <p className="text-base font-medium leading-[120%]">
+                    <p className="text-base font-medium leading-[120%] text-white tracking-[0%]">
                       Purchase discount.
                     </p>
                   </div>

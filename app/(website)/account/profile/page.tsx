@@ -7,7 +7,7 @@ import Image from "next/image"
 import { AccountLayout } from "@/components/account/account-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { SquareArrowOutUpRight, Camera, Trash2, Loader2 } from "lucide-react"
+import { SquareArrowOutUpRight, Camera, Trash2, Loader2, SquarePen } from "lucide-react"
 import LegalDoc from "@/components/HomePage/LegalDoc"
 import { useSession } from "next-auth/react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
@@ -536,7 +536,7 @@ export default function ProfilePage() {
                     </>
                   ) : (
                     <>
-                      <SquareArrowOutUpRight className="mr-2" />
+                     <SquarePen className="mr-2" />
                       {isEditing ? "Save" : "Update"}
                     </>
                   )}

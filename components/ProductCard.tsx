@@ -109,31 +109,31 @@ const mutation = useMutation({
     <div className=" ">
 
       <Card
-        className="h-auto w-full bg-white shadow-lg border-8 border-white overflow-hidden"
+        className="h-auto w-full bg-[#F8F5F2] border-8 border-[#F8F5F2]/90 overflow-hidden shadow-[0px_0px_60px_0px_#0000003D]"
         style={{ borderRadius: "16px" }}
       >
         <CardContent className="p-0 h-full flex flex-col">
           {/* Top Image Section */}
-          <div className="relative h-[180px] overflow-hidden">
+          <div className="relative h-[220px] overflow-hidden">
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleWishlist}
-              className={`absolute top-3 right-3 h-8 w-8 z-10 transition-all duration-200 ${
+              className={`absolute top-3 right-3 h-8 w-8 z-10 transition-all duration-200  ${
                 isInWishlist
                   ? "text-red-500 bg-white/90 hover:bg-white shadow-md"
                   : "text-gray-400 hover:text-red-500 hover:bg-white/20"
               }`}
             >
               <Heart
-                className={`w-5 h-5 transition-all duration-200 ${
+                className={`w-6 h-6 transition-all duration-200 text-[#FF0000] ${
                   isInWishlist ? "fill-red-500" : "fill-none"
                 }`}
               />
             </Button>
 
             {/* Product Image */}
-            <div className="w-full">
+            <div className="w-full ">
               <Image
                 src={
                   Array.isArray(product?.thumbnail)
@@ -142,7 +142,7 @@ const mutation = useMutation({
                 }
                 alt={product?.title || "Product Image"}
                 width={370}
-                height={180}
+                height={200}
                 className="object-cover h-[200px] w-full"
                 priority
               />
@@ -155,12 +155,12 @@ const mutation = useMutation({
               {product?.title}
             </h2>
 
-            <p
+            {/* <p
               dangerouslySetInnerHTML={{
                 __html: product?.description?.slice(0, 100) || "",
               }}
               className="text-base font-normal text-[#6C6C6C] mb-3 line-clamp-3 h-[30px]"
-            />
+            /> */}
 
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
@@ -184,23 +184,28 @@ const mutation = useMutation({
               </div>
             </div>
 
-            <div className="flex gap-2 mt-auto w-full">
-              <Button
+            <div className="flex justify-between items-center gap-2 mt-auto w-full">
+             <div>
+               <Button
                 onClick={() => mutation.mutate()}
                 disabled={mutation.isPending}
-                className="flex-1 bg-[#23547B] hover:bg-blue-800 text-white font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
+                className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-blue-800 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
               >
                 {mutation.isPending ? "Adding..." : "Add To Cart"}
               </Button>
+             </div>
 
-              <Link href={`/products/${product?._id}`} className="flex-1">
+              <div>
+                <Link href={`/products/${product?._id}`} className="">
                 <Button
+
                   variant="outline"
-                  className="w-full border-[#23547B] text-[#23547B] hover:bg-blue-50 font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
+                  className="!w-[107px] !h-[33px] border-[#23547B] text-[#23547B] hover:bg-blue-50 font-bold  rounded-lg text-sm transition-colors duration-200"
                 >
                   View Details
                 </Button>
               </Link>
+              </div>
             </div>
           </div>
         </CardContent>

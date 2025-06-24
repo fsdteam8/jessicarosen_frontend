@@ -242,6 +242,7 @@ export default function WishlistPage() {
 
   const handleAddToCart = (id: string) => {
     const item = items.find((item) => item.id === id);
+    
     if (item) {
       addItem({
         id: item.id,
@@ -301,7 +302,7 @@ export default function WishlistPage() {
                     {/* Product Image */}
                     <div className="w-full sm:w-32 h-32 relative rounded-lg overflow-hidden bg-gray-100 mx-auto sm:mx-0">
                       <Image
-                        src={item.image || "/placeholder.svg?height=128&width=128"}
+                        src={item.image || "/images/no-image.jpg"}
                         alt={item.title}
                         fill
                         className="object-cover"
