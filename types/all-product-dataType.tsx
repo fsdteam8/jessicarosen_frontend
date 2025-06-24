@@ -6,6 +6,8 @@ export interface AllProductDataTypeResponse {
 }
 
 export interface ProductDataType {
+  category: string;
+  categoryId: string;
   _id: string;
   title: string;
   country: string;
