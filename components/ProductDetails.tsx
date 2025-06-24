@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -22,31 +23,69 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { addToCartAPI } from "@/lib/cart";
 
 export default function ProductDetails() {
   const params = useParams();
   const session = useSession();
-  const userId = session?.data?.user.id;
+  const userId = session?.data?.user?.id;
   const token = session?.data?.user?.accessToken;
-
-  const resourceId = params?.id;
+  const resourceId = typeof params?.id === "string" ? params.id : params?.id?.[0];
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
   const queryClient = useQueryClient();
   const { addItem } = useCart();
 
-  const { data, isLoading, error, isError } =
-    useQuery<AllProductDataTypeResponse>({
-      queryKey: ["single-products"],
-      queryFn: () =>
-        fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/${params?.id}`
-        ).then((res) => res.json()),
-    });
+  const {
+    addItem: addToWish,
+    removeItem: removeFromWish,
+    items: wishlistItems,
+  } = useWishlist();
 
-  const product = Array.isArray(data?.data) ? data?.data[0] : data?.data;
+  const { data, isLoading, error, isError } = useQuery<AllProductDataTypeResponse>({
+    queryKey: ["single-products"],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/${resourceId}`
+      ).then((res) => res.json()),
+    enabled: !!resourceId,
+  });
+
+  const product = useMemo(() => {
+    if (!data?.data) return undefined;
+    return Array.isArray(data.data) ? data.data[0] : data.data;
+  }, [data]);
+
+  const isInWishlist = useMemo(() => {
+    if (!product) return false;
+    return wishlistItems.some((item) => item.id === product._id);
+  }, [wishlistItems, product]);
+
+  const toggleWishlist = () => {
+    if (!product) return;
+    if (isInWishlist) {
+      removeFromWish(product._id);
+      toast.success("Removed from wishlist");
+    } else {
+      addToWish({
+        id: product._id,
+        slug: product.title.toLowerCase().replace(/\s+/g, "-"),
+        image: Array.isArray(product.thumbnail)
+          ? product.thumbnail[0] || "/placeholder.svg"
+          : product.thumbnail || "/images/no-image.jpg",
+        rating: product.averageRating,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        title: product.title,
+        description: product.description,
+        reviews: product.totalReviews ?? 0,
+        category: product.category || "",
+        categoryId: product.categoryId || "",
+      });
+      toast.success("Added to wishlist");
+    }
+  };
 
   const { data: categoryData } = useQuery({
     queryKey: ["category-filter"],
@@ -60,9 +99,7 @@ export default function ProductDetails() {
           },
         }
       );
-      if (!res.ok) {
-        throw new Error("Failed to fetch categories");
-      }
+      if (!res.ok) throw new Error("Failed to fetch categories");
       return res.json();
     },
   });
@@ -121,22 +158,36 @@ export default function ProductDetails() {
       .slice(0, 3);
   }, [product, categoryData]);
 
-  if (isLoading) return <div className="text-center text-gray-500">Loading...</div>;
-
-  if (isError) return <div className="text-center text-red-500">Error: {error.message}</div>;
-
-  const thumbnail =
-    Array.isArray(product?.thumbnail) && product.thumbnail.length > 0
+  const images: string[] = useMemo(() => {
+    const thumb = Array.isArray(product?.thumbnail)
       ? product.thumbnail[0]
       : product?.thumbnail;
 
-  const images = Array.isArray(product?.images)
-    ? [thumbnail, ...product.images.filter((img) => img !== thumbnail && Boolean(img))]
-    : [thumbnail].filter(Boolean);
+    const gallery = Array.isArray(product?.images) ? product.images : [];
+
+    const uniqueImages = [thumb, ...gallery].filter(
+      (img, index, arr) => img && arr.indexOf(img) === index
+    );
+
+    return uniqueImages as string[];
+  }, [product]);
+
+  if (isLoading)
+    return <div className="text-center text-gray-500">Loading...</div>;
+
+  if (isError && error instanceof Error)
+    return (
+      <div className="text-center text-red-500">
+        Error: {error.message}
+      </div>
+    );
+
+  if (!product) {
+    return <div className="text-center text-gray-500">No product found</div>;
+  }
 
   return (
-    <div className="container mx-auto p-6 space-y-12">
-      {/* Product Details Section */}
+       <div className="container mx-auto p-6 space-y-12">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="gap-4 flex">
@@ -177,7 +228,6 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Share Icons */}
           <div className="flex items-center gap-2 pt-4">
             <span className="text-base font-medium text-[#616161]">Share:</span>
             <div className="flex gap-2">
@@ -188,13 +238,11 @@ export default function ProductDetails() {
           </div>
         </div>
 
-        {/* Right section - Product Info */}
         <div>
           <h1 className="text-2xl font-medium text-[#2A2A2A] mb-3">
             {product?.title}
           </h1>
 
-          {/* Rating */}
           <div className="flex items-center gap-2 mb-2">
             <span className="text-base font-medium text-[#131313] mr-1">
               {product?.averageRating?.toFixed(1)}
@@ -216,7 +264,6 @@ export default function ProductDetails() {
             </span>
           </div>
 
-          {/* Price */}
           <div className="flex flex-col items-start gap-1 mb-2">
             <span className="text-sm text-[#FF0000] line-through">
               ${product?.price}
@@ -226,7 +273,6 @@ export default function ProductDetails() {
             </span>
           </div>
 
-          {/* Creator Info */}
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="w-[49px] h-[49px]">
               <AvatarImage src={product?.createdBy?.profileImage || "/placeholder.svg"} />
@@ -243,15 +289,13 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          {/* Save amount */}
           <div className="mb-6">
             <span className="text-[#FF0000] text-base font-medium">
               SAVE ${(product?.price ?? 0) - (product?.discountPrice ?? 0)}.00
             </span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-6 flex-wrap">
             <Button
               onClick={() => addToCartMutation.mutate()}
               disabled={addToCartMutation.isPending}
@@ -259,18 +303,29 @@ export default function ProductDetails() {
             >
               {addToCartMutation.isPending ? "Adding..." : "Add To Cart"}
             </Button>
+
             <Button
               variant="outline"
               className="border-2 border-[#23547B] text-[#23547B] font-bold hover:bg-blue-50 h-[48px] w-[156px] rounded-[8px]"
             >
               Download Now
             </Button>
+
             <Button
+              onClick={toggleWishlist}
               variant="outline"
-              className="border-2 border-[#23547B] text-[#23547B] font-bold hover:bg-blue-50 h-[48px] w-[142px] rounded-[8px]"
+              className={`border-2 font-bold h-[48px] w-[142px] rounded-[8px] transition-all ${
+                isInWishlist
+                  ? "border-red-500 text-red-500 hover:bg-red-50"
+                  : "border-[#23547B] text-[#23547B] hover:bg-blue-50"
+              }`}
             >
-              <Heart className="w-4 h-4 mr-2" />
-              Wish List
+              <Heart
+                className={`w-4 h-4 mr-2 ${
+                  isInWishlist ? "fill-red-500 text-red-500" : ""
+                }`}
+              />
+              {isInWishlist ? "Wishlisted" : "Wish List"}
             </Button>
           </div>
 
@@ -286,7 +341,7 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {/* You May Also Like */}
+      {/* You May Also Like Section */}
       <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">You May Also Like</h2>
@@ -296,11 +351,11 @@ export default function ProductDetails() {
         </div>
 
         {filteredProducts.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6">
             {filteredProducts.map((relatedProduct: AllProductDataTypeResponse["data"][number]) => (
               <ProductCard key={relatedProduct._id} product={relatedProduct} />
             ))}
-            </div>
+          </div>
         ) : (
           <div className="text-center py-8 text-gray-500">
             <p>No related products found based on practice areas.</p>
@@ -310,7 +365,6 @@ export default function ProductDetails() {
 
       <Separator />
 
-      {/* Reviews Section */}
       {userId ? (
         <Reviews
           resourceId={
