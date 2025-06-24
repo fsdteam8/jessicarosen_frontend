@@ -3,7 +3,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/use-auth";
+// import { useAuth } from "@/hooks/use-auth";
+import { useSession } from "next-auth/react";
 
 interface CouponRequest {
   code: string;
@@ -20,23 +21,23 @@ interface CouponResponse {
   };
 }
 
-interface PaymentRequest {
-  items: Array<{
-    id: string;
-    title: string;
-    price: number;
-    quantity: number;
-  }>;
-  total: number;
-  couponCode?: string;
-}
+// interface PaymentRequest {
+//   items: Array<{
+//     id: string;
+//     title: string;
+//     price: number;
+//     quantity: number;
+//   }>;
+//   total: number;
+//   couponCode?: string;
+// }
 
 interface PaymentResponse {
   success: boolean;
   message: string;
   data: {
     sessionId: string;
-    paymentUrl: string;
+    url: string;
     orderId: string;
   };
 }
@@ -46,7 +47,7 @@ const applyCoupon = async (
   token: string
 ): Promise<CouponResponse> => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/promo-codes/apply",
+    `${process.env.NEXT_PUBLIC_API_URL}/promo-codes/apply`,
     {
       method: "POST",
       headers: {
@@ -69,18 +70,18 @@ const applyCoupon = async (
 };
 
 const createPaymentSession = async (
-  paymentData: PaymentRequest,
+  // paymentData: PaymentRequest,
   token: string
 ): Promise<PaymentResponse> => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/payment/create-session",
+    `${process.env.NEXT_PUBLIC_API_URL}/payment/create-session`,
     {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        // "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(paymentData),
+      // body: JSON.stringify(paymentData),
     }
   );
 
@@ -96,11 +97,11 @@ const createPaymentSession = async (
 };
 
 export function useCoupon() {
-  const { token, isAuthenticated } = useAuth();
-
+  const { data: session, status } = useSession();
+  const token = session?.user?.accessToken || null;
   return useMutation({
     mutationFn: (couponData: CouponRequest) => {
-      if (!isAuthenticated || !token) {
+      if (status === "unauthenticated" || !token) {
         throw new Error("Please login to apply coupon");
       }
       return applyCoupon(couponData, token);
@@ -124,29 +125,31 @@ export function useCoupon() {
 }
 
 export function usePayment() {
+  const { data: session, status } = useSession();
+  const token = session?.user?.accessToken || null;
   const router = useRouter();
-  const { token, isAuthenticated } = useAuth();
 
   return useMutation({
-    mutationFn: (paymentData: PaymentRequest) => {
-      if (!isAuthenticated || !token) {
+    mutationFn: () => {
+      if (status === "unauthenticated" || !token) {
         throw new Error("Please login to make payment");
       }
-      return createPaymentSession(paymentData, token);
+      return createPaymentSession(token);
     },
+
     onSuccess: (data) => {
       // Store order info for download page
-      localStorage.setItem(
-        "pendingOrder",
-        JSON.stringify({
-          orderId: data.data.orderId,
-          sessionId: data.data.sessionId,
-        })
-      );
+      // localStorage.setItem(
+      //   "pendingOrder",
+      //   JSON.stringify({
+      //     orderId: data.data.orderId,
+      //     sessionId: data.data.sessionId,
+      //   })
+      // );
 
       // Redirect to payment URL or handle payment flow
-      if (data.data.paymentUrl) {
-        window.location.href = data.data.paymentUrl;
+      if (data.data.url) {
+        window.location.href = data.data.url;
       } else {
         // For demo purposes, simulate successful payment
         setTimeout(() => {
