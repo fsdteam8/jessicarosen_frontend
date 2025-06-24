@@ -76,7 +76,7 @@ const mutation = useMutation({
     }
   },
   onError: (error) => {
-    toast.error("Failed to add to cart");
+    toast.error("Login in to add items to cart");
     console.error("Add to cart error:", error);
   },
 });
