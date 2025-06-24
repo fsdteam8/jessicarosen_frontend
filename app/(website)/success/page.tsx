@@ -1,9 +1,12 @@
 import React from "react";
+import OtherHistory from "./_components/OtherHistory";
+import HappyCustomer from "./_components/HappyCustomer";
 
 export default function page() {
   return (
-    <div className="h-screen flex items-center justify-center text-green-500 md:text-4xl text-xl font-bold">
-      Payment successfull
+    <div className="">
+      <OtherHistory />
+      <HappyCustomer />
     </div>
   );
 }
