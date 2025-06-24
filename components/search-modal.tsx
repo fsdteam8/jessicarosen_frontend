@@ -79,7 +79,9 @@ const fetchSearchResults = async (query: string): Promise<SearchResponse> => {
   }
 
   const response = await fetch(
-    `http://localhost:5000/api/v1/resource/get-all-resources?status=approved&search=${encodeURIComponent(
+    `${
+      process.env.NEXT_PUBLIC_API_URL
+    }/resource/get-all-resources?status=approved&search=${encodeURIComponent(
       query
     )}`
   );
@@ -123,7 +125,6 @@ export function SearchModal({
     enabled: debouncedQuery.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
-
 
   const handleProductClick = (productId: string) => {
     router.push(`/products/${productId}`);
@@ -226,7 +227,6 @@ export function SearchModal({
                     {/* Product Image */}
                     <div className="flex-shrink-0 ">
                       <div className="w-16 h-16 md:w-20 md:h-20 relative rounded-lg overflow-hidden bg-gray-100">
-                       
                         <Image
                           src={product?.thumbnail || "/images/no-image.jpg"}
                           alt={product?.title || "No Image"}

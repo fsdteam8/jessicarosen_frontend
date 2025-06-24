@@ -1,14 +1,7 @@
-
 "use client";
 
 import Image from "next/image";
-import {
-  Star,
-  Heart,
-  Linkedin,
-  Instagram,
-  Facebook,
-} from "lucide-react";
+import { Star, Heart, Linkedin, Instagram, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -31,7 +24,8 @@ export default function ProductDetails() {
   const session = useSession();
   const userId = session?.data?.user?.id;
   const token = session?.data?.user?.accessToken;
-  const resourceId = typeof params?.id === "string" ? params.id : params?.id?.[0];
+  const resourceId =
+    typeof params?.id === "string" ? params.id : params?.id?.[0];
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const queryClient = useQueryClient();
@@ -43,14 +37,15 @@ export default function ProductDetails() {
     items: wishlistItems,
   } = useWishlist();
 
-  const { data, isLoading, error, isError } = useQuery<AllProductDataTypeResponse>({
-    queryKey: ["single-products"],
-    queryFn: () =>
-      fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/${resourceId}`
-      ).then((res) => res.json()),
-    enabled: !!resourceId,
-  });
+  const { data, isLoading, error, isError } =
+    useQuery<AllProductDataTypeResponse>({
+      queryKey: ["single-products"],
+      queryFn: () =>
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/resource/${resourceId}`).then(
+          (res) => res.json()
+        ),
+      enabled: !!resourceId,
+    });
 
   const product = useMemo(() => {
     if (!data?.data) return undefined;
@@ -145,7 +140,8 @@ export default function ProductDetails() {
 
     return categoryData.data
       .filter((item: AllProductDataTypeResponse["data"][number]) => {
-        if (item._id === product._id || item.status !== "approved") return false;
+        if (item._id === product._id || item.status !== "approved")
+          return false;
 
         const itemPracticeAreas = Array.isArray(item.practiceAreas)
           ? item.practiceAreas
@@ -177,9 +173,7 @@ export default function ProductDetails() {
 
   if (isError && error instanceof Error)
     return (
-      <div className="text-center text-red-500">
-        Error: {error.message}
-      </div>
+      <div className="text-center text-red-500">Error: {error.message}</div>
     );
 
   if (!product) {
@@ -187,13 +181,17 @@ export default function ProductDetails() {
   }
 
   return (
-       <div className="container mx-auto p-6 space-y-12">
+    <div className="container mx-auto p-6 space-y-12">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div className="gap-4 flex">
             <div className="w-[328px] h-[328px] relative">
               <Image
-                src={typeof images[selectedImageIndex] === "string" ? images[selectedImageIndex] : "/placeholder.svg"}
+                src={
+                  typeof images[selectedImageIndex] === "string"
+                    ? images[selectedImageIndex]
+                    : "/placeholder.svg"
+                }
                 alt={product?.title || "Product image"}
                 fill
                 className="object-cover rounded-lg"
@@ -211,7 +209,9 @@ export default function ProductDetails() {
                   onClick={() => setSelectedImageIndex(index + 1)}
                 >
                   <Image
-                    src={typeof image === "string" ? image : "/images/no-image.jpg"}
+                    src={
+                      typeof image === "string" ? image : "/images/no-image.jpg"
+                    }
                     alt={product?.title || "Product image"}
                     fill
                     className="object-cover"
@@ -275,7 +275,9 @@ export default function ProductDetails() {
 
           <div className="flex items-center gap-3 mb-4">
             <Avatar className="w-[49px] h-[49px]">
-              <AvatarImage src={product?.createdBy?.profileImage || "/placeholder.svg"} />
+              <AvatarImage
+                src={product?.createdBy?.profileImage || "/placeholder.svg"}
+              />
               <AvatarFallback>
                 {(product?.createdBy?.firstName?.[0] ?? "") +
                   (product?.createdBy?.lastName?.[0] ?? "")}
@@ -331,9 +333,13 @@ export default function ProductDetails() {
 
           <div className="border-t pt-4">
             <div className="flex flex-wrap gap-4 mb-2">
-              <span className="text-lg text-[#424242] font-medium">Details Info :</span>
+              <span className="text-lg text-[#424242] font-medium">
+                Details Info :
+              </span>
               <span className="text-base text-[#616161]">Area</span>
-              <span className="text-lg text-[#424242]">{product?.practiceAreas}</span>
+              <span className="text-lg text-[#424242]">
+                {product?.practiceAreas}
+              </span>
               <span className="text-base text-[#616161]">Formats</span>
               <span className="text-lg text-[#424242]">{product?.format}</span>
             </div>
@@ -346,15 +352,22 @@ export default function ProductDetails() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold">You May Also Like</h2>
           <Link href="/products">
-            <Button variant="link" className="text-blue-600 p-0">View all →</Button>
+            <Button variant="link" className="text-blue-600 p-0">
+              View all →
+            </Button>
           </Link>
         </div>
 
         {filteredProducts.length > 0 ? (
           <div className="grid md:grid-cols-3 gap-6">
-            {filteredProducts.map((relatedProduct: AllProductDataTypeResponse["data"][number]) => (
-              <ProductCard key={relatedProduct._id} product={relatedProduct} />
-            ))}
+            {filteredProducts.map(
+              (relatedProduct: AllProductDataTypeResponse["data"][number]) => (
+                <ProductCard
+                  key={relatedProduct._id}
+                  product={relatedProduct}
+                />
+              )
+            )}
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500">

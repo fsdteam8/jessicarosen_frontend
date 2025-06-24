@@ -25,7 +25,7 @@ export function DashboardOverview() {
     queryKey: ["dashboard-overview"],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/dashboard/dashboard-summary`,
+        `${process.env.NEXT_PUBLIC_API_URL}seller/dashboard/dashboard-summary`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export function DashboardOverview() {
     queryKey: ["revenue", revenueFilter],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/seller/dashboard/revenue-report?filter=${revenueFilter}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/seller/dashboard/revenue-report?filter=${revenueFilter}`,
         {
           headers: {
             "Content-Type": "application/json",

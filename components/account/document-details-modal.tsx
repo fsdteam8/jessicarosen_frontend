@@ -67,7 +67,7 @@ export function DocumentDetailsModal({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/orders/${orderId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/orders/${orderId}`,
         {
           headers: {
             "Content-Type": "application/json",
