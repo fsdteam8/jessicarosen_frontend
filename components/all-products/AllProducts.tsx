@@ -162,10 +162,10 @@ export default function AllProducts() {
   console.log(allProductData?.data?.length);
 
   useEffect(() => {
-  if (selectedArea?.name) {
-    setSelectedPracticeArea(selectedArea.name);
-  }
-}, [selectedArea]);
+    if (selectedArea?.name) {
+      setSelectedPracticeArea(selectedArea.name);
+    }
+  }, [selectedArea]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -174,8 +174,7 @@ export default function AllProducts() {
         <div className="flex justify-between items-center mb-2">
           <div>
             <div className="text-sm text-gray-500 mb-2">
-              {/* 15,000,000+ Results */}
-              <div>
+              {/* <div>
                 {selectedArea ? (
                   <p>
                     Showing content for: <strong>{selectedArea.name}</strong>
@@ -183,7 +182,7 @@ export default function AllProducts() {
                 ) : (
                   <p>Please select a practice area.</p>
                 )}
-              </div>
+              </div> */}
               {allProductData?.data?.length}+ Results
             </div>
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
@@ -212,19 +211,17 @@ export default function AllProducts() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
               {/* Left: Filter dropdowns */}
               <div className="flex flex-wrap gap-2 max-w-full md:max-w-[calc(100%-150px)]">
-               
-               
                 {/* <FilterDropdown
                   title="Practice Areas"
                   options={practiceAreas ?? []}
                   onSelect={(value) => setSelectedPracticeArea(value)}
                 /> */}
 
-<FilterDropdown
-  title="Practice Areas"
-  options={practiceAreas ?? []}
-  onSelect={(value) => setSelectedPracticeArea(value)}
-/>
+                <FilterDropdown
+                  title="Practice Areas"
+                  options={practiceAreas ?? []}
+                  onSelect={(value) => setSelectedPracticeArea(value)}
+                />
 
                 <FilterDropdown
                   title="Resource Types"
