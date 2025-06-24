@@ -32,7 +32,7 @@ const NewsLetterForm = () => {
   const { mutate, isPending } = useMutation({
     mutationKey: ["newsletter-subscribe"],
     mutationFn: (data: z.infer<typeof FormSchema>) =>
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/newsletter/subscribe`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/newsletter/subscribe`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
