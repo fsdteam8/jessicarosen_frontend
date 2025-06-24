@@ -162,10 +162,10 @@ export default function AllProducts() {
   console.log(allProductData?.data?.length);
 
   useEffect(() => {
-  if (selectedArea?.name) {
-    setSelectedPracticeArea(selectedArea.name);
-  }
-}, [selectedArea]);
+    if (selectedArea?.name) {
+      setSelectedPracticeArea(selectedArea.name);
+    }
+  }, [selectedArea]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -212,19 +212,17 @@ export default function AllProducts() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
               {/* Left: Filter dropdowns */}
               <div className="flex flex-wrap gap-2 max-w-full md:max-w-[calc(100%-150px)]">
-               
-               
                 {/* <FilterDropdown
                   title="Practice Areas"
                   options={practiceAreas ?? []}
                   onSelect={(value) => setSelectedPracticeArea(value)}
                 /> */}
 
-<FilterDropdown
-  title="Practice Areas"
-  options={practiceAreas ?? []}
-  onSelect={(value) => setSelectedPracticeArea(value)}
-/>
+                <FilterDropdown
+                  title="Practice Areas"
+                  options={practiceAreas ?? []}
+                  onSelect={(value) => setSelectedPracticeArea(value)}
+                />
 
                 <FilterDropdown
                   title="Resource Types"
