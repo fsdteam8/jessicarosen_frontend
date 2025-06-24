@@ -17,11 +17,11 @@ import { useSession } from "next-auth/react";
 export default function CheckoutPageAPI() {
   // const { isAuthenticated } = useAuth();
   const { status } = useSession();
-  const { data: cartData, isLoading } = useCart();
+  const { isLoading } = useCart();
   const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
   const clearCartMutation = useClearCart();
 
-  console.log(cartData);
+  // console.log(cartData);
 
   const [promoCode, setPromoCode] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -114,28 +114,29 @@ export default function CheckoutPageAPI() {
       return;
     }
 
-    if (!items || items.length === 0) {
-      toast({
-        title: "Error",
-        description: "Your cart is empty",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (!items || items.length === 0) {
+    //   toast({
+    //     title: "Error",
+    //     description: "Your cart is empty",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    alert("Processing payment...");
 
-    const paymentData = {
-      items: items.map((item) => ({
-        id: item.resourceId,
-        title: item.resource.title,
-        price: item.resource.discountPrice || item.resource.price,
-        quantity: item.quantity,
-      })),
-      total: finalTotal,
-      couponCode: appliedCoupon?.code,
-    };
+    // const paymentData = {
+    //   items: items.map((item) => ({
+    //     id: item.resourceId,
+    //     title: item.resource.title,
+    //     price: item.resource.discountPrice || item.resource.price,
+    //     quantity: item.quantity,
+    //   })),
+    //   total: finalTotal,
+    //   couponCode: appliedCoupon?.code,
+    // };
 
     try {
-      await paymentMutation.mutateAsync(paymentData);
+      await paymentMutation.mutateAsync();
       // Clear cart after successful payment initiation
       await clearCartMutation.mutateAsync();
     } catch {
@@ -361,9 +362,7 @@ export default function CheckoutPageAPI() {
             <Button
               onClick={handlePayment}
               className="w-full bg-[#2c5d7c] hover:bg-[#1e4258] h-12"
-              disabled={
-                paymentMutation.isPending || !items || items.length === 0
-              }
+              disabled={paymentMutation.isPending}
             >
               {paymentMutation.isPending ? (
                 <>
