@@ -23,7 +23,7 @@ const ExplorePopular = () => {
       queryKey: ["all-products", countryName],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/most-popular?country=${countryName}`
+          `${process.env.NEXT_PUBLIC_API_URL}/resource/most-popular?country=${countryName}&status=approved`
         ).then((res) => res.json()),
       enabled: !!countryName,
     });

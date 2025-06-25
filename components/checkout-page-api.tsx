@@ -17,11 +17,19 @@ import { useSession } from "next-auth/react";
 export default function CheckoutPageAPI() {
   // const { isAuthenticated } = useAuth();
   const { status } = useSession();
-  const { data: cartData, isLoading } = useCart();
-  const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
+  const { isLoading } = useCart();
+  const { subtotal, shippingCost, items } = useCartTotals();
   const clearCartMutation = useClearCart();
+  const [discountedData, setDiscountedData] = useState<{
+    code: string;
+    discount: number;
+    type: "percentage" | "fixed";
+    isValid: boolean;
+    finalPrice: string | number;
+    discountAmount: string | number;
+  } | null>(null);
 
-  console.log(cartData);
+  // console.log(cartData);
 
   const [promoCode, setPromoCode] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -36,13 +44,13 @@ export default function CheckoutPageAPI() {
   const paymentMutation = usePayment();
 
   // Calculate coupon discount
-  const couponDiscount = appliedCoupon
-    ? appliedCoupon.type === "percentage"
-      ? (subtotal * appliedCoupon.discount) / 100
-      : Math.min(appliedCoupon.discount, subtotal)
-    : 0;
+  // const couponDiscount = appliedCoupon
+  //   ? appliedCoupon.type === "percentage"
+  //     ? (subtotal * appliedCoupon.discount) / 100
+  //     : Math.min(appliedCoupon.discount, subtotal)
+  //   : 0;
 
-  const finalTotal = Math.max(0, subtotal + shippingCost - couponDiscount);
+  const finalTotal = Math.max(0, subtotal + shippingCost);
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,18 +73,29 @@ export default function CheckoutPageAPI() {
     }
 
     try {
-      const result = await couponMutation.mutateAsync({ code: promoCode });
+      const result = await couponMutation.mutateAsync({
+        code: promoCode,
+        price: String(subtotal),
+      });
 
-      if (result.success && result.data.isValid) {
+      if (result.status) {
         setAppliedCoupon({
           code: result.data.code,
           discount: result.data.discount,
           type: result.data.type,
         });
         setPromoCode("");
+
+        console.log(discountedData);
         toast({
           title: "Coupon applied",
           description: `${result.data.code} has been applied to your order.`,
+        });
+
+        // console.log(result.data.finalPrice);
+        setDiscountedData({
+          ...result.data,
+          isValid: true, // or set this based on your logic or result.data if available
         });
       } else {
         toast({
@@ -114,28 +133,29 @@ export default function CheckoutPageAPI() {
       return;
     }
 
-    if (!items || items.length === 0) {
-      toast({
-        title: "Error",
-        description: "Your cart is empty",
-        variant: "destructive",
-      });
-      return;
-    }
+    // if (!items || items.length === 0) {
+    //   toast({
+    //     title: "Error",
+    //     description: "Your cart is empty",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
+    alert("Processing payment...");
 
-    const paymentData = {
-      items: items.map((item) => ({
-        id: item.resourceId,
-        title: item.resource.title,
-        price: item.resource.discountPrice || item.resource.price,
-        quantity: item.quantity,
-      })),
-      total: finalTotal,
-      couponCode: appliedCoupon?.code,
-    };
+    // const paymentData = {
+    //   items: items.map((item) => ({
+    //     id: item.resourceId,
+    //     title: item.resource.title,
+    //     price: item.resource.discountPrice || item.resource.price,
+    //     quantity: item.quantity,
+    //   })),
+    //   total: finalTotal,
+    //   couponCode: appliedCoupon?.code,
+    // };
 
     try {
-      await paymentMutation.mutateAsync(paymentData);
+      await paymentMutation.mutateAsync();
       // Clear cart after successful payment initiation
       await clearCartMutation.mutateAsync();
     } catch {
@@ -212,9 +232,7 @@ export default function CheckoutPageAPI() {
                 {/* Order Summary */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
                   <div className="p-4 border-b">
-                    <h3 className="text-lg font-semibold">
-                      Order Items ({itemCount} items)
-                    </h3>
+                    <h3 className="text-lg font-semibold">Order items: </h3>
                   </div>
                   {items.map((item) => (
                     <div
@@ -246,7 +264,9 @@ export default function CheckoutPageAPI() {
                               </span>
                             )}
                           </div>
-                          <div className="text-sm">Qty: {item.quantity}</div>
+                          <div className="text-sm flex items-center ">
+                            Qty: {item.quantity}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right">
@@ -268,11 +288,15 @@ export default function CheckoutPageAPI() {
                     <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center">
                         <span className="text-green-700 font-medium">
-                          Coupon Applied: {appliedCoupon.code}
+                          Coupon Applied: {appliedCoupon.code} and Got discount
+                          $
+                          {formatPrice(
+                            Number(discountedData?.discountAmount ?? 0)
+                          )}
                         </span>
-                        <span className="ml-2 text-green-600">
+                        {/* <span className="ml-2 text-green-600">
                           (-${formatPrice(couponDiscount)})
-                        </span>
+                        </span> */}
                       </div>
                       <Button
                         variant="ghost"
@@ -313,31 +337,54 @@ export default function CheckoutPageAPI() {
                     <h2 className="text-xl font-bold mb-4">Order Summary</h2>
                     <div className="space-y-2 mb-6">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">
-                          Subtotal ({itemCount} items):
-                        </span>
-                        <span>${formatPrice(subtotal)}</span>
+                        {/* <span className="text-gray-600">
+                          Subtotal ({discountedData.item.length} items):
+                        </span> */}
+                        {
+                          <span>
+                            $
+                            {formatPrice(
+                              Number(
+                                discountedData?.finalPrice === 0
+                                  ? subtotal
+                                  : discountedData?.finalPrice ?? subtotal
+                              )
+                            )}
+                          </span>
+                        }
                       </div>
 
-                      {couponDiscount > 0 && (
+                      {/* {couponDiscount > 0 && (
                         <div className="flex justify-between text-green-600">
                           <span>Coupon Discount:</span>
                           <span>-${formatPrice(couponDiscount)}</span>
                         </div>
-                      )}
+                      )} */}
 
-                      {shippingCost > 0 && (
+                      {/* {shippingCost > 0 && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">
                             Shipping Charge:
                           </span>
-                          <span>${formatPrice(shippingCost)}</span>
+                          <span>
+                            $
+                            
+                          </span>
                         </div>
-                      )}
+                      )} */}
 
                       <div className="pt-2 border-t flex justify-between font-bold">
                         <span>Total:</span>
-                        <span>${total}</span>
+                        <span>
+                          $
+                          {formatPrice(
+                            Number(
+                              discountedData?.finalPrice === 0
+                                ? subtotal
+                                : discountedData?.finalPrice ?? subtotal
+                            )
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -361,9 +408,7 @@ export default function CheckoutPageAPI() {
             <Button
               onClick={handlePayment}
               className="w-full bg-[#2c5d7c] hover:bg-[#1e4258] h-12"
-              disabled={
-                paymentMutation.isPending || !items || items.length === 0
-              }
+              disabled={paymentMutation.isPending}
             >
               {paymentMutation.isPending ? (
                 <>

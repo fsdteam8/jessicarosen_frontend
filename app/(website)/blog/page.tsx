@@ -27,9 +27,7 @@ export default function BlogPage() {
   const { data: blogsResponse, isLoading } = useQuery({
     queryKey: ["blog"],
     queryFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/blog/`
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog`);
       if (!res.ok) {
         throw new Error("Failed to fetch blogs");
       }
@@ -45,7 +43,7 @@ export default function BlogPage() {
   console.log("latestThreeBlogs", latestThreeBlogs);
   console.log("allBlogs ", allBlogs);
 
-  
+  console.log("images", latestThreeBlogs);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -71,7 +69,7 @@ export default function BlogPage() {
               className="relative rounded-lg overflow-hidden group cursor-pointer"
             >
               <Image
-                src={latestThreeBlogs[0]?.thumbnail}
+                src={latestThreeBlogs[0]?.thumbnail || "/images/no-image.jpg"}
                 alt={latestThreeBlogs[0]?.title || "Blog image"}
                 width={600}
                 height={500}
@@ -87,7 +85,7 @@ export default function BlogPage() {
                 className="relative rounded-lg overflow-hidden group cursor-pointer h-[240px]"
               >
                 <Image
-                  src={latestThreeBlogs[1]?.thumbnail}
+                  src={latestThreeBlogs[1]?.thumbnail || "/images/no-image.jpg"}
                   alt={latestThreeBlogs[1]?.title || "Blog image"}
                   width={400}
                   height={240}
@@ -101,7 +99,7 @@ export default function BlogPage() {
                 className="relative rounded-lg overflow-hidden group cursor-pointer h-[240px]"
               >
                 <Image
-                  src={latestThreeBlogs[2]?.thumbnail}
+                  src={latestThreeBlogs[2]?.thumbnail || "/images/no-image.jpg"}
                   alt={latestThreeBlogs[2]?.title || "Blog image"}
                   width={400}
                   height={240}
@@ -138,7 +136,7 @@ export default function BlogPage() {
                     title={post.title}
                     // excerpt={post.excerpt}
                     date={post?.createdAt}
-                    image={post?.thumbnail || "/images/cartimg.png"} // fallback if no thumbnail
+                    image={post?.thumbnail || "/images/no-image.jpg"} // fallback if no thumbnail
                     slug={post?.slug || post?._id}
                   />
                 ))}

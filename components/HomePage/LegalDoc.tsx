@@ -20,7 +20,7 @@ const LegalDoc = () => {
     console.log(countryName)
   return (
     <div>
-      <section className="py-10 bg-[#2c5d7c] text-white">
+      <section className="py-10 bg-[#4F7695] text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex gap-3">
@@ -36,7 +36,7 @@ const LegalDoc = () => {
                 />
               </div>
               <div>
-                <h2 className="text-[40px] font-semibold leading-[120%] mb-2">
+                <h2 className="text-2xl md:text-3xl text-[40px] font-semibold leading-[120%] mb-2">
                   Looking For Legal Documents?
                 </h2>
                 <p className="text-sm">

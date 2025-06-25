@@ -79,7 +79,9 @@ const fetchSearchResults = async (query: string): Promise<SearchResponse> => {
   }
 
   const response = await fetch(
-    `http://localhost:5000/api/v1/resource/get-all-resources?search=${encodeURIComponent(
+    `${
+      process.env.NEXT_PUBLIC_API_URL
+    }/resource/get-all-resources?status=approved&search=${encodeURIComponent(
       query
     )}`
   );
@@ -216,21 +218,18 @@ export function SearchModal({
               </div>
 
               <div className="grid gap-4">
-                {data.data.map((product) => (
+                {data?.data?.map((product) => (
                   <div
                     key={product._id}
-                    onClick={() => handleProductClick(product.productId)}
+                    onClick={() => handleProductClick(product?._id)}
                     className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
                   >
                     {/* Product Image */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 ">
                       <div className="w-16 h-16 md:w-20 md:h-20 relative rounded-lg overflow-hidden bg-gray-100">
                         <Image
-                          src={
-                            product.thumbnail ||
-                            "/placeholder.svg?height=80&width=80"
-                          }
-                          alt={product.title}
+                          src={product?.thumbnail || "/images/no-image.jpg"}
+                          alt={product?.title || "No Image"}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform"
                         />

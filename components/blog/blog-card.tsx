@@ -14,15 +14,16 @@ interface BlogCardProps {
 }
 
 export function BlogCard({  title, date, image, slug, className, featured = false }: BlogCardProps) {
+  console.log("image", image)
   return (
     <div className={cn("group", className)}>
       <Link href={`/blog/${slug}`} className="block">
-        <div className="relative overflow-hidden rounded-lg mb-4">
+        <div className="relative overflow-hidden rounded-lg mb-4 ">
           <div
             className={cn("relative w-full overflow-hidden", featured ? "aspect-[16/9]" : "aspect-[4/3]")}
           >
             <Image
-              src={image || "/placeholder.svg"}
+              src={image || "/images/no-image.jpg"}
               alt={title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"

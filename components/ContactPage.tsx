@@ -41,16 +41,13 @@ type ContactResponse = {
 const postContactData = async (
   data: ContactFormData
 ): Promise<ContactResponse> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/contact/`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/contact/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -178,7 +175,10 @@ const ContactPage = () => {
               className="grid w-full grid-cols-1 md:grid-cols-2 gap-6 flex-1"
             >
               <div>
-                <Label htmlFor="firstName" className="text-[#2A2A2A] mb-2 block">
+                <Label
+                  htmlFor="firstName"
+                  className="text-[#2A2A2A] mb-2 block"
+                >
                   First Name *
                 </Label>
                 <Input
@@ -227,7 +227,10 @@ const ContactPage = () => {
               </div>
 
               <div className="md:col-span-2">
-                <Label htmlFor="phoneNumber" className="text-[#2A2A2A] mb-2 block">
+                <Label
+                  htmlFor="phoneNumber"
+                  className="text-[#2A2A2A] mb-2 block"
+                >
                   Phone Number
                 </Label>
                 <Input
@@ -289,10 +292,26 @@ const ContactPage = () => {
                 Here&apos;s How to Reach Us
               </h3>
               <div className="space-y-10">
-                <ContactInfo Icon={Mail} label="Email Address" value="example@gmail.com" />
-                <ContactInfo Icon={Phone} label="Phone Number" value="(406) 555-0120" />
-                <ContactInfo Icon={MapPin} label="Location" value="440 Collins Street, Melbourne VIC 3000" />
-                <ContactInfo Icon={Clock} label="Business Hours" value="Monday – Saturday, 8:00 AM – 6:00 PM" />
+                <ContactInfo
+                  Icon={Mail}
+                  label="Email Address"
+                  value="example@gmail.com"
+                />
+                <ContactInfo
+                  Icon={Phone}
+                  label="Phone Number"
+                  value="(406) 555-0120"
+                />
+                <ContactInfo
+                  Icon={MapPin}
+                  label="Location"
+                  value="440 Collins Street, Melbourne VIC 3000"
+                />
+                <ContactInfo
+                  Icon={Clock}
+                  label="Business Hours"
+                  value="Monday – Saturday, 8:00 AM – 6:00 PM"
+                />
               </div>
             </div>
           </div>
