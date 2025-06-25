@@ -412,6 +412,12 @@ export default function ProductDetails() {
         )}
       </div>
 
+      <div>
+        <h2>Description</h2>
+
+        <p dangerouslySetInnerHTML={{ __html: product?.description || "" }} />
+      </div>
+
       <Separator />
 
       {userId ? (
