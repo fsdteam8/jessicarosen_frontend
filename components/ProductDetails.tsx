@@ -26,6 +26,9 @@ export default function ProductDetails() {
   const token = session?.data?.user?.accessToken;
   const resourceId =
     typeof params?.id === "string" ? params.id : params?.id?.[0];
+  const shareUrl = encodeURIComponent(
+    typeof window !== "undefined" ? window.location.href : ""
+  );
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const queryClient = useQueryClient();
@@ -85,7 +88,8 @@ export default function ProductDetails() {
   const { data: categoryData } = useQuery({
     queryKey: ["category-filter"],
     queryFn: async () => {
-      const res = await fetch(` ${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
+      const res = await fetch(
+        ` ${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
         {
           method: "GET",
           headers: {
@@ -227,14 +231,47 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-4">
+          {/* <div className="flex items-center gap-2 pt-4">
             <span className="text-base font-medium text-[#616161]">Share:</span>
             <div className="flex gap-2">
               <Linkedin className="w-6 h-6 text-[#616161]" />
               <Facebook className="w-6 h-6 text-[#616161]" />
               <Instagram className="w-6 h-6 text-[#616161]" />
             </div>
+          </div> */}
+          
+          <div className="flex items-center gap-2 pt-4">
+            <span className="text-base font-medium text-[#616161]">Share:</span>
+            <div className="flex gap-2">
+              {/* LinkedIn Share */}
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin className="w-6 h-6 text-[#616161] hover:text-blue-700 transition-colors" />
+              </a>
+
+              {/* Facebook Share */}
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Facebook className="w-6 h-6 text-[#616161] hover:text-blue-600 transition-colors" />
+              </a>
+
+              {/* Instagram (Note: Instagram doesn't support direct link sharing) */}
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="w-6 h-6 text-[#616161] hover:text-pink-500 transition-colors" />
+              </a>
+            </div>
           </div>
+
         </div>
 
         <div>
@@ -305,12 +342,12 @@ export default function ProductDetails() {
               {addToCartMutation.isPending ? "Adding..." : "Add To Cart"}
             </Button>
 
-            <Button
+            {/* <Button
               variant="outline"
               className="border-2 border-[#23547B] text-[#23547B] font-bold hover:bg-blue-50 h-[48px] w-[156px] rounded-[8px]"
             >
               Download Now
-            </Button>
+            </Button> */}
 
             <Button
               onClick={toggleWishlist}
@@ -392,8 +429,11 @@ export default function ProductDetails() {
 
       {/* question and ans section */}
       <QuestionsAnswers
-      resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
+        resourceId={
+          Array.isArray(resourceId) ? resourceId[0] ?? "" : resourceId ?? ""
+        }
         userId={userId ?? ""}
       />
-    </div>)
+    </div>
+  );
 }
