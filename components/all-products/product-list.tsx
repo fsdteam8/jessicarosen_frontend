@@ -134,7 +134,7 @@ export default function ProductList({
       ],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
             practiceArea
               ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
               : ""
