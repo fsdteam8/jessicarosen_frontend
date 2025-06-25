@@ -73,7 +73,7 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogTitle className="text-lg font-semibold mb-2">
-          Enter your email to onboard
+          Enter your email to setup stripe
         </DialogTitle>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
