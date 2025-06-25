@@ -84,7 +84,7 @@ export default function QuestionsAnswers({
     queryKey: ["question", resourceId],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/qa/${resourceId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch question and answers");
@@ -96,7 +96,7 @@ export default function QuestionsAnswers({
   const postQuestion = useMutation({
     mutationFn: async (message: string) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/qa/${resourceId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`,
         {
           method: "POST",
           headers: {
