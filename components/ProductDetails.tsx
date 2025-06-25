@@ -85,8 +85,7 @@ export default function ProductDetails() {
   const { data: categoryData } = useQuery({
     queryKey: ["category-filter"],
     queryFn: async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
+      const res = await fetch(` ${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
         {
           method: "GET",
           headers: {
@@ -393,10 +392,8 @@ export default function ProductDetails() {
 
       {/* question and ans section */}
       <QuestionsAnswers
-        resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
+      resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
         userId={userId ?? ""}
       />
-
-    </div>
-  );
+    </div>)
 }
