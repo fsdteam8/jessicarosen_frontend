@@ -34,7 +34,7 @@ interface CartItem {
 }
 
 export function CartSheet() {
-  const { items, isOpen, setOpen, removeItem } = useCart();
+  const { isOpen, setOpen, removeItem } = useCart();
   const queryClient = useQueryClient();
   const session = useSession();
   const token = session?.data?.user?.accessToken;
@@ -58,8 +58,6 @@ export function CartSheet() {
   const cartData = cart?.items || [];
   // console.log("Cart Data:", cartData);
 
-
-  
   // ✅ Delete item from API
   const deleteItemMutation = useMutation({
     mutationFn: async (resourceId: string) => {
@@ -85,7 +83,7 @@ export function CartSheet() {
     },
   });
 
-  if (!items) return null;
+  if (!data?.data?.items) return null;
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -96,7 +94,9 @@ export function CartSheet() {
 
         {cartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[50vh]">
-            <p className="text-muted-foreground mb-4">Make sure login first & Your cart is empty</p>
+            <p className="text-muted-foreground mb-4">
+              Make sure login first & Your cart is empty
+            </p>
             <Button
               onClick={() => setOpen(false)}
               className="bg-[#2c5d7c] hover:bg-[#1e4258]"
@@ -153,7 +153,7 @@ export function CartSheet() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  Subtotal ({items.length} items):
+                  Subtotal ({data.data.items.length} items):
                 </span>
                 {/* <span>${formatPrice(getSubtotal())}</span> */}
                 <span>${cart?.subtotal}</span>
