@@ -83,7 +83,7 @@ export function CartSheet() {
     },
   });
 
-  if (!data?.data?.items) return null;
+  // if (!data?.data?.items) return null;
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
