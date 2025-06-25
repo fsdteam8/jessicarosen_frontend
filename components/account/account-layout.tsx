@@ -19,8 +19,10 @@ export function AccountLayout({
 }: AccountLayoutProps) {
 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+ 
   const confirmLogout = () => {
-    signOut({callbackUrl:'/login'});
+    console.log('hello')
+    signOut({callbackUrl:'/sign-in'});
     setIsLogoutModalOpen(false);
   };
 

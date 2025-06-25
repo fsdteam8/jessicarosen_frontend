@@ -60,13 +60,13 @@ export default function LogoutConfirmationModal({ isOpen, onClose, onConfirm }: 
               onClick={onClose}
               className="flex-1 py-2 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50"
             >
-              Yes
+              No
             </button>
             <button
               onClick={onConfirm}
               className="flex-1 py-2 bg-[#23547B] text-white rounded hover:bg-blue-800"
             >
-              No
+              Yes
             </button>
           </div>
         </div>
