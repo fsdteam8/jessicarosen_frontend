@@ -766,6 +766,8 @@ export function EditResourceModal({ open, onOpenChange, resource, onUpdate }: Ed
                 </div>
               </CardContent>
             </Card>
+
+
             <Card>
               <CardHeader className="p-4">
                 <Label>Resource File</Label>
