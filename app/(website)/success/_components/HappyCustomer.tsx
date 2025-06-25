@@ -1,25 +1,77 @@
+"use client";
+import ErrorContainer from "@/components/shared/ErrorContainer/ErrorContainer";
+import NotFound from "@/components/shared/NotFound/NotFound";
+import TableSkeletonWrapper from "@/components/shared/TableSkeletonWrapper/TableSkeletonWrapper";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import React from "react";
 
+export type HappyCustomer = {
+  _id: string;
+  profileImage: string;
+};
+
+export type HappyCustomersResponse = {
+  status: boolean;
+  message: string;
+  data: HappyCustomer[];
+};
+
 const HappyCustomer = () => {
-  const happyCustomerData = [
-    {
-      id: 1,
-      img: "/images/happyCustomer1.jpg",
-    },
-    {
-      id: 2,
-      img: "/images/happyCustomer2.jpg",
-    },
-    {
-      id: 3,
-      img: "/images/happyCustomer3.jpg",
-    },
-    {
-      id: 4,
-      img: "/images/happyCustomer4.jpg",
-    },
-  ];
+  const { data, isLoading, error, isError } = useQuery<HappyCustomersResponse>({
+    queryKey: ["happy-customers"],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/happy-customers`).then(
+        (res) => res.json()
+      ),
+  });
+
+  let content;
+
+  if (isLoading) {
+    content = (
+      <div className="w-full p-5" >
+        <TableSkeletonWrapper
+          count={3}
+          width="100%"
+          height="320px"
+          className="bg-white"
+        />
+      </div>
+    );
+  } else if (isError) {
+    content = (
+      <div className="mt-5">
+        <ErrorContainer message={error?.message || "Something went wrong"} />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length === 0) {
+    content = (
+      <div className="mt-5">
+        <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
+      </div>
+    );
+  } else if (data && data?.data && data?.data?.length > 0) {
+    content = (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 md:mt-10 lg:mt-12">
+        {data?.data?.map((item) => {
+          return (
+            <div key={item._id}>
+              <Image
+                src={item?.profileImage || "/images/no-image.jpg"}
+                alt="happy customer"
+                width={275}
+                height={245}
+                className="w-[275px] h-[245px] object-cover rounded-[8px]"
+              />
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+
   return (
     <div className="bg-[#E9EEF2] ">
       <div className="py-10 md:py-14 lg:py-[88px] container mx-auto">
@@ -31,21 +83,7 @@ const HappyCustomer = () => {
             Find answers to common questions about our services and features.
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
-          {happyCustomerData?.map((item) => {
-            return (
-              <div key={item.id}>
-                <Image
-                  src={item.img}
-                  alt="happy customer"
-                  width={275}
-                  height={245}
-                  className="w-[275px] h-[245px] object-cover rounded-[8px]"
-                />
-              </div>
-            );
-          })}
-        </div>
+        <div>{content}</div>
       </div>
     </div>
   );
