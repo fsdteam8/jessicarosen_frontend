@@ -2,17 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ChevronRight,
-  Heart,
-  Trash2,
-  ChevronLeft,
-} from "lucide-react";
+import { ChevronRight, ChevronLeft, Heart, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useCart } from "@/hooks/use-cart";
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { addToCartAPI } from "@/lib/cart";
@@ -28,8 +22,24 @@ export default function WishlistPage() {
 
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+  const paginatedItems = items.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const { mutate: mutateAddToCart } = useMutation({
-    mutationFn: (item: typeof items[number]) =>
+    mutationFn: (item: (typeof items)[number]) =>
       addToCartAPI({
         resourceId: item.id,
         quantity: 1,
@@ -37,7 +47,6 @@ export default function WishlistPage() {
       }),
     onSuccess: (data, item) => {
       toast.success(data.message || "Item added to cart");
-
       queryClient.invalidateQueries({ queryKey: ["cart"] });
 
       addItem({
@@ -97,7 +106,7 @@ export default function WishlistPage() {
           ) : (
             <>
               <div className="space-y-6">
-                {items.map((item) => (
+                {paginatedItems.map((item) => (
                   <div
                     key={item.id}
                     className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 sm:p-6 relative group hover:shadow-md transition-shadow border rounded-lg"
@@ -124,7 +133,6 @@ export default function WishlistPage() {
                           <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
                             {item.title}
                           </h3>
-
                           <div className="flex items-center gap-2 mb-3">
                             <div className="w-6 h-6 rounded-full bg-gray-300 overflow-hidden">
                               <Image
@@ -182,10 +190,7 @@ export default function WishlistPage() {
                               : "Add To Cart"}
                           </Button>
                           <Button className="bg-[#23547B] hover:bg-[#143753] text-white">
-                            <Link
-                              href={`/products/${item.id}`}
-                              className="hover:text-blue-600"
-                            >
+                            <Link href={`/products/${item.id}`}>
                               View Details
                             </Link>
                           </Button>
@@ -199,25 +204,38 @@ export default function WishlistPage() {
                 ))}
               </div>
 
+              {/* Pagination Controls */}
               <div className="flex items-center justify-center gap-4 mt-12 flex-wrap">
-                <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <div className="flex gap-2">
-                  {[1, 2, 3].map((num) => (
+
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  return (
                     <button
-                      key={num}
+                      key={page}
+                      onClick={() => handlePageChange(page)}
                       className={`w-10 h-10 rounded-full ${
-                        num === 1
+                        page === currentPage
                           ? "bg-blue-600 text-white"
                           : "border border-gray-300 hover:bg-gray-50"
                       } flex items-center justify-center text-sm font-medium`}
                     >
-                      0{num}
+                      {page}
                     </button>
-                  ))}
-                </div>
-                <button className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700">
+                  );
+                })}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-50"
+                >
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
