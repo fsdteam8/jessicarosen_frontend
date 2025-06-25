@@ -44,7 +44,7 @@ function Page() {
     queryKey: ["question-ans"],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/qa`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa`,
         {
           method: "GET",
           headers: {
@@ -66,7 +66,7 @@ function Page() {
   const mutation = useMutation({
     mutationFn: async ({ questionId, reply }: { questionId: string; reply: string }) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/qa/reply/${questionId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/reply/${questionId}`,
         {
           method: "POST",
           headers: {
