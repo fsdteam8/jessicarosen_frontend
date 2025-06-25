@@ -66,7 +66,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       current: pathname === "/dashboard/sales",
     },
     {
-      name: "Settings",
+      name: "Setup Stripe",
       icon: Settings,
       onClick: () => setShowPopup(true),
     },
