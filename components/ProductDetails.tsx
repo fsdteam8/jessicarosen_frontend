@@ -391,7 +391,12 @@ export default function ProductDetails() {
         </div>
       )}
 
-      <QuestionsAnswers />
+      {/* question and ans section */}
+      <QuestionsAnswers
+        resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
+        userId={userId ?? ""}
+      />
+
     </div>
   );
 }

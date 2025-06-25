@@ -176,7 +176,7 @@ const mutation = useMutation({
 
               <div className="flex items-center gap-1">
                 <span className="text-lg font-semibold text-gray-900">
-                  {product?.averageRating}
+                  {product?.averageRating?.toFixed(1)}
                 </span>
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-gray-500 text-sm">
