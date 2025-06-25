@@ -6,7 +6,7 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api"; // <-- import hooks
+import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api";
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
@@ -18,7 +18,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import TableSkeletonWrapper from "../shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import ErrorContainer from "../shared/ErrorContainer/ErrorContainer";
 import NotFound from "../shared/NotFound/NotFound";
-
 import { toast } from "@/hooks/use-toast";
 
 interface ProductListProps {
@@ -48,7 +47,7 @@ export default function ProductList({
       ? "USA"
       : null;
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: cartData } = useCart(); // <-- get cart data
+  const { data: cartData } = useCart();
   const { mutateAsync: addToCart, isPending: isAddingToCart } = useAddToCart();
   const updateCartMutation = useUpdateCartItem();
   const {
@@ -57,26 +56,22 @@ export default function ProductList({
     items: wishlistItems,
   } = useWishlist();
 
-  // Check if the product is already in the wishlist
   const isInWishlist = (productId: number | string) => {
     return wishlistItems.some((item) => item.id === productId);
   };
 
   const handleAddToCart = async (product: any) => {
     try {
-      // Find if product is already in cart
       const cartItem = cartData?.data?.items?.find(
         (item) => item.resource._id === product._id
       );
 
       if (cartItem) {
-        // Use cart item's _id for update
         await updateCartMutation.mutateAsync({
-          itemId: cartItem._id, // <-- use cart item _id
+          itemId: cartItem._id,
           quantity: cartItem.quantity + 1,
         });
       } else {
-        // Add new item to cart
         await addToCart({
           resourceId: product._id,
           quantity: 1,
@@ -99,14 +94,31 @@ export default function ProductList({
   };
 
   const toggleWishlist = (item: any) => {
-    if (isInWishlist(item.id)) {
-      removeFromWish(item.id);
+    const id = item._id;
+
+    if (isInWishlist(id)) {
+      removeFromWish(id);
+      toast({ title: "Removed from Wishlist" });
     } else {
-      addToWish({ ...item, quantity: 1 });
+      addToWish({
+        id: item._id,
+        slug: item.title.toLowerCase().replace(/\s+/g, "-"),
+        title: item.title,
+        description: item.description,
+        price: item.price,
+        discountPrice: item.discountPrice,
+        image: Array.isArray(item.thumbnail)
+          ? item.thumbnail[0] || "/placeholder.svg"
+          : item.thumbnail || "/images/no-image.jpg",
+        rating: item.averageRating,
+        reviews: item.totalReviews ?? 0,
+        category: item.category || "",
+        categoryId: item.categoryId || "",
+      });
+      toast({ title: "Added to Wishlist" });
     }
   };
 
-  // Fetching all products data
   const { data, isLoading, error, isError } =
     useQuery<AllProductDataTypeResponse>({
       queryKey: [
@@ -122,9 +134,7 @@ export default function ProductList({
       ],
       queryFn: () =>
         fetch(
-          `${
-            process.env.NEXT_PUBLIC_API_URL
-          }/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
             practiceArea
               ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
               : ""
@@ -132,15 +142,12 @@ export default function ProductList({
             resourceType
               ? `&resourceType=${encodeURIComponent(resourceType)}`
               : ""
-          }&format=${encodeURIComponent(
-            format ?? ""
-          )}&price=${encodeURIComponent(
+          }&format=${encodeURIComponent(format ?? "")}&price=${encodeURIComponent(
             price ?? ""
           )}&states=${encodeURIComponent(states ?? "")}`
         ).then((res) => res.json()),
     });
 
-  console.log(data);
   const products = data?.data || [];
 
   let content;
