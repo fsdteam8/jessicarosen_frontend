@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronRight,
   Settings,
+  Reply,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
@@ -56,6 +57,12 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       name: "My Sales",
       href: "/dashboard/sales",
       icon: TrendingUp,
+      current: pathname === "/dashboard/sales",
+    },
+    {
+      name: "Reply To Question",
+      href: "/dashboard/reply-to-question",
+      icon: Reply ,
       current: pathname === "/dashboard/sales",
     },
     {
