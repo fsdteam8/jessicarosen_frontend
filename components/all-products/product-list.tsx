@@ -123,8 +123,8 @@ export default function ProductList({
       queryFn: () =>
         fetch(
           `${
-            process.env.NEXT_PUBLIC_BACKEND_URL
-          }/api/v1/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+            process.env.NEXT_PUBLIC_API_URL
+          }/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
             practiceArea
               ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
               : ""
@@ -184,8 +184,9 @@ export default function ProductList({
           >
             {viewMode === "grid" ? (
               // Grid View Layout
-              <div className="flex flex-col h-full">
-                <div className="w-full border-2 border-red-500">
+
+              <div className="flex flex-col h-full w-full">
+                <div className="w-full">
                   <Image
                     src={
                       (Array.isArray(product?.thumbnail)

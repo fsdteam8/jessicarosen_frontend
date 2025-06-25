@@ -56,7 +56,10 @@ export function CartSheet() {
 
   const cart = data?.data;
   const cartData = cart?.items || [];
-  console.log("Cart Data:", cartData);
+  // console.log("Cart Data:", cartData);
+
+
+  
   // ✅ Delete item from API
   const deleteItemMutation = useMutation({
     mutationFn: async (resourceId: string) => {
@@ -93,7 +96,7 @@ export function CartSheet() {
 
         {cartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[50vh]">
-            <p className="text-muted-foreground mb-4">Your cart is empty</p>
+            <p className="text-muted-foreground mb-4">Make sure login first & Your cart is empty</p>
             <Button
               onClick={() => setOpen(false)}
               className="bg-[#2c5d7c] hover:bg-[#1e4258]"

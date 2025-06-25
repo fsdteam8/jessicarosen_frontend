@@ -29,7 +29,7 @@
 //   const { data: apiResponse, isLoading, error } = useQuery({
 //     queryKey: ['order-history'],
 //     queryFn: async () => {
-//       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/orders`, {
+//       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
 //         headers: {
 //           "Content-Type": "application/json",
 //           "Authorization": `Bearer ${token}`,
@@ -274,6 +274,7 @@ import { Button } from "@/components/ui/button";
 import { DocumentDetailsModal } from "@/components/account/document-details-modal";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import LegalDoc from "@/components/HomePage/LegalDoc";
 
 type OrderItem = {
   date: string; // e.g., "Jun 12, 2025"
@@ -305,7 +306,7 @@ export default function OrderHistoryPage() {
     queryKey: ["order-history"],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/user/orders`,
+        `${process.env.NEXT_PUBLIC_API_URL}/user/orders`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -336,7 +337,7 @@ export default function OrderHistoryPage() {
 
   console.log("orders", orders);
 
-  console.log("orders", orders)
+  console.log("orders", orders);
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
@@ -348,29 +349,34 @@ export default function OrderHistoryPage() {
     console.log("orderid", orderId);
   };
 
-  const handleDownload = (orderId: string, resourceName: string, price: string) => {
-    console.log("download id ", orderId)
-    
+  const handleDownload = (
+    orderId: string,
+    resourceName: string,
+    price: string
+  ) => {
+    console.log("download id ", orderId);
+
     // Find the specific order item that matches the orderId, resourceName, and price
-    const orderItem = orders.find((order: OrderItem) => 
-      order.orderId === orderId && 
-      order.resourceName === resourceName && 
-      order.price === price
-    )
-    
+    const orderItem = orders.find(
+      (order: OrderItem) =>
+        order.orderId === orderId &&
+        order.resourceName === resourceName &&
+        order.price === price
+    );
+
     if (orderItem && orderItem.file && orderItem.file.url) {
       // Open the file URL in a new tab
-      window.open(orderItem.file.url, '_blank')
-      console.log("Downloading file from:", orderItem.file.url)
+      window.open(orderItem.file.url, "_blank");
+      console.log("Downloading file from:", orderItem.file.url);
     } else {
-      console.error("File URL not found for this order")
+      console.error("File URL not found for this order");
       // You could show a toast notification here if needed
     }
-  }
+  };
 
   const handleCloseModal = () => {
-    setSelectedOrderId(null)
-  }
+    setSelectedOrderId(null);
+  };
 
   // Function to get status styling
   const getStatusStyle = (status: string) => {
@@ -613,6 +619,8 @@ export default function OrderHistoryPage() {
           </div>
         )}
       </div>
+
+      <LegalDoc />
 
       {/* Modal */}
       <DocumentDetailsModal

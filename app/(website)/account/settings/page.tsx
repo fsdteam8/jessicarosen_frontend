@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import LegalDoc from "@/components/HomePage/LegalDoc";
 
 async function updatePassword(
   payload: { oldPassword: string; newPassword: string },
@@ -289,7 +290,8 @@ export default function SettingsPage() {
             {/* Save Button */}
             <div className="flex justify-end">
               <Button
-                className="bg-[#2c5d7c] hover:bg-[#1e4258] disabled:opacity-50"
+              size={"lg"}
+                className="bg-[#2c5d7c] hover:bg-[#1e4258] disabled:opacity-50 px-[61px]  py-4"
                 onClick={handleSave}
                 disabled={mutation.isPending}
               >
@@ -306,6 +308,7 @@ export default function SettingsPage() {
           </div>
         </div>
       </AccountLayout>
+       <LegalDoc />
 
       {/* Loading Overlay */}
       {mutation.isPending && <LoadingOverlay />}
