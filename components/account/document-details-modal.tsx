@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 // import Image from "next/image"
-import { Package, User, Calendar, CreditCard, Truck, X } from "lucide-react";
+import { Package, User, Calendar, CreditCard,  X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 
 interface OrderItem {
   resource: {
     _id: string;
     title: string;
     description: string;
+    thumbnail?: string;
   };
   seller: {
     _id: string;
@@ -125,18 +127,18 @@ export function DocumentDetailsModal({
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return <Package className="h-4 w-4" />;
-      case "processing":
-        return <Truck className="h-4 w-4" />;
-      case "pending":
-        return <Calendar className="h-4 w-4" />;
-      default:
-        return <Package className="h-4 w-4" />;
-    }
-  };
+  // const getStatusIcon = (status: string) => {
+  //   switch (status.toLowerCase()) {
+  //     case "delivered":
+  //       return <Package className="h-4 w-4" />;
+  //     case "processing":
+  //       return <Truck className="h-4 w-4" />;
+  //     case "pending":
+  //       return <Calendar className="h-4 w-4" />;
+  //     default:
+  //       return <Package className="h-4 w-4" />;
+  //   }
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -190,7 +192,7 @@ export function DocumentDetailsModal({
             <div className="p-6 space-y-6">
               {/* Order Summary */}
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
                     <div className="bg-blue-100 p-2 rounded-full">
                       <Calendar className="h-5 w-5 text-blue-600" />
@@ -215,12 +217,12 @@ export function DocumentDetailsModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <div className="bg-purple-100 p-2 rounded-full">
                       {getStatusIcon(orderDetails.orderStatus)}
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Order Status</p>
+                      <p className="text-sm text-gray-600">Order Statusxx</p>
                       <Badge
                         className={`${getStatusColor(
                           orderDetails.orderStatus
@@ -230,7 +232,7 @@ export function DocumentDetailsModal({
                           orderDetails.orderStatus.slice(1)}
                       </Badge>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -274,17 +276,24 @@ export function DocumentDetailsModal({
                       key={index}
                       className="flex gap-4 p-4 bg-gray-50 rounded-lg"
                     >
-                      <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                        <Package className="h-8 w-8 text-blue-600" />
+                      <div className="flex-shrink-0 w-26 h-26 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                        {/* <Package className="h-8 w-8 text-blue-600" /> */}
+                        <Image
+                          src={item.resource?.thumbnail || "/images/no-image.jpg"}
+                          alt={item.resource.title}
+                          width={64}
+                          height={64}
+                          className="rounded-lg"
+                        />
                       </div>
 
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg mb-1">
                           {item.resource.title}
                         </h4>
-                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                        {/* <p className="text-gray-600 text-sm mb-2 line-clamp-2">
                           {item.resource.description}
-                        </p>
+                        </p> */}
 
                         <div className="flex flex-wrap items-center gap-4 text-sm">
                           <div className="flex items-center gap-1">
@@ -306,14 +315,14 @@ export function DocumentDetailsModal({
                         </div>
 
                         <div className="flex items-center justify-between mt-3">
-                          <Badge
+                          {/* <Badge
                             className={`${getStatusColor(
                               item.status
                             )} font-medium`}
                           >
                             {item.status.charAt(0).toUpperCase() +
                               item.status.slice(1)}
-                          </Badge>
+                          </Badge> */}
                           <div className="text-lg font-bold text-blue-600">
                             ${(item.price * item.quantity).toFixed(2)}
                           </div>
