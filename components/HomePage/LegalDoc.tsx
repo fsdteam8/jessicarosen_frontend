@@ -23,7 +23,7 @@ const LegalDoc = () => {
       <section className="py-10 bg-[#4F7695] text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex gap-3">
+            <div className="flex gap-3 items-center">
               <div className="w-[176px] h-[88px]">
                 <Image
                   src={countryName === 'Canada' ? "/images/flage.png" : "/images/flage1.png"}

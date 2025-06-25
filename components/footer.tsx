@@ -7,7 +7,7 @@ export function Footer() {
   return (
     <footer className="bg-white pt-[56px] border-t">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-20 mb-8">
           <div>
             <Link href="/" className="text-3xl font-bold mb-4 block">
               {/* <span className="text-[#2c5d7c]">L</span>
