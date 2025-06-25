@@ -77,8 +77,6 @@ export interface ApiResponse {
   data: Resource[];
 }
 
-
-
 export function ResourceStatus() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -191,10 +189,10 @@ export function ResourceStatus() {
   //   setMessageModalOpen(true)
   // }
 
-  const handleEdit = (resource: Resource) => {
-    setEditingResource(resource);
-    setEditModalOpen(true);
-  };
+  // const handleEdit = (resource: Resource) => {
+  //   setEditingResource(resource);
+  //   setEditModalOpen(true);
+  // };
 
   const handleUpdateResource = (updatedResource: Resource) => {
     // This would typically involve another mutation to update the resource on the backend
@@ -364,15 +362,26 @@ export function ResourceStatus() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center space-x-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(resource)}
-                          className="text-[#424242] hover:text-blue-600"
-                          title="Edit"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
+                        <Link href={`/dashboard/resources/status/${resource?._id}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                          
+                            className="text-[#424242] hover:text-blue-600"
+                            
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          {/* <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(resource)}
+                            className="text-[#424242] hover:text-blue-600"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button> */}
+                        </Link>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button
