@@ -384,7 +384,7 @@ export default function ProductList({
                           </span>
                           <FaStar size={20} color="#FFD700" />
                           <span className="text-base font-medium text-[#616161] leading-[120%] tracking-normal">
-                            ({product?.totalReviews}K)
+                            ({product?.totalReviews})
                           </span>
                         </div>
 
