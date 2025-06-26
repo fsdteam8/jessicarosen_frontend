@@ -1,5 +1,4 @@
 "use client";
-
 import type React from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -141,7 +140,7 @@ export default function EditPage() {
     images: [],
   });
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const session = useSession();
   const API_TOKEN = session?.data?.user?.accessToken
 
@@ -181,7 +180,7 @@ export default function EditPage() {
   } = useQuery<ResourceData>({
     queryKey: ["resource", slug],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/v1/resource/${slug}`, {
+      const response = await fetch(`${API_BASE_URL}/resource/${slug}`, {
         headers: {
           Authorization: `Bearer ${API_TOKEN}`,
           "Content-Type": "application/json",
@@ -200,7 +199,7 @@ export default function EditPage() {
   >({
     queryKey: ["countries-all"],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/api/v1/country-state/all`, {
+      const response = await fetch(`${API_BASE_URL}/country-state/all`, {
         headers: {
           Authorization: `Bearer ${API_TOKEN}`,
           "Content-Type": "application/json",
@@ -219,7 +218,7 @@ export default function EditPage() {
       queryKey: ["practiceAreas-all"],
       queryFn: async () => {
         const response = await fetch(
-          `${API_BASE_URL}/api/v1/practice-area/all`,
+          `${API_BASE_URL}/practice-area/all`,
           {
             headers: {
               Authorization: `Bearer ${API_TOKEN}`,
@@ -240,7 +239,7 @@ export default function EditPage() {
       queryKey: ["resourceTypes-all"],
       queryFn: async () => {
         const response = await fetch(
-          `${API_BASE_URL}/api/v1/resource-type/all`,
+          `${API_BASE_URL}/resource-type/all`,
           {
             headers: {
               Authorization: `Bearer ${API_TOKEN}`,
@@ -358,7 +357,7 @@ export default function EditPage() {
         submitData.append("images", imageFile);
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/v1/resource/${slug}`, {
+      const response = await fetch(`${API_BASE_URL}/resource/${slug}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${API_TOKEN}` },
         body: submitData,
