@@ -56,10 +56,10 @@ const mutation = useMutation({
   onSuccess: (data) => {
     toast.success(data.message || "Item added to cart");
 
-    // ✅ Invalidate 'cart' query to refetch updated cart
+    
     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
-    // Optional: update local UI
+   
     if (product) {
       addItem({
         id: product._id,

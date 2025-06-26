@@ -133,17 +133,6 @@ export default function AllProducts() {
     { label: "Best Sellers (People)", value: "best sellers(people)" },
   ];
 
-  // const filterCategories = [
-  //   { name: "Practice Areas", options: practiceAreas ?? [] },
-  //   { name: "Resource Types", options: resourceTypes ?? [] },
-  //   { name: "Prices", options: prices },
-  //   { name: "format", options: formats },
-  //   { name: "Province", options: provinces ?? [] },
-  //   {
-  //     name: "Sort By",
-  //     options: sortOptions.map((option) => option.label),
-  //   },
-  // ];
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
