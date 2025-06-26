@@ -198,7 +198,7 @@ export default function ProductList({
               // Grid View Layout
 
               <div className="flex flex-col h-full w-full">
-                <div className="w-full">
+                <Link href={`/products/${product._id}`} className="w-full">
                   <Image
                     src={
                       (Array.isArray(product?.thumbnail)
@@ -210,7 +210,7 @@ export default function ProductList({
                     height={240}
                     className="object-cover w-full h-[200px] sm:h-[240px] rounded-[8px]"
                   />
-                </div>
+                </Link>
 
                 <div className="flex-1 flex flex-col justify-between p-4">
                   <div className="space-y-3">
