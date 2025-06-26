@@ -187,49 +187,53 @@ export default function ProductDetails() {
     <div className="container mx-auto p-6 space-y-12">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="gap-4 flex">
-            <div className="w-[328px] h-[328px] relative">
-              <Image
-                src={
-                  typeof images[selectedImageIndex] === "string"
-                    ? images[selectedImageIndex]
-                    : "/placeholder.svg"
-                }
-                alt={product?.title || "Product image"}
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {images.slice(1, 5).map((image, index) => (
-                <div
-                  key={index + 1}
-                  className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
-                    selectedImageIndex === index + 1
-                      ? "ring-2 ring-blue-500 ring-offset-2"
-                      : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-                  }`}
-                  onClick={() => setSelectedImageIndex(index + 1)}
-                >
-                  <Image
-                    src={
-                      typeof image === "string" ? image : "/images/no-image.jpg"
-                    }
-                    alt={product?.title || "Product image"}
-                    fill
-                    className="object-cover"
-                  />
-                  <div
-                    className={`absolute inset-0 transition-opacity duration-200 ${
-                      selectedImageIndex === index + 1
-                        ? "bg-blue-500/10"
-                        : "hover:bg-black/5"
-                    }`}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+     
+     
+       <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+  {/* Main Image */}
+  <div className="w-full md:w-[728px] aspect-square relative">
+    <Image
+      src={
+        typeof images[selectedImageIndex] === "string"
+          ? images[selectedImageIndex]
+          : "/placeholder.svg"
+      }
+      alt={product?.title || "Product image"}
+      fill
+      className="object-cover rounded-lg"
+    />
+  </div>
+
+  {/* Thumbnail Grid */}
+  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-3 w-full">
+    {images.slice(1, 5).map((image, index) => (
+      <div
+        key={index + 1}
+        className={`aspect-square relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
+          selectedImageIndex === index + 1
+            ? "ring-2 ring-blue-500 ring-offset-2"
+            : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+        }`}
+        onClick={() => setSelectedImageIndex(index + 1)}
+      >
+        <Image
+          src={typeof image === "string" ? image : "/images/no-image.jpg"}
+          alt={product?.title || "Product image"}
+          fill
+          className="object-cover"
+        />
+        <div
+          className={`absolute inset-0 transition-opacity duration-200 ${
+            selectedImageIndex === index + 1
+              ? "bg-blue-500/10"
+              : "hover:bg-black/5"
+          }`}
+        />
+      </div>
+    ))}
+  </div>
+</div>
+
 
           {/* <div className="flex items-center gap-2 pt-4">
             <span className="text-base font-medium text-[#616161]">Share:</span>
