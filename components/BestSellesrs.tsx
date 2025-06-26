@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function BestSellesrs() {
   return (
-    <section className="w-full bg-[#EACB93] py-8 md:py-12 lg:py-20 px-4 ">
+    <section className="w-full bg-[#EACB93] py-12 md:py-12 lg:py-20 px-4 ">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Content Section */}
@@ -30,7 +30,7 @@ export default function BestSellesrs() {
 
           {/* Images Section */}
           <div className="relative order-1 lg:order-2 ">
-            <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-4 sm:gap-6 lg:gap-4 xl:gap-6 justify-center lg:justify-end">
+            <div className="flex  gap-4 sm:gap-6 lg:gap-4 xl:gap-6 justify-center lg:justify-end">
               {/* Woman Professional Image */}
               <div className="relative group -mt-6 sm:-mt-8 lg:-mt-12">
                 <div className="relative w-full max-w-[188px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[240px] xl:max-w-[188px] mx-auto sm:mx-0">
