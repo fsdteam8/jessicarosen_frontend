@@ -23,6 +23,92 @@ import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 
+// Skeleton Components
+const CartItemSkeleton = () => (
+  <tr className="border-b animate-pulse">
+    <td className="py-4 px-6">
+      <div className="flex items-center">
+        <div className="h-16 w-16 bg-gray-200 rounded mr-4 flex-shrink-0" />
+        <div>
+          <div className="h-4 bg-gray-200 rounded w-32 mb-2" />
+          <div className="h-3 bg-gray-200 rounded w-20" />
+        </div>
+      </div>
+    </td>
+    <td className="py-4 px-6">
+      <div className="flex items-center">
+        <div className="h-8 w-8 bg-gray-200 rounded-l-md" />
+        <div className="h-8 w-16 bg-gray-200" />
+        <div className="h-8 w-8 bg-gray-200 rounded-r-md" />
+      </div>
+    </td>
+    <td className="py-4 px-6">
+      <div className="h-4 bg-gray-200 rounded w-16" />
+    </td>
+    <td className="py-4 px-6">
+      <div className="h-4 bg-gray-200 rounded w-16" />
+    </td>
+    <td className="py-4 px-6">
+      <div className="h-8 w-8 bg-gray-200 rounded" />
+    </td>
+  </tr>
+);
+
+const CartSummarySkeleton = () => (
+  <div className="md:w-1/3 p-6 rounded-lg animate-pulse">
+    <div className="h-6 bg-gray-200 rounded w-32 mb-4" />
+    <div className="space-y-2 mb-8">
+      <div className="flex justify-between">
+        <div className="h-4 bg-gray-200 rounded w-24" />
+        <div className="h-4 bg-gray-200 rounded w-16" />
+      </div>
+      <div className="flex justify-between">
+        <div className="h-4 bg-gray-200 rounded w-16" />
+        <div className="h-4 bg-gray-200 rounded w-16" />
+      </div>
+      <div className="pt-2 border-t flex justify-between">
+        <div className="h-4 bg-gray-200 rounded w-12" />
+        <div className="h-4 bg-gray-200 rounded w-20" />
+      </div>
+    </div>
+    <div className="h-10 bg-gray-200 rounded w-[220px]" />
+  </div>
+);
+
+const CartTableSkeleton = () => (
+  <div className="overflow-x-auto">
+    {/* Header Skeleton */}
+    <div className="flex justify-between items-center mb-6 animate-pulse">
+      <div className="h-8 bg-gray-200 rounded w-48" />
+      <div className="h-10 bg-gray-200 rounded w-24" />
+    </div>
+    
+    <table className="w-full">
+      <thead className="text-left border-b-2 border-b-gray-500">
+        <tr>
+          <th className="py-4 px-6 text-xl font-semibold">Products</th>
+          <th className="py-4 px-6 text-xl font-semibold">Quantity</th>
+          <th className="py-4 px-6 text-xl font-semibold">Price</th>
+          <th className="py-4 px-6 text-xl font-semibold">Total</th>
+          <th className="py-4 px-6 text-xl font-semibold">Remove</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y">
+        {[...Array(3)].map((_, index) => (
+          <CartItemSkeleton key={index} />
+        ))}
+      </tbody>
+    </table>
+    
+    <div className="mt-8 flex flex-col md:flex-row gap-8">
+      <div className="md:w-2/3 animate-pulse">
+        <div className="h-12 bg-gray-200 rounded w-[220px]" />
+      </div>
+      <CartSummarySkeleton />
+    </div>
+  </div>
+);
+
 export default function CartPageAPI() {
   const { status } = useSession();
   const { isLoading, error } = useCart();
@@ -33,7 +119,7 @@ export default function CartPageAPI() {
 
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
-  // console.log(session, cartData);
+  console.log(items, "cartData");
 
   const handleQuantityChange = async (
     itemId: string,
@@ -116,15 +202,13 @@ export default function CartPageAPI() {
     );
   }
 
+  // Show skeleton while loading
   if (isLoading) {
     return (
       <div className="flex flex-col">
         <main className="flex-1">
           <div className="container mx-auto px-4 py-12">
-            <div className="text-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-              <p>Loading your cart...</p>
-            </div>
+            <CartTableSkeleton />
           </div>
         </main>
       </div>
@@ -215,7 +299,7 @@ export default function CartPageAPI() {
                   </thead>
                   <tbody className="divide-y">
                     {items.map((item) => {
-                      const isUpdating = updatingItems.has(item._id);
+                      const isUpdating = updatingItems.has(item.resource._id);
                       const itemPrice =
                         item.resource.discountPrice || item.resource.price;
                       const itemTotal = itemPrice * item.quantity;
@@ -224,37 +308,50 @@ export default function CartPageAPI() {
                       return (
                         <tr
                           key={item._id}
-                          className={`border-b ${
+                          className={`border-b transition-opacity duration-200 ${
                             isUpdating ? "opacity-50" : ""
                           }`}
                         >
                           <td className="py-4 px-6">
                             <div className="flex items-center">
                               <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0 mr-4">
-                                <Image
-                                  src={
-                                    item.resource.thumbnail ||
-                                    "/placeholder.svg?height=64&width=64"
-                                  }
-                                  alt={item.resource.title || "Product Image"}
-                                  fill
-                                  className="object-cover"
-                                />
+                                {isUpdating ? (
+                                  <div className="h-16 w-16 bg-gray-200 animate-pulse rounded" />
+                                ) : (
+                                  <Image
+                                    src={
+                                      item.resource.thumbnail ||
+                                      "/images/not-imge.png"
+                                    }
+                                    alt={item.resource.title || "Product Image"}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                )}
                               </div>
                               <div>
-                                <h4 className="font-medium">
-                                  {item.resource.title}
-                                </h4>
-                                <div className="text-sm text-gray-500">
-                                  Format: {item.resource.format}
-                                </div>
+                                {isUpdating ? (
+                                  <>
+                                    <div className="h-4 bg-gray-200 rounded w-32 mb-2 animate-pulse" />
+                                    <div className="h-3 bg-gray-200 rounded w-20 animate-pulse" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <h4 className="font-medium">
+                                      {item.resource.title}
+                                    </h4>
+                                    <div className="text-sm text-gray-500">
+                                      Format: {item.resource.format}
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </td>
                           <td className="py-4 px-6">
                             <div className="flex items-center">
                               <button
-                                className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                                className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 transition-colors"
                                 onClick={() => {
                                   const newQuantity = Math.max(
                                     1,
@@ -265,44 +362,52 @@ export default function CartPageAPI() {
                                     newQuantity
                                   );
                                 }}
-                                // disabled={isUpdating || item.quantity <= 1}
+                                disabled={isUpdating}
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
                               <div className="h-8 w-16 text-center border-y border-x-0 flex items-center justify-center">
                                 {isUpdating ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                  <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
                                 ) : (
-                                  item.quantity
+                                  item.quantity || 0
                                 )}
                               </div>
                               <button
-                                className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
+                                className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 transition-colors"
                                 onClick={() => {
                                   const newQuantity = item.quantity + 1;
                                   handleQuantityChange(
                                     item.resource._id,
                                     newQuantity
-                                  ); // <-- FIXED: use item._id
+                                  );
                                 }}
-                                // disabled={isUpdating}
+                                disabled={isUpdating}
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
                             </div>
                           </td>
                           <td className="py-4 px-6 font-medium">
-                            <div>
-                              ${formatPrice(itemPrice)}
-                              {item.resource.discountPrice && (
-                                <span className="line-through text-gray-500 ml-2 text-sm">
-                                  ${formatPrice(item.resource.price)}
-                                </span>
-                              )}
-                            </div>
+                            {isUpdating ? (
+                              <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                            ) : (
+                              <div>
+                                ${formatPrice(itemPrice)}
+                                {item.resource.discountPrice && (
+                                  <span className="line-through text-gray-500 ml-2 text-sm">
+                                    ${formatPrice(item.resource.price)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
                           <td className="py-4 px-6 font-medium">
-                            ${formatPrice(itemTotal)}
+                            {isUpdating ? (
+                              <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                            ) : (
+                              `$${formatPrice(itemTotal)}`
+                            )}
                           </td>
                           <td className="py-4 px-6">
                             <Button
@@ -310,8 +415,8 @@ export default function CartPageAPI() {
                               size="icon"
                               onClick={() =>
                                 handleRemoveItem(item.resource._id)
-                              } // <-- FIXED: use item._id
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              }
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
                               disabled={isUpdating}
                             >
                               {isUpdating ? (
@@ -333,7 +438,7 @@ export default function CartPageAPI() {
                   <Button
                     asChild
                     variant="outline"
-                    className="mr-4 bg-[#23547B] text-base leading-[120%] font-bold text-white w-[220px] h-[48px]"
+                    className="mr-4 bg-[#23547B] text-base leading-[120%] font-bold text-white w-[220px] h-[48px] hover:bg-[#1e4258] transition-colors"
                   >
                     <Link href="/products">Continue Shopping</Link>
                   </Button>
@@ -366,7 +471,7 @@ export default function CartPageAPI() {
 
                   <Button
                     asChild
-                    className="bg-[#2c5d7c] text-base font-bold leading-[120%] hover:bg-[#1e4258] w-[220px] h-[40px]"
+                    className="bg-[#2c5d7c] text-base font-bold leading-[120%] hover:bg-[#1e4258] w-[220px] h-[40px] transition-colors"
                     disabled={items.length === 0}
                   >
                     <Link href="/checkout">Checkout</Link>
