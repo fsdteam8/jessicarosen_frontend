@@ -326,9 +326,51 @@ export function useUpdateCartItem() {
     },
   });
 }
+
+// export function useRemoveFromCart() {
+//   const queryClient = useQueryClient();
+
+//   const { data: session, status } = useSession();
+//   const token = session?.user?.accessToken || null;
+
+//   return useMutation({
+//     mutationFn: (itemId: string) => {
+//       if (status === "unauthenticated" || !token) {
+//         throw new Error("Please login to remove items from cart");
+//       }
+//       return removeFromCart(itemId, token);
+//     },
+//     onSuccess: (data) => {
+//       // Update the cart cache
+//       queryClient.setQueryData(["cart"], data);
+
+//       toast({
+//         title: "Item removed",
+//         description: "The item has been removed from your cart.",
+//       });
+//     },
+//     onError: (error: Error) => {
+//       if (error.message.includes("Unauthorized")) {
+//         toast({
+//           title: "Authentication Required",
+//           description: "Please login to manage cart",
+//           variant: "destructive",
+//         });
+//       } else {
+//         toast({
+//           title: "Error",
+//           description: error.message || "Failed to remove item from cart",
+//           variant: "destructive",
+//         });
+//       }
+//     },
+//   });
+// }
+
+
+
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
-
   const { data: session, status } = useSession();
   const token = session?.user?.accessToken || null;
 
@@ -339,16 +381,55 @@ export function useRemoveFromCart() {
       }
       return removeFromCart(itemId, token);
     },
-    onSuccess: (data) => {
-      // Update the cart cache
-      queryClient.setQueryData(["cart"], data);
-
-      toast({
-        title: "Item removed",
-        description: "The item has been removed from your cart.",
+    // Add optimistic update
+    onMutate: async (itemId: string) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["cart"] });
+      
+      // Snapshot the previous value
+      const previousCart = queryClient.getQueryData(["cart"]);
+      
+      // Optimistically update the cache
+      queryClient.setQueryData(["cart"], (old: CartResponse | undefined) => {
+        if (!old?.data?.items) return old;
+        
+        const filteredItems = old.data.items.filter((item) => item._id !== itemId);
+        
+        // Recalculate totals
+        const subtotal = filteredItems.reduce((sum, item) => {
+          const price = item.resource.discountPrice || item.resource.price;
+          return sum + price * item.quantity;
+        }, 0);
+        
+        const itemCount = filteredItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            items: filteredItems,
+            subtotal,
+            itemCount,
+            total: subtotal,
+          },
+          subtotal,
+          itemCount,
+          total: subtotal,
+        };
       });
+      
+      // Return a context object with the snapshotted value
+      return { previousCart };
     },
-    onError: (error: Error) => {
+    onError: (error, itemId, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousCart) {
+        queryClient.setQueryData(["cart"], context.previousCart);
+      }
+      
       if (error.message.includes("Unauthorized")) {
         toast({
           title: "Authentication Required",
@@ -362,6 +443,22 @@ export function useRemoveFromCart() {
           variant: "destructive",
         });
       }
+    },
+    onSuccess: (data) => {
+      // Update with server response
+      queryClient.setQueryData(["cart"], data);
+      
+      // Also invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      
+      toast({
+        title: "Item removed",
+        description: "The item has been removed from your cart.",
+      });
+    },
+    // Always refetch after error or success to ensure consistency
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 }
