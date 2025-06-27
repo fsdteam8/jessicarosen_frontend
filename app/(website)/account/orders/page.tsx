@@ -189,8 +189,8 @@ export default function OrderHistoryPage() {
   return (
     <div>
       <AccountLayout activeTab="orders">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border-2 border-[#23547B] p-4 sm:p-6 md:p-8">
-          <div className="overflow-x-auto border-2 border-[#23547B] rounded-lg">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden lg:border-2 border-[#23547B] p-4 sm:p-6 md:p-8">
+          <div className="overflow-x-auto lg:border-2 border-[#23547B] border-t">
             <table className="w-full min-w-[640px]">
               <thead className="bg-gray-50 border-b border-black">
                 <tr>
@@ -356,8 +356,6 @@ export default function OrderHistoryPage() {
           )}
         </div>
 
-      
-
         {/* Modal */}
         <DocumentDetailsModal
           isOpen={!!selectedOrderId}
@@ -365,9 +363,9 @@ export default function OrderHistoryPage() {
           orderId={selectedOrderId}
         />
       </AccountLayout>
-        <div className="my-10">
-          <LegalDoc />
-        </div>
+      <div className="my-10">
+        <LegalDoc />
+      </div>
     </div>
   );
 }
