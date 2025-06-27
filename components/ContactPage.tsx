@@ -15,7 +15,6 @@ import {
   MapPin,
   Clock,
   type LucideIcon,
-  MessageSquare,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -134,13 +133,13 @@ const ContactPage = () => {
                 discover convenience, quality, and style all in one place.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-[#4F7695] hover:bg-blue-700 text-white px-8 py-3 text-base font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
                 >
                   <MessageSquare className="w-5 h-5" />
                   Send A Message
-                </Button>
+                </Button> */}
 
                 <Button
                   size="lg"

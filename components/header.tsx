@@ -73,21 +73,21 @@ export function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const {  setOpen } = useCart();
+  const { setOpen } = useCart();
   // const { isAuthenticated, logout } = useAuth();
   const { items } = useWishlist();
   const dispatch = useAppDispatch();
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const { data: practiceAreasData, isLoading: practiceAreasLoading } =
     usePracticeAreas();
-const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
   };
 
   const session = useSession();
   const user = session?.data?.user;
-   const token = session?.data?.user?.accessToken;
+  const token = session?.data?.user?.accessToken;
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
     setIsMounted(true);
@@ -155,35 +155,32 @@ const [isSheetOpen, setIsSheetOpen] = useState(false);
       (promo: PromoCode) => promo.special && promo.active
     ) || [];
 
+  // Fetch cart data using react-query
+  const { data: cartResponse } = useQuery({
+    queryKey: ["cart", token],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch cart");
+      return res.json();
+    },
+    enabled: !!token,
+  });
 
+  // Calculate total cart item quantity
+  const totalCartItems = cartResponse?.data?.items?.reduce(
+    (total: number, item: { quantity: number }) => total + item.quantity,
+    0
+  );
 
-// Fetch cart data using react-query
-    const { data: cartResponse } = useQuery({
-  queryKey: ["cart", token],
-  queryFn: async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!res.ok) throw new Error("Failed to fetch cart");
-    return res.json();
-  },
-  enabled: !!token,
-});
-
-// Calculate total cart item quantity
-const totalCartItems = cartResponse?.data?.items?.reduce(
-  (total: number, item: { quantity: number }) => total + item.quantity,
-  0
-);
-
-// useEffect(() => {
-//   if (cartResponse?.data?.items) {
-//     console.log("Header Cart Items:", cartResponse.data.items);
-//   }
-// }, [cartResponse]);
-
+  // useEffect(() => {
+  //   if (cartResponse?.data?.items) {
+  //     console.log("Header Cart Items:", cartResponse.data.items);
+  //   }
+  // }, [cartResponse]);
 
   return (
     <>
@@ -392,147 +389,180 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
               )}
 
               {/* Mobile Menu */}
-<Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-  <SheetTrigger asChild>
-    <button className="md:hidden">
-      <Menu className="text-2xl" />
-    </button>
-  </SheetTrigger>
-  <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-    <nav className="flex flex-col gap-4 mt-8">
-      <Link
-        href="/"
-        onClick={() => setIsSheetOpen(false)}
-        className={`text-lg font-medium ${
-          pathname === "/" ? "text-[#23547B]" : "hover:text-[#23547B]"}`
-        }
-      >
-        Home
-      </Link>
-      <Link
-        href="/products"
-        onClick={() => setIsSheetOpen(false)}
-        className={`text-lg font-medium ${
-          pathname === "/products" ? "text-[#23547B]" : "hover:text-[#23547B]"}`
-        }
-      >
-        All Resources
-      </Link>
-      <Link
-        href="/blog"
-        onClick={() => setIsSheetOpen(false)}
-        className={`text-lg font-medium ${
-          pathname === "/blog" ? "text-[#23547B]" : "hover:text-[#23547B]"}`
-        }
-      >
-        Blog
-      </Link>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <button className="md:hidden">
+                    <Menu className="text-2xl" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                  <nav className="flex flex-col gap-4 mt-8">
+                    <Link
+                      href="/"
+                      onClick={() => setIsSheetOpen(false)}
+                      className={`text-lg font-medium ${
+                        pathname === "/"
+                          ? "text-[#23547B]"
+                          : "hover:text-[#23547B]"
+                      }`}
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/products"
+                      onClick={() => setIsSheetOpen(false)}
+                      className={`text-lg font-medium ${
+                        pathname === "/products"
+                          ? "text-[#23547B]"
+                          : "hover:text-[#23547B]"
+                      }`}
+                    >
+                      All Resources
+                    </Link>
+                    <Link
+                      href="/blog"
+                      onClick={() => setIsSheetOpen(false)}
+                      className={`text-lg font-medium ${
+                        pathname === "/blog"
+                          ? "text-[#23547B]"
+                          : "hover:text-[#23547B]"
+                      }`}
+                    >
+                      Blog
+                    </Link>
 
-      {/* Practice Areas */}
-      <div className="border-t pt-4 mt-4">
-        <h3 className="text-base font-semibold text-gray-500 mb-3">
-          Practice Areas
-        </h3>
-        <div className="h-[250px] w-full overflow-y-scroll">
-          {practiceAreasLoading ? (
-            <div className="space-y-2">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {practiceAreasData?.data?.map((area) => (
-                <button
-                  key={area._id}
-                  onClick={() => {
-                    handlePracticeAreaClick(area._id, area.name);
-                    setIsSheetOpen(false);
-                  }}
-                  className="w-full text-left text-base font-medium hover:text-[#23547B] py-1"
-                >
-                  {area.name}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+                    {/* Practice Areas */}
+                    <div className="border-t pt-4 mt-4">
+                      <h3 className="text-base font-semibold text-gray-500 mb-3">
+                        Practice Areas
+                      </h3>
+                      <div className="h-[250px] w-full overflow-y-scroll">
+                        {practiceAreasLoading ? (
+                          <div className="space-y-2">
+                            {[...Array(3)].map((_, i) => (
+                              <div
+                                key={i}
+                                className="h-8 bg-gray-200 rounded animate-pulse"
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {practiceAreasData?.data?.map((area) => (
+                              <button
+                                key={area._id}
+                                onClick={() => {
+                                  handlePracticeAreaClick(area._id, area.name);
+                                  setIsSheetOpen(false);
+                                }}
+                                className="w-full text-left text-base font-medium hover:text-[#23547B] py-1"
+                              >
+                                {area.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-      {/* Mobile Auth/Profile Section */}
-      {user ? (
-        <div className="border-t pt-4 mt-4">
-          <Link
-            href="/account/profile"
-            onClick={() => setIsSheetOpen(false)}
-            className="flex items-center gap-2 text-base font-medium text-[#131313] hover:text-[#23547B]"
-          >
-            <UserRound className="h-5 w-5" />
-            My Profile
-          </Link>
-          <button
-            onClick={() => {
-              signOut();
-              setIsSheetOpen(false);
-            }}
-            className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
-          >
-            Logout
-          </button>
-        </div>
-      ) : (
-        <Link
-          href="/sign-in"
-          onClick={() => setIsSheetOpen(false)}
-          className="bg-[#23547B] hover:bg-blue-700 text-white text-center px-6 py-2 mt-4 rounded-md"
-        >
-          Login
-        </Link>
-      )}
+                    {/* Mobile Auth/Profile Section */}
+                    {user ? (
+                      <div className="border-t pt-4 mt-4">
+                        <Link
+                          href="/account/profile"
+                          onClick={() => setIsSheetOpen(false)}
+                          className="flex items-center gap-2 text-base font-medium text-[#131313] hover:text-[#23547B]"
+                        >
+                          <UserRound className="h-5 w-5" />
+                          My Profile
+                        </Link>
+                        <button
+                          onClick={() => {
+                            signOut();
+                            setIsSheetOpen(false);
+                          }}
+                          className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
+                        >
+                          Logout
+                        </button>
+                      </div>
+                    ) : (
+                      <Link
+                        href="/sign-in"
+                        onClick={() => setIsSheetOpen(false)}
+                        className="bg-[#23547B] hover:bg-blue-700 text-white text-center px-6 py-2 mt-4 rounded-md"
+                      >
+                        Login
+                      </Link>
+                    )}
 
-      {/* Region Switcher Mobile */}
-      <div className="block lg:hidden space-y-2 mt-6 border-t pt-4">
-        <Button
-          variant="outline"
-          onClick={() => {
-            handleRegionChange("canada");
-            setIsSheetOpen(false);
-          }}
-          className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-            currentRegion === "canada"
-              ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-              : "bg-transparent text-[#23547b] border-[#23547b] hover:bg-[#23547b]/10"
-          }`}
-        >
-          <span className="w-[32px] h-[20px] relative">
-            <Image src="/images/flage.png" alt="Canada Flag" fill className="object-contain" />
-          </span>
-          <span>Lawbie Canada</span>
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            handleRegionChange("us");
-            setIsSheetOpen(false);
-          }}
-          className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-            currentRegion === "us"
-              ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-              : "bg-[#23547b] text-white border-[2px] border-white hover:bg-[#112a3f]"
-          }`}
-        >
-          <span className="w-[32px] h-[20px] relative">
-            <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
-          </span>
-          <span className="text-white">Lawbie US</span>
-        </Button>
-      </div>
-    </nav>
-  </SheetContent>
-</Sheet>
+                    {/* Region Switcher Mobile */}
+                    <div className="block lg:hidden space-y-2 mt-6 border-t pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          handleRegionChange("canada");
+                          setIsSheetOpen(false);
+                        }}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          currentRegion === "canada"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                        }`}
+                      >
+                        <span className="w-[32px] h-[20px] relative">
+                          <Image
+                            src="/images/flage.png"
+                            alt="Canada Flag"
+                            fill
+                            className="object-contain"
+                          />
+                        </span>
+                        <span
+                          className={`${
+                            currentRegion === "canada"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
+                          Lawbie Canada
+                        </span>
+                      </Button>
 
-
-              
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          handleRegionChange("us");
+                          setIsSheetOpen(false);
+                        }}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          currentRegion === "us"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                        }`}
+                      >
+                        <span className="w-[32px] h-[20px] relative">
+                          <Image
+                            src="/images/flage1.png"
+                            alt="US Flag"
+                            fill
+                            className="object-contain"
+                          />
+                        </span>
+                        <span
+                          className={`${
+                            currentRegion === "us"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
+                          Lawbie US
+                        </span>
+                      </Button>
+                    </div>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
