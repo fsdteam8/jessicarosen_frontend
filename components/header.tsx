@@ -171,10 +171,10 @@ export function Header() {
   });
 
   // Calculate total cart item quantity
-  const totalCartItems = cartResponse?.data?.items?.reduce(
-    (total: number, item: { quantity: number }) => total + item.quantity,
-    0
-  );
+  // const totalCartItems = cartResponse?.data?.items?.reduce(
+  //   (total: number, item: { quantity: number }) => total + item.quantity,
+  //   0
+  // );
 
   // useEffect(() => {
   //   if (cartResponse?.data?.items) {
@@ -341,7 +341,8 @@ export function Header() {
                 {isMounted && (
                   <Badge className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
                     {/* {itemCount} */}
-                    {totalCartItems || 0}
+                    {/* {cartResponse.length || 0} */}
+                    {cartResponse?.data?.items?.length || 0}
                   </Badge>
                 )}
               </button>
