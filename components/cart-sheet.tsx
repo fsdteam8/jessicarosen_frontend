@@ -166,12 +166,20 @@ export function CartSheet() {
 
             <div className="mt-6 space-y-2">
               <Button
+                onClick={() => {
+    setOpen(false);      // Close the cart sheet
+  }}
                 asChild
                 className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]"
               >
                 <Link href="/checkout">Checkout</Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
+              <Button 
+              
+                              onClick={() => {
+    setOpen(false);      // Close the cart sheet
+  }}
+              asChild variant="outline" className="w-full">
                 <Link href="/cart">View Cart</Link>
               </Button>
             </div>
