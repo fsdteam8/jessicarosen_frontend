@@ -17,7 +17,7 @@ import {
   useUpdateCartItem,
   useRemoveFromCart,
   useCartTotals,
-  useClearCart,
+  // useClearCart,
 } from "@/hooks/use-cart-api";
 import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
@@ -28,7 +28,7 @@ export default function CartPageAPI() {
   const { isLoading, error } = useCart();
   const updateCartMutation = useUpdateCartItem();
   const removeCartMutation = useRemoveFromCart();
-  const clearCartMutation = useClearCart();
+  // const clearCartMutation = useClearCart();
   const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
 
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
@@ -83,11 +83,11 @@ export default function CartPageAPI() {
     }
   };
 
-  const handleClearCart = async () => {
-    if (window.confirm("Are you sure you want to clear your cart?")) {
-      await clearCartMutation.mutateAsync();
-    }
-  };
+  // const handleClearCart = async () => {
+  //   if (window.confirm("Are you sure you want to clear your cart?")) {
+  //     await clearCartMutation.mutateAsync();
+  //   }
+  // };
 
   // Show login prompt if not authenticated
   if (status === "unauthenticated") {
@@ -183,7 +183,7 @@ export default function CartPageAPI() {
                 <h1 className="text-2xl font-bold">
                   Shopping Cart ({itemCount} items)
                 </h1>
-                <Button
+                {/* <Button
                   variant="outline"
                   onClick={handleClearCart}
                   disabled={clearCartMutation.isPending}
@@ -193,7 +193,7 @@ export default function CartPageAPI() {
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
                   Clear Cart
-                </Button>
+                </Button> */}
               </div>
 
               <div className="overflow-x-auto">
