@@ -117,7 +117,7 @@ export default function OrderHistoryPage() {
       case "delivered":
         return "bg-[#016102] text-white";
       case "processing":
-        return "bg-[#ff9900] text-white";
+        return "bg-[#016102] text-white";
       case "pending":
         return "bg-[#ff9900] text-white";
       case "cancelled":
@@ -222,13 +222,23 @@ export default function OrderHistoryPage() {
                       {order.date}
                     </td>
                     <td className="py-3 px-4 text-center border-r last:border-r-0 border-r-black">
-                      <span
+                 
+                      {/* <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
                           order.status
                         )}`}
                       >
                         {formatStatus(order.status)}
-                      </span>
+                      </span> */}
+                     <span
+  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(
+    order.status
+  )}`}
+>
+  {order.status === 'processing' ? 'Paid' : formatStatus(order.status)}
+</span>
+
+
                     </td>
                     <td className="py-3 px-4 text-center border-r last:border-r-0 border-r-black">
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
