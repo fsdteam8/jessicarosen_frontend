@@ -24,7 +24,7 @@ export default function WishlistPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
 
   const totalPages = Math.ceil(items.length / itemsPerPage);
   const paginatedItems = items.slice(
@@ -120,7 +120,7 @@ export default function WishlistPage() {
 
                     <div className="w-full sm:w-32 h-32 relative rounded-lg overflow-hidden bg-gray-100 mx-auto sm:mx-0">
                       <Image
-                        src={item.image || "/images/no-image.jpg"}
+                        src={item.image || "/images/not-imge.png"}
                         alt={item.title}
                         fill
                         className="object-cover"
@@ -133,7 +133,7 @@ export default function WishlistPage() {
                           <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
                             {item.title}
                           </h3>
-                          <div className="flex items-center gap-2 mb-3">
+                          {/* <div className="flex items-center gap-2 mb-3">
                             <div className="w-6 h-6 rounded-full bg-gray-300 overflow-hidden">
                               <Image
                                 src="/placeholder.svg?height=24&width=24"
@@ -146,7 +146,7 @@ export default function WishlistPage() {
                             <span className="text-sm text-gray-600 truncate">
                               Cameron Williamson
                             </span>
-                          </div>
+                          </div> */}
                         </div>
 
                         <div className="text-right mt-2 sm:mt-0">
@@ -206,39 +206,44 @@ export default function WishlistPage() {
 
               {/* Pagination Controls */}
               <div className="flex items-center justify-center gap-4 mt-12 flex-wrap">
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
+  {/* Previous Button */}
+  <button
+    onClick={() => handlePageChange(currentPage - 1)}
+    disabled={currentPage === 1}
+    className="w-10 h-10 rounded-full border border-[#23547B] text-[#23547B] flex items-center justify-center hover:bg-[#23547B] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <ChevronLeft className="h-4 w-4" />
+  </button>
 
-                {[...Array(totalPages)].map((_, i) => {
-                  const page = i + 1;
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-10 h-10 rounded-full ${
-                        page === currentPage
-                          ? "bg-blue-600 text-white"
-                          : "border border-gray-300 hover:bg-gray-50"
-                      } flex items-center justify-center text-sm font-medium`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
+  {/* Page Numbers */}
+  {[...Array(totalPages)].map((_, i) => {
+    const page = i + 1;
+    const isActive = page === currentPage;
+    return (
+      <button
+        key={page}
+        onClick={() => handlePageChange(page)}
+        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition
+          ${isActive
+            ? "bg-[#23547B] text-white"
+            : "border border-gray-300 text-gray-700 hover:bg-[#e6f0fa] hover:border-[#23547B] hover:text-[#23547B]"
+          }`}
+      >
+        {page}
+      </button>
+    );
+  })}
 
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 disabled:opacity-50"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
+  {/* Next Button */}
+  <button
+    onClick={() => handlePageChange(currentPage + 1)}
+    disabled={currentPage === totalPages}
+    className="w-10 h-10 rounded-full border border-[#23547B] text-[#23547B] flex items-center justify-center hover:bg-[#23547B] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <ChevronRight className="h-4 w-4" />
+  </button>
+</div>
+
 
               <div className="mt-10 flex justify-center">
                 <Button

@@ -162,18 +162,9 @@ export default function AllProducts() {
       <main className="flex-1 container mx-auto px-4 lg:mt-[100px]">
         <div className="flex justify-between items-center mb-2">
           <div>
-            <div className="text-sm text-gray-500 mb-2">
-              {/* <div>
-                {selectedArea ? (
-                  <p>
-                    Showing content for: <strong>{selectedArea.name}</strong>
-                  </p>
-                ) : (
-                  <p>Please select a practice area.</p>
-                )}
-              </div> */}
+            {/* <div className="text-sm text-gray-500 mb-2">
               {allProductData?.data?.length}+ Results
-            </div>
+            </div> */}
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
               Resources
             </h1>

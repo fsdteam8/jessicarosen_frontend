@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Search,
@@ -74,6 +74,9 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { setOpen } = useCart();
+  const searchParams = useSearchParams();
+  const activePracticeAreaId = searchParams.get("practiceArea");
+
   // const { isAuthenticated, logout } = useAuth();
   const { items } = useWishlist();
   const dispatch = useAppDispatch();
@@ -169,18 +172,6 @@ export function Header() {
     },
     enabled: !!token,
   });
-
-  // Calculate total cart item quantity
-  // const totalCartItems = cartResponse?.data?.items?.reduce(
-  //   (total: number, item: { quantity: number }) => total + item.quantity,
-  //   0
-  // );
-
-  // useEffect(() => {
-  //   if (cartResponse?.data?.items) {
-  //     console.log("Header Cart Items:", cartResponse.data.items);
-  //   }
-  // }, [cartResponse]);
 
   return (
     <>
@@ -383,7 +374,7 @@ export function Header() {
               ) : (
                 <Link
                   href="/sign-in"
-                  className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-2 rounded-md hidden sm:flex"
+                  className="bg-[#23547B] hover:bg-[#174468] text-white px-6 py-2 rounded-md hidden sm:flex"
                 >
                   Login
                 </Link>
@@ -599,8 +590,8 @@ export function Header() {
                 href="/"
                 className={`font-medium transition-colors ${
                   pathname === "/"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 Home
@@ -609,8 +600,8 @@ export function Header() {
                 href="/products"
                 className={`font-medium transition-colors ${
                   pathname === "/products"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 All Resources
@@ -619,8 +610,8 @@ export function Header() {
                 href="/blog"
                 className={`font-medium transition-colors ${
                   pathname === "/blog"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 Blog
@@ -638,18 +629,29 @@ export function Header() {
                 </div>
               ) : (
                 <>
-                  {visiblePracticeAreas.map((area) => (
-                    <button
-                      key={area._id}
-                      onClick={() =>
-                        handlePracticeAreaClick(area._id, area.name)
-                      }
-                      className="font-medium transition-colors text-[#131313] hover:text-[#23547B] truncate max-w-[150px]"
-                      title={area.name}
-                    >
-                      {area.name}
-                    </button>
-                  ))}
+                  <div className="flex gap-3 flex-wrap">
+                    {visiblePracticeAreas.map((area) => {
+                      const isActive = activePracticeAreaId === area._id;
+
+                      return (
+                        <button
+                          key={area._id}
+                          onClick={() =>
+                            handlePracticeAreaClick(area._id, area.name)
+                          }
+                          className={`font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md
+              ${
+                isActive
+                  ? "bg-[#8eb5d4] text-white"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
+              }`}
+                          title={area.name}
+                        >
+                          {area.name}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </>
               )}
 

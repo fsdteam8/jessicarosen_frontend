@@ -154,6 +154,7 @@ export default function ProductList({
     });
 
   const products = data?.data || [];
+  console.log("short-product", products)
 
   let content;
 

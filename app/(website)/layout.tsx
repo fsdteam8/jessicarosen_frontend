@@ -4,7 +4,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Lawbie Dashboard",
+  title: "Lawbie | Website",
   description: "Multi-role ecommerce dashboard",
 };
 
