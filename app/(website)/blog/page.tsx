@@ -49,9 +49,9 @@ export default function BlogPage() {
     <div className="min-h-screen flex flex-col">
       {/* <Header /> */}
 
-      <main className="flex-1 mb-7">
-        <section className="py-16 px-4 container mx-auto">
-          <div className="text-center mb-12">
+      <main className="flex-1 mb-3 md:mb-5 lg:mb-7">
+        <section className="py-6 md:py-10 lg:py-16 px-4 container mx-auto">
+          <div className="text-center mb-2 md:mb-8 lg:mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
               Latest Blogs
             </h2>
@@ -112,9 +112,9 @@ export default function BlogPage() {
         </section>
 
         {/* All Blogs Section */}
-        <div className="bg-light py-8 container mx-auto">
+        <div className="bg-light py-8 px-4 md:px-0 container mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-semibold leading-[120%] mb-4">
+            <h2 className="text-[26px] md:text-3xl font-semibold leading-[120%] mb-4">
               All Blogs Post
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
@@ -124,7 +124,7 @@ export default function BlogPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {isLoading
               ? Array(9)
                   .fill(null)

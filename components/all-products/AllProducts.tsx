@@ -157,23 +157,14 @@ export default function AllProducts() {
   }, [selectedArea]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-auto md:min-h-screen flex-col">
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 lg:mt-[100px]">
         <div className="flex justify-between items-center mb-2">
           <div>
-            <div className="text-sm text-gray-500 mb-2">
-              {/* <div>
-                {selectedArea ? (
-                  <p>
-                    Showing content for: <strong>{selectedArea.name}</strong>
-                  </p>
-                ) : (
-                  <p>Please select a practice area.</p>
-                )}
-              </div> */}
+            {/* <div className="text-sm text-gray-500 mb-2">
               {allProductData?.data?.length}+ Results
-            </div>
+            </div> */}
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
               Resources
             </h1>
@@ -195,7 +186,7 @@ export default function AllProducts() {
           </div>
         </div>
 
-        <div className="lg:mb-[100px] mb-10">
+        <div className="lg:mb-[100px] mb-10 ">
           <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0">
               {/* Left: Filter dropdowns */}

@@ -4,13 +4,13 @@ import Link from "next/link";
 
 export default function BestSellesrs() {
   return (
-    <section className="w-full bg-[#EACB93] py-12 md:py-12 lg:py-20 px-4 ">
+    <section className="w-full bg-[#EACB93] pb-6 pt-12 md:py-12 lg:py-20 px-4 ">
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Content Section */}
           <div className="space-y-6 lg:space-y-8 order-2 lg:order-1">
-            <div className="space-y-4 lg:space-y-6">
-              <h2 className="text-3xl md:text-4xl lg:text-[48px] font-bold text-gray-900 leading-tight">
+            <div className="space-y-2 md:space-y-4 lg:space-y-6">
+              <h2 className="text-[26px] md:text-4xl lg:text-[48px] font-bold text-gray-900 leading-tight">
                 Our Best Sellers!
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed max-w-2xl">
@@ -39,7 +39,7 @@ export default function BestSellesrs() {
                     alt="Professional woman with business attire and lanyard"
                     width={188}
                     height={336}
-                    className="w-full h-auto rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-[250px] md:h-auto rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
                   />
                 </div>
@@ -53,7 +53,7 @@ export default function BestSellesrs() {
                     alt="Professional man in suit speaking at podium"
                     width={188}
                     height={336}
-                    className="w-full h-auto rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
+                    className="w-full h-[250px] md:h-auto rounded-2xl shadow-lg transition-transform duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
                   />
                 </div>

@@ -190,7 +190,7 @@ const mutation = useMutation({
                <Button
                 onClick={() => mutation.mutate()}
                 disabled={mutation.isPending}
-                className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-blue-800 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
+                className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-[#133958] text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
               >
                 {mutation.isPending ? "Adding..." : "Add To Cart"}
               </Button>

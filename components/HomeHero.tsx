@@ -12,7 +12,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
-
 interface PromoCode {
   _id: string;
   code: string;
@@ -120,10 +119,16 @@ export default function HomeHero() {
 
   if (isLoading) {
     return (
-      <div className="w-full lg:my-[48px] my-5 bg-none">
-        <section className="relative w-full container mx-auto">
-          <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[600px] w-full rounded-lg overflow-hidden bg-gray-200 animate-pulse flex items-center justify-center">
-            <p className="text-gray-500">Loading...</p>
+      <div className="w-full lg:my-[48px] my-5 bg-none ">
+        <section className="relative w-full container mx-auto bg-gray-400 rounded-lg">
+          <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[600px] w-full rounded-lg overflow-hidden animate-pulse flex items-center justify-center border">
+            {/* <p className="text-gray-500">Loading...</p> */}
+            <Image
+              src="/images/no-image.jpg"
+              alt="no-image"
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
           </div>
         </section>
       </div>
@@ -141,12 +146,12 @@ export default function HomeHero() {
       </div>
     );
   }
-  
+
   return (
-    <div className="w-full lg:my-[48px] my-5 bg-none">
+    <div className="w-full my-5 bg-none">
       {/* Hero Section */}
       <section className="relative w-full container mx-auto">
-        <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[600px] w-full rounded-lg overflow-hidden">
+        <div className="relative h-[300px] sm:h-[350px] md:h-[370px] lg:h-[400px] w-full rounded-lg overflow-hidden">
           {/* Background Image */}
           <Image
             src={
@@ -165,7 +170,7 @@ export default function HomeHero() {
           <div className="absolute inset-0 bg-black/30 rounded-lg" />
 
           {/* Text Content */}
-          <div className="absolute inset-0 flex lg:px-16 px-5 mt-[7%]">
+          <div className="absolute inset-0 flex lg:px-16 px-5 mt-[3%]">
             <div className="text-white">
               <div className="flex items-center gap-2">
                 <Image
@@ -190,28 +195,29 @@ export default function HomeHero() {
                 Widely used materials that help students, legal professionals,
                 and researchers understand and apply legal principles.
               </p>
-              <div className="flex items-center justify-center w-[95%] mz">
-              </div>
+              <div className="flex items-center justify-center w-[95%] mz"></div>
 
               <div className="lg:mt-6 text-start flex justify-between items-center">
-                  <div className="lg:h-[54px] lg:w-[242px] ">
-                    <Link href="/products">
+                <div className="lg:h-[54px] lg:w-[242px] ">
+                  <Link href="/products">
                     <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
                       Explore Resources
                     </Button>
-                    </Link>
-                  </div>
-                  <div className="lg:mt-4">
-                    <p className="text-[32px] font-bold text-[#E0B15E]"><HeroPromoCarousel specialPromos={specialPromoCodes} /></p>
-                    <p className="text-base font-medium leading-[120%] text-white tracking-[0%]">
-                      Purchase discount.
-                    </p>
-                  </div>
+                  </Link>
                 </div>
+                <div className="lg:mt-4">
+                  <p className="text-[32px] font-bold text-[#E0B15E]">
+                    <HeroPromoCarousel specialPromos={specialPromoCodes} />
+                  </p>
+                  <p className="text-base font-medium leading-[120%] text-white tracking-[0%]">
+                    Purchase discount.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>
+  );
 }
