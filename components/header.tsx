@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Search,
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useCart } from "@/hooks/use-cart";
-import { useAuth } from "@/hooks/use-auth";
+// import { useAuth } from "@/hooks/use-auth";
 import { CartSheet } from "@/components/cart-sheet";
 import Image from "next/image";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -73,21 +73,24 @@ export function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const {  setOpen } = useCart();
-  const { isAuthenticated, logout } = useAuth();
+  const { setOpen } = useCart();
+  const searchParams = useSearchParams();
+  const activePracticeAreaId = searchParams.get("practiceArea");
+
+  // const { isAuthenticated, logout } = useAuth();
   const { items } = useWishlist();
   const dispatch = useAppDispatch();
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
   const { data: practiceAreasData, isLoading: practiceAreasLoading } =
     usePracticeAreas();
-
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
   };
 
   const session = useSession();
   const user = session?.data?.user;
-   const token = session?.data?.user?.accessToken;
+  const token = session?.data?.user?.accessToken;
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
     setIsMounted(true);
@@ -155,41 +158,26 @@ export function Header() {
       (promo: PromoCode) => promo.special && promo.active
     ) || [];
 
-
-
-// Fetch cart data using react-query
-    const { data: cartResponse } = useQuery({
-  queryKey: ["cart", token],
-  queryFn: async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!res.ok) throw new Error("Failed to fetch cart");
-    return res.json();
-  },
-  enabled: !!token,
-});
-
-// Calculate total cart item quantity
-const totalCartItems = cartResponse?.data?.items?.reduce(
-  (total: number, item: { quantity: number }) => total + item.quantity,
-  0
-);
-
-// useEffect(() => {
-//   if (cartResponse?.data?.items) {
-//     console.log("Header Cart Items:", cartResponse.data.items);
-//   }
-// }, [cartResponse]);
-
+  // Fetch cart data using react-query
+  const { data: cartResponse } = useQuery({
+    queryKey: ["cart", token],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch cart");
+      return res.json();
+    },
+    enabled: !!token,
+  });
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white">
+      <header className="sticky top-0 z-40 w-full  bg-white">
         {/* Top Blue Bar */}
-        <div className="bg-[#23547B] text-white font-medium leading-[120%] text-sm py-2">
+        <div className="bg-[#23547B] text-white font-medium leading-[120%] px-2 text-sm py-2">
           <div className="container mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-4 pl-2 md:pl-0">
               <span className="flex items-center">
@@ -344,7 +332,8 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                 {isMounted && (
                   <Badge className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
                     {/* {itemCount} */}
-                    {totalCartItems || 0}
+                    {/* {cartResponse.length || 0} */}
+                    {cartResponse?.data?.items?.length || 0}
                   </Badge>
                 )}
               </button>
@@ -385,14 +374,14 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
               ) : (
                 <Link
                   href="/sign-in"
-                  className="bg-[#23547B] hover:bg-blue-700 text-white px-6 py-2 rounded-md hidden sm:flex"
+                  className="bg-[#23547B] hover:bg-[#174468] text-white px-6 py-2 rounded-md hidden sm:flex"
                 >
                   Login
                 </Link>
               )}
 
               {/* Mobile Menu */}
-              <Sheet>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <button className="md:hidden">
                     <Menu className="text-2xl" />
@@ -402,6 +391,7 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
+                      onClick={() => setIsSheetOpen(false)}
                       className={`text-lg font-medium ${
                         pathname === "/"
                           ? "text-[#23547B]"
@@ -412,6 +402,7 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                     </Link>
                     <Link
                       href="/products"
+                      onClick={() => setIsSheetOpen(false)}
                       className={`text-lg font-medium ${
                         pathname === "/products"
                           ? "text-[#23547B]"
@@ -422,6 +413,7 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                     </Link>
                     <Link
                       href="/blog"
+                      onClick={() => setIsSheetOpen(false)}
                       className={`text-lg font-medium ${
                         pathname === "/blog"
                           ? "text-[#23547B]"
@@ -431,13 +423,12 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                       Blog
                     </Link>
 
-                    {/* Mobile Practice Areas */}
-                    
-                      <div className="border-t pt-4 mt-4">
-                        <h3 className="text-base font-semibold text-gray-500 mb-3">
-                          Practice Areas
-                        </h3>
-                        <div className="h-[250px] w-full overflow-y-scroll">
+                    {/* Practice Areas */}
+                    <div className="border-t pt-4 mt-4">
+                      <h3 className="text-base font-semibold text-gray-500 mb-3">
+                        Practice Areas
+                      </h3>
+                      <div className="h-[250px] w-full overflow-y-scroll">
                         {practiceAreasLoading ? (
                           <div className="space-y-2">
                             {[...Array(3)].map((_, i) => (
@@ -452,9 +443,10 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                             {practiceAreasData?.data?.map((area) => (
                               <button
                                 key={area._id}
-                                onClick={() =>
-                                  handlePracticeAreaClick(area._id, area.name)
-                                }
+                                onClick={() => {
+                                  handlePracticeAreaClick(area._id, area.name);
+                                  setIsSheetOpen(false);
+                                }}
                                 className="w-full text-left text-base font-medium hover:text-[#23547B] py-1"
                               >
                                 {area.name}
@@ -462,63 +454,52 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                             ))}
                           </div>
                         )}
-                          </div>
                       </div>
-                  
+                    </div>
 
-                    {/* <Link
-                      href="/wishlist"
-                      className={`text-lg font-medium ${
-                        pathname === "/wishlist"
-                          ? "text-[#23547B]"
-                          : "hover:text-[#23547B]"
-                      }`}
-                    >
-                      Wishlist
-                    </Link> */}
-                    {isMounted && !isAuthenticated && (
-                      <Button
-                        asChild
-                        className="bg-[#23547B] hover:bg-blue-700 mt-4"
-                      >
-                        <Link href="/auth/login">Login</Link>
-                      </Button>
-                    )}
-                    {isMounted && isAuthenticated && (
-                      <>
-                        <div className="border-t pt-4 mt-4">
-                          <p className="font-medium">{user?.name}</p>
-                          <p className="text-gray-500 text-sm">{user?.email}</p>
-                        </div>
+                    {/* Mobile Auth/Profile Section */}
+                    {user ? (
+                      <div className="border-t pt-4 mt-4">
                         <Link
-                          href="/account"
-                          className="text-lg font-medium hover:text-[#23547B]"
+                          href="/account/profile"
+                          onClick={() => setIsSheetOpen(false)}
+                          className="flex items-center gap-2 text-base font-medium text-[#131313] hover:text-[#23547B]"
                         >
-                          My Account
+                          <UserRound className="h-5 w-5" />
+                          My Profile
                         </Link>
-                        <Link
-                          href="/orders"
-                          className="text-lg font-medium hover:text-[#23547B]"
-                        >
-                          My Orders
-                        </Link>
-                        <Button
-                          variant="destructive"
-                          onClick={logout}
-                          className="mt-4"
+                        <button
+                          onClick={() => {
+                            signOut();
+                            setIsSheetOpen(false);
+                          }}
+                          className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
                         >
                           Logout
-                        </Button>
-                      </>
+                        </button>
+                      </div>
+                    ) : (
+                      <Link
+                        href="/sign-in"
+                        onClick={() => setIsSheetOpen(false)}
+                        className="bg-[#23547B] hover:bg-blue-700 text-white text-center px-6 py-2 mt-4 rounded-md"
+                      >
+                        Login
+                      </Link>
                     )}
-                    <div className="block lg:hidden space-y-2">
+
+                    {/* Region Switcher Mobile */}
+                    <div className="block lg:hidden space-y-2 mt-6 border-t pt-4">
                       <Button
                         variant="outline"
-                        onClick={() => handleRegionChange("canada")}
+                        onClick={() => {
+                          handleRegionChange("canada");
+                          setIsSheetOpen(false);
+                        }}
                         className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                           currentRegion === "canada"
-                            ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                            : "bg-transparent text-white border-[#23547b] hover:bg-[#23547b]/10"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
                         }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
@@ -529,15 +510,27 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                             className="object-contain"
                           />
                         </span>
-                        <span>Lawbie Canada</span>
+                        <span
+                          className={`${
+                            currentRegion === "canada"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
+                          Lawbie Canada
+                        </span>
                       </Button>
+
                       <Button
                         variant="outline"
-                        onClick={() => handleRegionChange("us")}
+                        onClick={() => {
+                          handleRegionChange("us");
+                          setIsSheetOpen(false);
+                        }}
                         className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                           currentRegion === "us"
-                            ? "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                            : "bg-[#23547b] text-white border-[2px] border-white hover:bg-[#112a3f]"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
                         }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
@@ -548,7 +541,15 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                             className="object-contain"
                           />
                         </span>
-                        <span className="text-white">Lawbie US</span>
+                        <span
+                          className={`${
+                            currentRegion === "us"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
+                          Lawbie US
+                        </span>
                       </Button>
                     </div>
                   </nav>
@@ -589,8 +590,8 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                 href="/"
                 className={`font-medium transition-colors ${
                   pathname === "/"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 Home
@@ -599,8 +600,8 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                 href="/products"
                 className={`font-medium transition-colors ${
                   pathname === "/products"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 All Resources
@@ -609,8 +610,8 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                 href="/blog"
                 className={`font-medium transition-colors ${
                   pathname === "/blog"
-                    ? "text-[#23547B]"
-                    : "text-[#131313] hover:text-[#23547B]"
+                    ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                 }`}
               >
                 Blog
@@ -628,18 +629,29 @@ const totalCartItems = cartResponse?.data?.items?.reduce(
                 </div>
               ) : (
                 <>
-                  {visiblePracticeAreas.map((area) => (
-                    <button
-                      key={area._id}
-                      onClick={() =>
-                        handlePracticeAreaClick(area._id, area.name)
-                      }
-                      className="font-medium transition-colors text-[#131313] hover:text-[#23547B] truncate max-w-[150px]"
-                      title={area.name}
-                    >
-                      {area.name}
-                    </button>
-                  ))}
+                  <div className="flex gap-3 flex-wrap">
+                    {visiblePracticeAreas.map((area) => {
+                      const isActive = activePracticeAreaId === area._id;
+
+                      return (
+                        <button
+                          key={area._id}
+                          onClick={() =>
+                            handlePracticeAreaClick(area._id, area.name)
+                          }
+                          className={`font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md
+              ${
+                isActive
+                  ? "bg-[#8eb5d4] text-white"
+                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
+              }`}
+                          title={area.name}
+                        >
+                          {area.name}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </>
               )}
 

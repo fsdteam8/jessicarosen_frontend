@@ -23,8 +23,8 @@ const LegalDoc = () => {
       <section className="py-10 bg-[#4F7695] text-white">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex gap-3">
-              <div className="w-[176px] h-[88px]">
+            <div className="flex gap-3 items-center">
+              <div className="w-[146px] lg:w-[176px] h-[66px] lg:h-[88px]">
                 <Image
                   src={countryName === 'Canada' ? "/images/flage.png" : "/images/flage1.png"}
                   alt="Hero Image"
@@ -36,7 +36,7 @@ const LegalDoc = () => {
                 />
               </div>
               <div>
-                <h2 className="text-2xl md:text-3xl text-[40px] font-semibold leading-[120%] mb-2">
+                <h2 className="text-xl md:text-3xl lg:text-[40px] font-semibold leading-[120%] mb-2">
                   Looking For Legal Documents?
                 </h2>
                 <p className="text-sm">
@@ -44,11 +44,11 @@ const LegalDoc = () => {
                 </p>
               </div>
             </div>
-            <div className="mt-4 md:mt-0 flex items-center space-x-6">
+            <div className="mt-4 md:mt-0 flex items-center space-x-8">
               <Link href="/products">
-              <Button className="bg-white h-[56px] text-[#2c5d7c] hover:bg-gray-100">
+              <Button className="bg-white h-[46px] lg:h-[56px] text-[#2c5d7c] hover:bg-gray-100">
                 <p>Buy Now</p>
-                <span className="h-[35px] w-10 rounded-[8px] bg-[#23547B] flex items-center justify-center">
+                <span className=" h-[30px] lg:h-[35px] w-10 rounded-[8px] bg-[#23547B] flex items-center justify-center">
                   <FaArrowRightLong size={30} className="text-white text-xl" />
                 </span>
               </Button>
@@ -59,7 +59,7 @@ const LegalDoc = () => {
                 </span>
                 <div>
                   <p className="font-bold">EMAIL US</p>
-                  <p className="text-xs inline-block">SUPPORT@LAWFIRM.COM</p>
+                  <p className="text-xs inline-block">support@lawbie.com</p>
                 </div>
               </div>
             </div>

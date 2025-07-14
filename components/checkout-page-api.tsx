@@ -408,7 +408,7 @@ export default function CheckoutPageAPI() {
             <Button
               onClick={handlePayment}
               className="w-full bg-[#2c5d7c] hover:bg-[#1e4258] h-12"
-              disabled={paymentMutation.isPending}
+              disabled={paymentMutation.isPending || !agreeTerms}
             >
               {paymentMutation.isPending ? (
                 <>

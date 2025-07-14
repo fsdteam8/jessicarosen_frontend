@@ -84,7 +84,7 @@ export default function QuestionsAnswers({
     queryKey: ["question", resourceId],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/qa/${resourceId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`
       );
       if (!res.ok) {
         throw new Error("Failed to fetch question and answers");
@@ -96,7 +96,7 @@ export default function QuestionsAnswers({
   const postQuestion = useMutation({
     mutationFn: async (message: string) => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/qa/${resourceId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`,
         {
           method: "POST",
           headers: {
@@ -208,7 +208,7 @@ export default function QuestionsAnswers({
 
       <div className="space-y-6">
         {sampleQuestions.map((question: QAItem) => (
-          <Card key={question._id} className="border-l-4 border-l-blue-500">
+          <Card key={question._id} className="border-l-4 border-l-[#4f7695]">
             <CardContent className="p-4">
               <div className="flex items-start space-x-3 mb-3">
                 <Avatar className="w-10 h-10">
@@ -216,7 +216,7 @@ export default function QuestionsAnswers({
                     src="/placeholder.svg"
                     alt={question.askedBy.firstName}
                   />
-                  <AvatarFallback className="bg-blue-500 text-white">
+                  <AvatarFallback className="bg-blue-[#4f7695] text-white">
                     {getInitials(question.askedBy.firstName)}
                   </AvatarFallback>
                 </Avatar>

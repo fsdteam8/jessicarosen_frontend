@@ -6,6 +6,7 @@ import { LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LogoutConfirmationModal from "../LogoutConfirmationModal";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 
 interface AccountLayoutProps {
   children: React.ReactNode;
@@ -18,8 +19,10 @@ export function AccountLayout({
 }: AccountLayoutProps) {
 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+ 
   const confirmLogout = () => {
-    // logout();
+    console.log('hello')
+    signOut({callbackUrl:'/sign-in'});
     setIsLogoutModalOpen(false);
   };
 

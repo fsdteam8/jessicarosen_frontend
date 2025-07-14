@@ -18,7 +18,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import TableSkeletonWrapper from "../shared/TableSkeletonWrapper/TableSkeletonWrapper";
 import ErrorContainer from "../shared/ErrorContainer/ErrorContainer";
 import NotFound from "../shared/NotFound/NotFound";
-import { toast } from "@/hooks/use-toast";
+// import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
@@ -48,7 +49,7 @@ export default function ProductList({
       : null;
   const [currentPage, setCurrentPage] = useState(1);
   const { data: cartData } = useCart();
-  const { mutateAsync: addToCart, isPending: isAddingToCart } = useAddToCart();
+  const { mutateAsync: addToCart } = useAddToCart();
   const updateCartMutation = useUpdateCartItem();
   const {
     addItem: addToWish,
@@ -60,7 +61,11 @@ export default function ProductList({
     return wishlistItems.some((item) => item.id === productId);
   };
 
+  // NEW: State to track loading per product
+  const [loadingProductId, setLoadingProductId] = useState<string | number | null>(null);
+
   const handleAddToCart = async (product: any) => {
+    setLoadingProductId(product._id); // set loading state for this product
     try {
       const cartItem = cartData?.data?.items?.find(
         (item) => item.resource._id === product._id
@@ -78,18 +83,14 @@ export default function ProductList({
         });
       }
 
-      toast({
-        title: "Success",
-        description: "Item added to cart",
-      });
+      toast.success("Item added to cart");
     } catch (error) {
       console.error("Add to cart error:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to add item",
-        variant: "destructive",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add item"
+      );
+    } finally {
+      setLoadingProductId(null); // clear loading state when done
     }
   };
 
@@ -98,7 +99,7 @@ export default function ProductList({
 
     if (isInWishlist(id)) {
       removeFromWish(id);
-      toast({ title: "Removed from Wishlist" });
+      toast.success("Removed from Wishlist");
     } else {
       addToWish({
         id: item._id,
@@ -115,7 +116,7 @@ export default function ProductList({
         category: item.category || "",
         categoryId: item.categoryId || "",
       });
-      toast({ title: "Added to Wishlist" });
+      toast.success("Added to Wishlist");
     }
   };
 
@@ -134,7 +135,9 @@ export default function ProductList({
       ],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
             practiceArea
               ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
               : ""
@@ -142,13 +145,16 @@ export default function ProductList({
             resourceType
               ? `&resourceType=${encodeURIComponent(resourceType)}`
               : ""
-          }&format=${encodeURIComponent(format ?? "")}&price=${encodeURIComponent(
+          }&format=${encodeURIComponent(
+            format ?? ""
+          )}&price=${encodeURIComponent(
             price ?? ""
           )}&states=${encodeURIComponent(states ?? "")}`
         ).then((res) => res.json()),
     });
 
   const products = data?.data || [];
+  console.log("short-product", products)
 
   let content;
 
@@ -193,7 +199,7 @@ export default function ProductList({
               // Grid View Layout
 
               <div className="flex flex-col h-full w-full">
-                <div className="w-full">
+                <Link href={`/products/${product._id}`} className="w-full">
                   <Image
                     src={
                       (Array.isArray(product?.thumbnail)
@@ -205,7 +211,7 @@ export default function ProductList({
                     height={240}
                     className="object-cover w-full h-[200px] sm:h-[240px] rounded-[8px]"
                   />
-                </div>
+                </Link>
 
                 <div className="flex-1 flex flex-col justify-between p-4">
                   <div className="space-y-3">
@@ -274,10 +280,10 @@ export default function ProductList({
                     <div className="space-y-2">
                       <Button
                         onClick={() => handleAddToCart(product)}
-                        disabled={isAddingToCart}
+                        disabled={loadingProductId === product._id}
                         className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
                       >
-                        {isAddingToCart ? "Adding..." : "Add To Cart"}
+                        {loadingProductId === product._id ? "Adding..." : "Add To Cart"}
                       </Button>
 
                       <Button
@@ -361,7 +367,13 @@ export default function ProductList({
                         dangerouslySetInnerHTML={{
                           __html: product?.description ?? "",
                         }}
-                        className="text-base text-[#424242] font-normal leading-[150%] tracking-normal mb-4"
+                        className="text-base text-[#424242] font-normal leading-[150%] tracking-normal mb-4 
+             overflow-hidden text-ellipsis"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 5,
+                          WebkitBoxOrient: "vertical",
+                        }}
                       />
 
                       <div className="text-base font-medium text-[#131313] leading-[120%] tracking-normal">
@@ -384,7 +396,7 @@ export default function ProductList({
                           </span>
                           <FaStar size={20} color="#FFD700" />
                           <span className="text-base font-medium text-[#616161] leading-[120%] tracking-normal">
-                            ({product?.totalReviews}K)
+                            ({product?.totalReviews})
                           </span>
                         </div>
 
@@ -393,9 +405,9 @@ export default function ProductList({
                             size="lg"
                             className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full max-w-[250px]"
                             onClick={() => handleAddToCart(product)}
-                            disabled={isAddingToCart}
+                            disabled={loadingProductId === product._id}
                           >
-                            {isAddingToCart ? "Adding..." : "Add To Cart"}
+                            {loadingProductId === product._id ? "Adding..." : "Add To Cart"}
                           </Button>
 
                           <Button

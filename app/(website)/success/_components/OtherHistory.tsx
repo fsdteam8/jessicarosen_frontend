@@ -1,4 +1,5 @@
 "use client";
+
 import Loading from "@/app/loading";
 import { useQuery } from "@tanstack/react-query";
 import { Download } from "lucide-react";
@@ -7,10 +8,10 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-// all order
+// Types
 export type OrderFile = {
   url: string;
-  type: string; // e.g., "application/pdf"
+  type: string;
 };
 
 export type Order = {
@@ -18,9 +19,9 @@ export type Order = {
   resourceName: string;
   file: OrderFile;
   thumbnail: string;
-  price: string; // e.g., "$12.00"
-  date: string; // e.g., "Jun 25, 2025"
-  status: "processing" | string; // Extend with more statuses if needed
+  price: string;
+  date: string;
+  status: "processing" | string;
 };
 
 export type Pagination = {
@@ -37,9 +38,8 @@ export type OrdersResponse = {
   pagination: Pagination;
 };
 
-// single order data type
 export type OrderDetailsResponse = {
-  status: string; // "success"
+  status: string;
   message: string;
   data: OrderDetails;
 };
@@ -58,8 +58,8 @@ export type OrderDetails = {
   stripeSessionId: string;
   stripePaymentIntentId: string | null;
   transferGroup: string;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  createdAt: string;
+  updatedAt: string;
   __v: number;
 };
 
@@ -87,9 +87,11 @@ const OtherHistory = () => {
   const { data: session } = useSession();
   const token = session?.user?.accessToken;
 
-  // console.log(token);
-
-  const { data, isLoading } = useQuery<OrdersResponse>({
+  const {
+    data: orderListData,
+    isLoading: isOrderListLoading,
+    // error: orderListError,
+  } = useQuery<OrdersResponse>({
     queryKey: ["order-history"],
     queryFn: async () =>
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
@@ -97,68 +99,63 @@ const OtherHistory = () => {
           Authorization: `Bearer ${token}`,
         },
       }).then((res) => res.json()),
+    enabled: !!token,
   });
 
-  const orderId = data?.data?.[0]?.orderId;
+  const orderId = orderListData?.data?.[0]?.orderId;
 
-  // single order
   const {
     data: singleOrderData,
     isLoading: isSingleOrderLoading,
-    error,
+    error: singleOrderError,
     isError,
   } = useQuery<OrderDetailsResponse>({
     queryKey: ["single-order-history", orderId],
     queryFn: async () =>
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }).then((res) => res.json()),
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/orders/${orderId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ).then((res) => res.json()),
+    enabled: !!token && !!orderId,
   });
 
-  if (!token)
+  // Loading state
+  if (!token || isOrderListLoading || (orderId && isSingleOrderLoading)) {
     return (
       <div className="h-full w-full flex items-center justify-center gap-4">
         <Loading /> Loading...
       </div>
     );
+  }
 
-  console.log("singleOrderData", singleOrderData?.data?.items);
-
-  if (isLoading || isSingleOrderLoading)
-    return (
-      <div className="h-full w-full flex items-center justify-center gap-4">
-        <Loading /> Loading...
-      </div>
-    );
-  if (!singleOrderData?.data)
-    return (
-      <div className="h-full w-full flex items-center justify-center gap-4">
-        <Loading /> Loading...
-      </div>
-    );
-  if (isError)
+  // Error state
+  if (isError || !singleOrderData?.data) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex items-center justify-center">
-        Error: {error instanceof Error ? error.message : String(error)}
+        Error:{" "}
+        {singleOrderError instanceof Error
+          ? singleOrderError.message
+          : String(singleOrderError)}
       </div>
     );
+  }
 
-  if (data && data.data.length === 0) {
+  // No orders found
+  if (orderListData?.data?.length === 0) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex flex-col items-center justify-center">
-        <h2 className=" text-3xl font-bold text-black text-center pb-4">
-          {" "}
+        <h2 className="text-3xl font-bold text-black text-center pb-4">
           No data found
         </h2>
-        <div className="">
-          <Link href="/products">
-            <button className=" py-3 px-10 text-base font-bold text-[#F2F2F2] leading-[120%] tracking-[0%] font-manrope bg-[#23547B] rounded-[8px]">
-              Continue Shopping
-            </button>
-          </Link>
-        </div>
+        <Link href="/products">
+          <button className="py-3 px-10 text-base font-bold text-white bg-[#23547B] rounded-[8px]">
+            Continue Shopping
+          </button>
+        </Link>
       </div>
     );
   }
@@ -166,27 +163,21 @@ const OtherHistory = () => {
   return (
     <div className="container mx-auto">
       <div className="pt-10 md:pt-14 lg:pt-[88px]">
-        <h2 className="text-3xl md:text-[39px] lg:text-[48px] font-semibold text-[#131313] leading-[120%] tracking-[0%] font-manrope text-center">
+        <h2 className="text-3xl md:text-[39px] lg:text-[48px] font-semibold text-[#131313] text-center font-manrope">
           Download Page
         </h2>
-        <p className="text-base font-normal text-[#616161] leading-[150%] tracking-[0%] text-center font-manrope pt-4">
+        <p className="text-base text-[#616161] text-center font-manrope pt-4">
           From everyday essentials to the latest trends, we bring you a seamless
-          shopping experience <br /> with unbeatable deals, delivery.discover
+          shopping experience <br /> with unbeatable deals. Discover
           convenience, quality, and style all in one place.
         </p>
       </div>
+
       <div className="pt-10 md:pt-14 lg:pt-[88px]">
-        <table className="w-full ">
-          {/* <thead className="">
-            <tr>
-              <th className="px-4 py-2 border-b">Image</th>
-              <th className="px-4 py-2 border-b">Resource Name</th>
-              <th className="px-4 py-2 border-b">Download</th>
-            </tr>
-          </thead> */}
+        <table className="w-full">
           <tbody>
             {singleOrderData?.data?.items?.map((item, index) => (
-              <tr key={index + 1} className="flex items-center justify-between">
+              <tr key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-8 md:gap-10 lg:gap-12">
                   <td className="px-4 py-2">
                     <Image
@@ -197,7 +188,7 @@ const OtherHistory = () => {
                       className="w-[80px] h-[80px] object-cover rounded-[16px]"
                     />
                   </td>
-                  <td className="text-xl font-medium text-[#2A2A2A] leading-[120%] font-manrope">
+                  <td className="text-xl font-medium text-[#2A2A2A] font-manrope">
                     {item?.resource?.title}
                   </td>
                 </div>
@@ -219,7 +210,7 @@ const OtherHistory = () => {
 
       <div className="pt-5 md:pt-7 lg:pt-10 pb-10 md:pb-14 lg:pb-[88px]">
         <Link href="/products">
-          <button className="text-base font-bold text-[#F2F2F2] leading-[120%] tracking-[0%] font-manrope py-[14px] bg-[#23547B] w-full rounded-[8px]">
+          <button className="text-base font-bold text-white font-manrope py-[14px] bg-[#23547B] w-full rounded-[8px]">
             Continue Shopping
           </button>
         </Link>

@@ -26,6 +26,9 @@ export default function ProductDetails() {
   const token = session?.data?.user?.accessToken;
   const resourceId =
     typeof params?.id === "string" ? params.id : params?.id?.[0];
+  const shareUrl = encodeURIComponent(
+    typeof window !== "undefined" ? window.location.href : ""
+  );
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const queryClient = useQueryClient();
@@ -86,7 +89,7 @@ export default function ProductDetails() {
     queryKey: ["category-filter"],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
+        ` ${process.env.NEXT_PUBLIC_API_URL}/resource/get-all-resources`,
         {
           method: "GET",
           headers: {
@@ -184,58 +187,95 @@ export default function ProductDetails() {
     <div className="container mx-auto p-6 space-y-12">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div className="gap-4 flex">
-            <div className="w-[328px] h-[328px] relative">
-              <Image
-                src={
-                  typeof images[selectedImageIndex] === "string"
-                    ? images[selectedImageIndex]
-                    : "/placeholder.svg"
-                }
-                alt={product?.title || "Product image"}
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              {images.slice(1, 5).map((image, index) => (
-                <div
-                  key={index + 1}
-                  className={`w-[150px] h-[155px] relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
-                    selectedImageIndex === index + 1
-                      ? "ring-2 ring-blue-500 ring-offset-2"
-                      : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-                  }`}
-                  onClick={() => setSelectedImageIndex(index + 1)}
-                >
-                  <Image
-                    src={
-                      typeof image === "string" ? image : "/images/no-image.jpg"
-                    }
-                    alt={product?.title || "Product image"}
-                    fill
-                    className="object-cover"
-                  />
-                  <div
-                    className={`absolute inset-0 transition-opacity duration-200 ${
-                      selectedImageIndex === index + 1
-                        ? "bg-blue-500/10"
-                        : "hover:bg-black/5"
-                    }`}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+     
+     
+       <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+  {/* Main Image */}
+  <div className="w-full md:w-[728px] aspect-square relative">
+    <Image
+      src={
+        typeof images[selectedImageIndex] === "string"
+          ? images[selectedImageIndex]
+          : "/placeholder.svg"
+      }
+      alt={product?.title || "Product image"}
+      fill
+      className="object-cover rounded-lg"
+    />
+  </div>
 
-          <div className="flex items-center gap-2 pt-4">
+  {/* Thumbnail Grid */}
+  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-3 w-full">
+    {images.slice(1, 5).map((image, index) => (
+      <div
+        key={index + 1}
+        className={`aspect-square relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
+          selectedImageIndex === index + 1
+            ? "ring-2 ring-blue-500 ring-offset-2"
+            : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+        }`}
+        onClick={() => setSelectedImageIndex(index + 1)}
+      >
+        <Image
+          src={typeof image === "string" ? image : "/images/no-image.jpg"}
+          alt={product?.title || "Product image"}
+          fill
+          className="object-cover"
+        />
+        <div
+          className={`absolute inset-0 transition-opacity duration-200 ${
+            selectedImageIndex === index + 1
+              ? "bg-blue-500/10"
+              : "hover:bg-black/5"
+          }`}
+        />
+      </div>
+    ))}
+  </div>
+</div>
+
+
+          {/* <div className="flex items-center gap-2 pt-4">
             <span className="text-base font-medium text-[#616161]">Share:</span>
             <div className="flex gap-2">
               <Linkedin className="w-6 h-6 text-[#616161]" />
               <Facebook className="w-6 h-6 text-[#616161]" />
               <Instagram className="w-6 h-6 text-[#616161]" />
             </div>
+          </div> */}
+          
+          <div className="flex items-center gap-2 pt-4">
+            <span className="text-base font-medium text-[#616161]">Share:</span>
+            <div className="flex gap-2">
+              {/* LinkedIn Share */}
+              <a
+                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin className="w-6 h-6 text-[#616161] hover:text-blue-700 transition-colors" />
+              </a>
+
+              {/* Facebook Share */}
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Facebook className="w-6 h-6 text-[#616161] hover:text-blue-600 transition-colors" />
+              </a>
+
+              {/* Instagram (Note: Instagram doesn't support direct link sharing) */}
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram className="w-6 h-6 text-[#616161] hover:text-pink-500 transition-colors" />
+              </a>
+            </div>
           </div>
+
         </div>
 
         <div>
@@ -306,12 +346,12 @@ export default function ProductDetails() {
               {addToCartMutation.isPending ? "Adding..." : "Add To Cart"}
             </Button>
 
-            <Button
+            {/* <Button
               variant="outline"
               className="border-2 border-[#23547B] text-[#23547B] font-bold hover:bg-blue-50 h-[48px] w-[156px] rounded-[8px]"
             >
               Download Now
-            </Button>
+            </Button> */}
 
             <Button
               onClick={toggleWishlist}
@@ -376,6 +416,12 @@ export default function ProductDetails() {
         )}
       </div>
 
+      <div>
+        <h2>Description</h2>
+
+        <p dangerouslySetInnerHTML={{ __html: product?.description || "" }} />
+      </div>
+
       <Separator />
 
       {userId ? (
@@ -393,10 +439,11 @@ export default function ProductDetails() {
 
       {/* question and ans section */}
       <QuestionsAnswers
-        resourceId={Array.isArray(resourceId) ? (resourceId[0] ?? "") : (resourceId ?? "")}
+        resourceId={
+          Array.isArray(resourceId) ? resourceId[0] ?? "" : resourceId ?? ""
+        }
         userId={userId ?? ""}
       />
-
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { persist } from "zustand/middleware";
 import { toast } from "@/hooks/use-toast";
 
 export type CartItem = {
-
   thumbnail: string;
   id: string;
   title: string;
@@ -38,7 +37,7 @@ type CartState = {
   removeCoupon: () => void;
   // Calculations
   getSubtotal: () => number;
-  getItemCount: () => number;
+  // getItemCount: () => number;
   getItemPrice: (id: string) => number;
   getShippingCost: () => number;
   getCouponDiscount: () => number;
@@ -155,9 +154,9 @@ export const useCart = create<CartState>()(
         return price * item.quantity;
       },
 
-      getItemCount: () => {
-        return get().items.reduce((count, item) => count + item.quantity, 0);
-      },
+      // getItemCount: () => {
+      //   return get().items.reduce((count, item) => count + item.quantity, 0);
+      // },
 
       getShippingCost: () => {
         // Fixed shipping cost of $5 if cart has items, otherwise 0
