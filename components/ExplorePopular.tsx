@@ -64,11 +64,11 @@ const ExplorePopular = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="min-h-screen bg-gray-50 py-6 md:py-8 lg:py-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
+        <div className="text-center mb-6 md:mb-8 lg:mb-12">
+          <h1 className="text-3xl md:text-4xl lg:text-[40px] font-semibold text-gray-900 mb-2 md:mb-3 lg:mb-4">
             Explore Most Popular Resources
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -80,7 +80,7 @@ const ExplorePopular = () => {
 
         {/* Products Grid */}
         {data && data?.data && data?.data?.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 md:py-10 lg:py-12">
             <p className="text-[#23547B] text-lg font-semibold">
               No resources available for{" "}
               {currentRegion === "canada" ? "Canada" : "United States"}
@@ -91,7 +91,7 @@ const ExplorePopular = () => {
             <div>{content}</div>
 
             {/* See More Button */}
-            <div className="text-center">
+            <div className="text-center -mt-8 mg:-mt-4 lg:-mt-0">
               <Link
                 href="/products"
                 className="px-8 py-3 font-bold text-[#23547B] text-lg border-b-2 border-[#23547B] inline-flex items-center gap-2 hover:bg-[#23547B] hover:text-white transition-colors duration-200"

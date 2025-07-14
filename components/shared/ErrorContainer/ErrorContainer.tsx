@@ -7,7 +7,7 @@ interface ErrorContainerProps {
 const ErrorContainer = ({ message }: ErrorContainerProps) => {
   return (
     <div>
-      <div className="flex h-[400px] w-full flex-col items-center justify-center bg-gray-200 rounded-lg shadow-md mb-10">
+      <div className="flex h-[400px] w-full flex-col items-center justify-center bg-gray-200 rounded-lg shadow-md mb-2 md:mb-4 lg:mb-10">
         <TriangleAlert className="text-red-500" />
         <h3 className="mt-2 text-xl font-medium text-black/70">{message}</h3>
       </div>

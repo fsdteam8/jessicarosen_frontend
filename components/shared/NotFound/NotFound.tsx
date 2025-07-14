@@ -19,7 +19,7 @@ const NotFound = ({ message }: Props) => {
       />
 
       {/* Text Animation applied to message string only */}
-      <p className="text-lg font-bold text-gradient text-center w-1/3">
+      <p className="text-[17px] md:text-lg font-bold text-gradient text-center w-2/3 md:w-1/3">
         <TextAnimate animation="slideUp" by="word">
           {message} 
         </TextAnimate>
