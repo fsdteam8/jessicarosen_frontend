@@ -151,7 +151,7 @@ export default function HomeHero() {
     <div className="w-full my-5 bg-none">
       {/* Hero Section */}
       <section className="relative w-full container mx-auto">
-        <div className="relative h-[300px] sm:h-[350px] md:h-[400px] lg:h-[400px] w-full rounded-lg overflow-hidden">
+        <div className="relative h-[300px] sm:h-[350px] md:h-[370px] lg:h-[400px] w-full rounded-lg overflow-hidden">
           {/* Background Image */}
           <Image
             src={

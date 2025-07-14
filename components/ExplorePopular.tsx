@@ -64,7 +64,7 @@ const ExplorePopular = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 md:py-8 lg:py-12 px-4">
+    <div className="h-auto bg-gray-50 py-6 md:py-8 lg:py-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
         <div className="text-center mb-6 md:mb-8 lg:mb-12">

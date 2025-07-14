@@ -65,7 +65,7 @@ const ExploreSelling = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#E9EEF2] py-8 md:py-10 lg:pt-6 lg:pb-12 px-4">
+    <div className="h-auto bg-[#E9EEF2] py-8 md:py-10 lg:pt-6 lg:pb-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
         <div className="text-center mb-6 md:mb-7 lg:mb-8">
