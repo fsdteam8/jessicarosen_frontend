@@ -171,13 +171,13 @@ export default function ProductList({
     );
   } else if (isError) {
     content = (
-      <div>
+      <div className="">
         <ErrorContainer message={error?.message || "Something went wrong"} />
       </div>
     );
   } else if (data && data?.data && data?.data?.length === 0) {
     content = (
-      <div>
+      <div className="">
         <NotFound message="Oops! No data available. Modify your filters or check your internet connection." />
       </div>
     );
@@ -193,7 +193,7 @@ export default function ProductList({
         {products?.map((product) => (
           <Card
             key={product._id}
-            className="overflow-hidden border-0 shadow-none rounded-[15px] bg-none"
+            className="overflow-hidden border-0 shadow-none rounded-[15px] bg-none "
           >
             {viewMode === "grid" ? (
               // Grid View Layout
@@ -213,7 +213,7 @@ export default function ProductList({
                   />
                 </Link>
 
-                <div className="flex-1 flex flex-col justify-between p-4">
+                <div className="flex-1 flex flex-col justify-between p-4 ">
                   <div className="space-y-3">
                     <h3 className="text-base sm:text-lg font-medium leading-[120%] text-[#2A2A2A] line-clamp-2">
                       {product.title}
@@ -313,7 +313,7 @@ export default function ProductList({
               </div>
             ) : (
               // List View Layout
-              <div className="flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8 p-8">
+              <div className="flex flex-col md:flex-row gap-6 md:gap-7 lg:gap-8 p-0">
                 <div className="flex-shrink-0">
                   <Link className="" href={`/products/${product._id}`}>
                     <Image
@@ -325,19 +325,19 @@ export default function ProductList({
                       alt={product?.title}
                       width={324}
                       height={324}
-                      className="object-cover w-full md:w-[324px] h-[324px] rounded-[8px]"
+                      className="object-cover w-full h-[200px] sm:h-[240px] rounded-[8px]"
                     />
                   </Link>
                 </div>
 
-                <div className="flex-1">
+                <div className="flex-1 p-4">
                   <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full">
                     <div className="flex-1">
-                      <h3 className="text-lg md:text-[19px] lg:text-xl text-[#2A2A2A] font-medium leading-[120%] tracking-normal mb-2">
+                      <h3 className="text-base md:text-lg lg:text-xl text-[#2A2A2A] font-medium leading-[120%] tracking-normal mb-2">
                         {product.title}
                       </h3>
 
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-0 md:mb-1 lg:mb-2 ">
                         <div className="">
                           <Avatar className="border border-black rounded-full w-[49px] h-[49px] flex items-center justify-center">
                             <AvatarImage
@@ -367,11 +367,11 @@ export default function ProductList({
                         dangerouslySetInnerHTML={{
                           __html: product?.description ?? "",
                         }}
-                        className="text-base text-[#424242] font-normal leading-[150%] tracking-normal mb-4 
-             overflow-hidden text-ellipsis"
+                        className="text-base text-[#424242] font-normal leading-[150%] tracking-normal mb-1 md:mb-2 lg:mb-4 
+             overflow-hidden text-ellipsis "
                         style={{
                           display: "-webkit-box",
-                          WebkitLineClamp: 5,
+                          WebkitLineClamp: 4,
                           WebkitBoxOrient: "vertical",
                         }}
                       />
@@ -400,10 +400,10 @@ export default function ProductList({
                           </span>
                         </div>
 
-                        <div className="space-y-3 md:space-y-4 lg:space-y-6">
+                        <div className="w-full space-y-3 md:space-y-4 lg:space-y-6">
                           <Button
                             size="lg"
-                            className="bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full max-w-[250px]"
+                            className=" bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full md:max-w-[250px]"
                             onClick={() => handleAddToCart(product)}
                             disabled={loadingProductId === product._id}
                           >
@@ -413,7 +413,7 @@ export default function ProductList({
                           <Button
                             size="lg"
                             onClick={() => toggleWishlist(product)}
-                            className={`text-base md:text-[17px] lg:text-lg font-bold leading-[120%] tracking-normal py-[13px] w-full max-w-[250px] transition-all duration-200 ${
+                            className={`text-base md:text-[17px] lg:text-lg font-bold leading-[120%] tracking-normal py-[13px] w-full md:max-w-[250px] transition-all duration-200 ${
                               isInWishlist(product._id)
                                 ? "bg-green-50 border-[2px] border-green-600 text-green-600 hover:bg-green-100"
                                 : "bg-transparent border-[2px] border-[#23547B] text-[#23547B] hover:bg-blue-50"
@@ -447,7 +447,7 @@ export default function ProductList({
   return (
     <div>
       <div>{content}</div>
-      <div className="pb-[88px] pt-4">
+      <div className="pb-[20px] md:pb-[50px] lg:pb-[88px] pt-4">
         {data && data?.pagination && data?.pagination?.totalPages > 1 && (
           <JessicaPagination
             currentPage={data.pagination.currentPage}

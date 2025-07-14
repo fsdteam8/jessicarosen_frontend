@@ -35,10 +35,10 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col container px-4 md:px-0">
       <main className="flex-1">
         {/* Hero Section */}
-        <div className="text-center my-[88px]">
+        <div className="text-center my-[22px] md:my-[40px] lg:my-[88px]">
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
             Blog Page
           </h2>

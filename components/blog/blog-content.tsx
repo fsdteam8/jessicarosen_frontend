@@ -44,8 +44,8 @@ export function BlogContent({ post }: BlogContentProps) {
   return (
     <div>
       <article className="container mx-auto">
-        <div className="mb-8">
-          <div className="relative h-[500px] w-full overflow-hidden rounded-lg mb-6">
+        <div className="mb-4 md:mb-6 lg:mb-8">
+          <div className="relative h-[350px] md:h-[420px] lg:h-[500px] w-full overflow-hidden rounded-lg mb-4 md:mb-5 lg:mb-6">
             <Image
               src={post?.thumbnail}
               alt={post.title}
@@ -79,7 +79,7 @@ export function BlogContent({ post }: BlogContentProps) {
           dangerouslySetInnerHTML={{ __html: post?.description }}
         />
 
-        <div className="mt-8 pt-6">
+        <div className="mt-2 md:mt-4 lg:mt-8 pt-2 md:pt-4 lg:pt-6">
          
           <div className="flex justify-center items-center gap-4 mb-6">
             <button className="border-b-2 border-[#23547B] pb-1">

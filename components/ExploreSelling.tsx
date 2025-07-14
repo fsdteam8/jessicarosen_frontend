@@ -56,7 +56,7 @@ const ExploreSelling = () => {
     );
   } else if (data && data?.data && data?.data?.length > 0) {
     content = (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-4 md:mb-7 lg:mb-12">
         {data?.data?.slice(0, 6)?.map((product) => (
           <ProductCard key={product._id} product={product} />
         ))}
@@ -65,11 +65,11 @@ const ExploreSelling = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#E9EEF2] py-12 px-4">
+    <div className="h-auto bg-[#E9EEF2] py-8 md:py-10 lg:pt-6 lg:pb-12 px-4">
       <div className="container mx-auto">
         {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-[40px] font-semibold text-gray-900 mb-4">
+        <div className="text-center mb-6 md:mb-7 lg:mb-8">
+          <h1 className="text-3xl md:text-4xl lg:text-[40px] font-semibold text-gray-900 mb-4">
             Explore Top Selling Resources in{" "}
             {currentRegion === "canada" ? "Canada" : "US"}
           </h1>
@@ -81,7 +81,7 @@ const ExploreSelling = () => {
 
         {/* Products Grid */}
         {data && data?.data && data?.data?.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 md:py-10 lg:py-12">
             <p className="text-[#23547B] text-lg font-semibold">
               No resources available for{" "}
               {currentRegion === "canada" ? "Canada" : "United States"}
