@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 import type { AllProductDataTypeResponse } from "@/types/all-product-dataType";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
 import Reviews from "./productDetails/reviews";
@@ -17,13 +17,13 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { addToCartAPI } from "@/lib/cart";
+// import { addToCartAPI } from "@/lib/cart";
 
 export default function ProductDetails() {
   const params = useParams();
   const session = useSession();
   const userId = session?.data?.user?.id;
-  const token = session?.data?.user?.accessToken;
+  // const token = session?.data?.user?.accessToken;
   const resourceId =
     typeof params?.id === "string" ? params.id : params?.id?.[0];
   const shareUrl = encodeURIComponent(
@@ -31,7 +31,7 @@ export default function ProductDetails() {
   );
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const { addItem } = useCart();
 
   const {
@@ -102,18 +102,43 @@ export default function ProductDetails() {
     },
   });
 
-  const addToCartMutation = useMutation({
-    mutationFn: () =>
-      addToCartAPI({
-        resourceId: product?._id ?? "",
-        quantity: 1,
-        token,
-      }),
-    onSuccess: (data) => {
-      toast.success(data.message || "Item added to cart");
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+  // const addToCartMutation = useMutation({
+  //   mutationFn: () =>
+  //     addToCartAPI({
+  //       resourceId: product?._id ?? "",
+  //       quantity: 1,
+  //       token,
+  //     }),
+  //   onSuccess: (data) => {
+  //     toast.success(data.message || "Item added to cart");
+  //     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
-      if (product) {
+  //     if (product) {
+  //       addItem({
+  //         id: product._id,
+  //         title: product.title,
+  //         price: product.price,
+  //         discountPrice: product.discountPrice,
+  //         image: Array.isArray(product.thumbnail)
+  //           ? product.thumbnail[0] || "/placeholder.svg"
+  //           : product.thumbnail || "/images/no-image.jpg",
+  //         thumbnail: Array.isArray(product.thumbnail)
+  //           ? product.thumbnail[0] || "/placeholder.svg"
+  //           : product.thumbnail || "/images/no-image.jpg",
+  //         quantity: 1,
+  //       });
+  //     }
+  //   },
+  //   onError: () => {
+  //     toast.error("Please log in to add items to cart");
+  //   },
+  // });
+
+
+  const addToCartMutation = (
+    product: AllProductDataTypeResponse["data"][number] | undefined
+  ) => {
+    if (product) {
         addItem({
           id: product._id,
           title: product.title,
@@ -128,11 +153,7 @@ export default function ProductDetails() {
           quantity: 1,
         });
       }
-    },
-    onError: () => {
-      toast.error("Please log in to add items to cart");
-    },
-  });
+  }
 
   const filteredProducts = useMemo(() => {
     if (!product?.practiceAreas || !categoryData?.data) return [];
@@ -232,17 +253,7 @@ export default function ProductDetails() {
       </div>
     ))}
   </div>
-</div>
-
-
-          {/* <div className="flex items-center gap-2 pt-4">
-            <span className="text-base font-medium text-[#616161]">Share:</span>
-            <div className="flex gap-2">
-              <Linkedin className="w-6 h-6 text-[#616161]" />
-              <Facebook className="w-6 h-6 text-[#616161]" />
-              <Instagram className="w-6 h-6 text-[#616161]" />
-            </div>
-          </div> */}
+</div> 
           
           <div className="flex items-center gap-2 pt-4">
             <span className="text-base font-medium text-[#616161]">Share:</span>
@@ -339,11 +350,12 @@ export default function ProductDetails() {
 
           <div className="flex gap-4 mb-6 flex-wrap">
             <Button
-              onClick={() => addToCartMutation.mutate()}
-              disabled={addToCartMutation.isPending}
+              onClick={() => addToCartMutation(product)}
+              // disabled={addToCartMutation.}
               className="bg-[#23547B] w-[142px] h-[48px] text-white font-bold rounded-[8px]"
             >
-              {addToCartMutation.isPending ? "Adding..." : "Add To Cart"}
+             Add To Cart
+              {/* {addToCartMutation.isPending ? "Adding..." : "Add To Cart"} */}
             </Button>
 
             {/* <Button

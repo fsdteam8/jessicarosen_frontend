@@ -37,7 +37,7 @@ type CartState = {
   removeCoupon: () => void;
   // Calculations
   getSubtotal: () => number;
-  // getItemCount: () => number;
+  getItemCount: () => number;
   getItemPrice: (id: string) => number;
   getShippingCost: () => number;
   getCouponDiscount: () => number;
@@ -56,6 +56,8 @@ export const useCart = create<CartState>()(
         const existingItemIndex = currentItems.findIndex(
           (i) => i.id === item.id
         );
+
+        console.log("Adding item to cart:", item);
 
         if (existingItemIndex >= 0) {
           // If item exists, update quantity
@@ -154,9 +156,9 @@ export const useCart = create<CartState>()(
         return price * item.quantity;
       },
 
-      // getItemCount: () => {
-      //   return get().items.reduce((count, item) => count + item.quantity, 0);
-      // },
+      getItemCount: () => {
+        return get().items.reduce((count, item) => count + item.quantity, 0);
+      },
 
       getShippingCost: () => {
         // Fixed shipping cost of $5 if cart has items, otherwise 0
