@@ -8,39 +8,43 @@ import {
   Minus,
   Plus,
   CircleX,
-  LogIn,
+  // LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  useUpdateCartItem,
-  useRemoveFromCart,
-  useCartTotals,
-  // useClearCart,
-} from "@/hooks/use-cart-api";
+// import {
+//   useUpdateCartItem,
+//   useRemoveFromCart,
+//   useCartTotals,
+//   useClearCart,
+// } from "@/hooks/use-cart-api";
 import { formatPrice } from "@/lib/utils";
-import { useSession } from "next-auth/react";
+import { useCart } from "@/hooks/use-cart";
+// import { useSession } from "next-auth/react";
 
 export default function CartPageAPI() {
-  const { status } = useSession();
-  const updateCartMutation = useUpdateCartItem();
-  const removeCartMutation = useRemoveFromCart();
+  // const { status } = useSession();
+  const { getSubtotal, getItemCount, getTotal, items, removeItem, updateQuantity } = useCart();
+  // const updateCartMutation = useUpdateCartItem();
+  // const removeCartMutation = useRemoveFromCart();
   // const clearCartMutation = useClearCart();
-  const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
+  // const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
 
-  const handleQuantityChange = async (
-    itemId: string,
-    targetQuantity: number
-  ) => {
-    if (targetQuantity < 1) return;
-    const currentItem = items.find((item) => item.resource._id === itemId);
-    if (!currentItem || currentItem.quantity === targetQuantity) return;
+  console.log(items);
 
-    await updateCartMutation.mutateAsync({ itemId, quantity: targetQuantity });
-  };
+  // const handleQuantityChange = async (
+  //   itemId: string,
+  //   targetQuantity: number
+  // ) => {
+  //   if (targetQuantity < 1) return;
+  //   const currentItem = items.find((item) => item.id === itemId);
+  //   if (!currentItem || currentItem.quantity === targetQuantity) return;
 
-  const handleRemoveItem = async (itemId: string) => {
-    await removeCartMutation.mutateAsync(itemId);
-  };
+  //   await updateCartMutation.mutateAsync({ itemId, quantity: targetQuantity });
+  // };
+
+  // const handleRemoveItem = async (itemId: string) => {
+  //   await removeCartMutation.mutateAsync(itemId);
+  // };
 
   // const handleClearCart = async () => {
   //   if (window.confirm("Are you sure you want to clear your cart?")) {
@@ -48,29 +52,29 @@ export default function CartPageAPI() {
   //   }
   // };
 
-  if (status === "unauthenticated") {
-    return (
-      <div className="flex flex-col">
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-12">
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <LogIn className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-medium mb-2">Please Login</h3>
-              <p className="text-gray-500 mb-6">
-                You need to be logged in to view your cart
-              </p>
-              <Button asChild className="bg-[#2c5d7c] hover:bg-[#1e4258]">
-                <Link href="/sign-in">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
+  // if (status === "unauthenticated") {
+  //   return (
+  //     <div className="flex flex-col">
+  //       <main className="flex-1">
+  //         <div className="container mx-auto px-4 py-12">
+  //           <div className="text-center py-12 bg-gray-50 rounded-lg">
+  //             <LogIn className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+  //             <h3 className="text-xl font-medium mb-2">Please Login</h3>
+  //             <p className="text-gray-500 mb-6">
+  //               You need to be logged in to view your cart
+  //             </p>
+  //             <Button asChild className="bg-[#2c5d7c] hover:bg-[#1e4258]">
+  //               <Link href="/sign-in">
+  //                 <LogIn className="mr-2 h-4 w-4" />
+  //                 Login
+  //               </Link>
+  //             </Button>
+  //           </div>
+  //         </div>
+  //       </main>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex flex-col">
@@ -90,12 +94,11 @@ export default function CartPageAPI() {
                 </Link>
               </Button>
             </div>
-            
           ) : (
             <div>
               <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">
-                  Shopping Cart ({itemCount} items)
+                  Shopping Cart ({getItemCount()} items)
                 </h1>
                 {/* <Button
                   variant="outline"
@@ -110,93 +113,108 @@ export default function CartPageAPI() {
                 <table className="w-full">
                   <thead className="text-left border-b-2 border-b-gray-500">
                     <tr>
-                      <th className="py-4 px-6 text-xl font-semibold">Products</th>
-                      <th className="py-4 px-6 text-xl font-semibold">Quantity</th>
+                      <th className="py-4 px-6 text-xl font-semibold">
+                        Products
+                      </th>
+                      <th className="py-4 px-6 text-xl font-semibold">
+                        Quantity
+                      </th>
                       <th className="py-4 px-6 text-xl font-semibold">Price</th>
                       <th className="py-4 px-6 text-xl font-semibold">Total</th>
-                      <th className="py-4 px-6 text-xl font-semibold">Remove</th>
+                      <th className="py-4 px-6 text-xl font-semibold">
+                        Remove
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {items
                       .filter((item) => {
-                        const itemPrice = item.resource.discountPrice || item.resource.price;
+                        const itemPrice = item.discountPrice || item.price;
                         return itemPrice && itemPrice > 0 && !isNaN(itemPrice);
                       })
                       .map((item) => {
-                        const itemPrice = item.resource.discountPrice || item.resource.price;
+                        const itemPrice = item.discountPrice || item.price;
                         const itemTotal = itemPrice * item.quantity;
 
                         return (
-                        <tr key={item._id}>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center">
-                              <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0 mr-4">
-                                <Image
-                                  src={
-                                    item.resource.thumbnail && item.resource.thumbnail !== ""
-                                      ? item.resource.thumbnail
-                                      : "/images/not-imge.png"
-                                  }
-                                  alt={item.resource.title || "Product Image"}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{item.resource.title}</h4>
-                                <div className="text-sm text-gray-500">
-                                  Format: {item.resource.format}
+                          <tr key={item.id}>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center">
+                                <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0 mr-4">
+                                  <Image
+                                    src={
+                                      item.thumbnail && item.thumbnail !== ""
+                                        ? item.thumbnail
+                                        : "/images/not-imge.png"
+                                    }
+                                    alt={item.title || "Product Image"}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <div>
+                                  <h4 className="font-medium">{item.title}</h4>
+                                  <div className="text-sm text-gray-500">
+                                    Price: {item?.discountPrice}{" "}
+                                    <span className="text-red-500 line-through">
+                                      ${item?.price}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center">
-                              <button
-                                className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50"
-                                onClick={() =>
-                                  handleQuantityChange(item.resource._id, Math.max(1, item.quantity - 1))
-                                }
-                              >
-                                <Minus className="h-3 w-3" />
-                              </button>
-                              <div className="h-8 w-16 text-center border-y flex items-center justify-center">
-                                {item.quantity}
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center">
+                                <button
+                                  className="h-8 w-8 border rounded-l-md flex items-center justify-center hover:bg-gray-50"
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item.id,
+                                      Math.max(1, item.quantity - 1)
+                                    )
+                                  }
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </button>
+                                <div className="h-8 w-16 text-center border-y flex items-center justify-center">
+                                  {item.quantity}
+                                </div>
+                                <button
+                                  className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50"
+                                  onClick={() =>
+                                    updateQuantity(
+                                      item.id,
+                                      item.quantity + 1
+                                    )
+                                  }
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </button>
                               </div>
-                              <button
-                                className="h-8 w-8 border rounded-r-md flex items-center justify-center hover:bg-gray-50"
-                                onClick={() =>
-                                  handleQuantityChange(item.resource._id, item.quantity + 1)
-                                }
+                            </td>
+                            <td className="py-4 px-6 font-medium">
+                              ${formatPrice(itemPrice)}
+                              {item.discountPrice && (
+                                <span className="line-through text-gray-500 ml-2 text-sm">
+                                  ${formatPrice(item.price)}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-4 px-6 font-medium">
+                              ${formatPrice(itemTotal)}
+                            </td>
+                            <td className="py-4 px-6">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeItem(item.id)}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50"
                               >
-                                <Plus className="h-3 w-3" />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 font-medium">
-                            ${formatPrice(itemPrice)}
-                            {item.resource.discountPrice && (
-                              <span className="line-through text-gray-500 ml-2 text-sm">
-                                ${formatPrice(item.resource.price)}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-4 px-6 font-medium">
-                            ${formatPrice(itemTotal)}
-                          </td>
-                          <td className="py-4 px-6">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveItem(item.resource._id)}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                            >
-                              <CircleX className="h-5 w-5" />
-                            </Button>
-                          </td>
-                        </tr>
-                                              );
+                                <CircleX className="h-5 w-5" />
+                              </Button>
+                            </td>
+                          </tr>
+                        );
                       })}
                   </tbody>
                 </table>
@@ -214,21 +232,25 @@ export default function CartPageAPI() {
                 </div>
 
                 <div className="md:w-1/3 p-6 rounded-lg">
-                  <h3 className="text-[24px] font-semibold mb-4">Cart Summary</h3>
+                  <h3 className="text-[24px] font-semibold mb-4">
+                    Cart Summary
+                  </h3>
                   <div className="space-y-2 mb-8">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal ({itemCount} items):</span>
-                      <span>${formatPrice(subtotal)}</span>
+                      <span className="text-gray-600">
+                        Subtotal ({getItemCount()} items):
+                      </span>
+                      <span>${formatPrice(getSubtotal())}</span>
                     </div>
-                    {shippingCost > 0 && (
+                    {/* {shippingCost > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Shipping:</span>
-                        <span>${formatPrice(shippingCost)}</span>
+                        <span>${formatPrice(getShippingCost())}</span>
                       </div>
-                    )}
+                    )} */}
                     <div className="pt-2 border-t flex justify-between font-bold">
                       <span>Total:</span>
-                      <span>${formatPrice(total)}</span>
+                      <span>${formatPrice(getTotal())}</span>
                     </div>
                   </div>
                   <Button
@@ -246,10 +268,6 @@ export default function CartPageAPI() {
     </div>
   );
 }
-
-
-
-
 
 // "use client";
 
@@ -279,19 +297,19 @@ export default function CartPageAPI() {
 //   const [localQuantity, setLocalQuantity] = useState(item.quantity);
 //   const [isUpdating, setIsUpdating] = useState(false);
 //   const updateTimeoutRef = useRef(null);
-  
-//   const itemPrice = useMemo(() => 
-//     item.resource.discountPrice || item.resource.price || 0, 
+
+//   const itemPrice = useMemo(() =>
+//     item.resource.discountPrice || item.resource.price || 0,
 //     [item.resource.discountPrice, item.resource.price]
 //   );
-  
+
 //   // Use local quantity for immediate UI updates
-//   const itemTotal = useMemo(() => 
-//     itemPrice * localQuantity, 
+//   const itemTotal = useMemo(() =>
+//     itemPrice * localQuantity,
 //     [itemPrice, localQuantity]
 //   );
 
-//   const hasDiscount = useMemo(() => 
+//   const hasDiscount = useMemo(() =>
 //     item.resource.discountPrice && item.resource.discountPrice < item.resource.price,
 //     [item.resource.discountPrice, item.resource.price]
 //   );
@@ -301,7 +319,7 @@ export default function CartPageAPI() {
 //     if (updateTimeoutRef.current) {
 //       clearTimeout(updateTimeoutRef.current);
 //     }
-    
+
 //     updateTimeoutRef.current = setTimeout(async () => {
 //       if (newQuantity !== item.quantity) {
 //         setIsUpdating(true);
@@ -320,7 +338,7 @@ export default function CartPageAPI() {
 
 //   const handleDecrease = useCallback(async () => {
 //     if (localQuantity <= 1 || isUpdating) return;
-    
+
 //     const newQuantity = localQuantity - 1;
 //     setLocalQuantity(newQuantity);
 //     debouncedUpdate(newQuantity);
@@ -328,7 +346,7 @@ export default function CartPageAPI() {
 
 //   const handleIncrease = useCallback(async () => {
 //     if (isUpdating) return;
-    
+
 //     const newQuantity = localQuantity + 1;
 //     setLocalQuantity(newQuantity);
 //     debouncedUpdate(newQuantity);
@@ -336,7 +354,7 @@ export default function CartPageAPI() {
 
 //   const handleRemove = useCallback(async () => {
 //     if (isUpdating) return;
-    
+
 //     setIsUpdating(true);
 //     try {
 //       await onRemoveItem(item.resource._id);
@@ -383,7 +401,7 @@ export default function CartPageAPI() {
 //           </div>
 //         </div>
 //       </td>
-      
+
 //       <td className="py-4 px-6">
 //         <div className="flex items-center justify-center">
 //           <button
@@ -394,14 +412,14 @@ export default function CartPageAPI() {
 //           >
 //             <Minus className="h-3 w-3" />
 //           </button>
-          
+
 //           <div className="h-8 w-16 text-center border-t border-b border-gray-300 flex items-center justify-center bg-white font-medium">
 //             {localQuantity}
 //             {isUpdating && (
 //               <span className="ml-1 text-xs text-gray-400">...</span>
 //             )}
 //           </div>
-          
+
 //           <button
 //             className="h-8 w-8 border border-gray-300 rounded-r-md flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
 //             onClick={handleIncrease}
@@ -412,7 +430,7 @@ export default function CartPageAPI() {
 //           </button>
 //         </div>
 //       </td>
-      
+
 //       <td className="py-4 px-6">
 //         <div className="font-medium text-gray-900">
 //           ${formatPrice(itemPrice)}
@@ -423,13 +441,13 @@ export default function CartPageAPI() {
 //           )}
 //         </div>
 //       </td>
-      
+
 //       <td className="py-4 px-6">
 //         <div className="font-semibold text-gray-900">
 //           ${formatPrice(itemTotal)}
 //         </div>
 //       </td>
-      
+
 //       <td className="py-4 px-6">
 //         <Button
 //           variant="ghost"
@@ -469,7 +487,7 @@ export default function CartPageAPI() {
 //       const price = item.resource.discountPrice || item.resource.price || 0;
 //       return sum + (price * item.quantity);
 //     }, 0);
-    
+
 //     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 //     const total = subtotal + shippingCost;
 
@@ -485,7 +503,7 @@ export default function CartPageAPI() {
 //   return (
 //     <div className="bg-gray-50 p-6 rounded-lg">
 //       <h3 className="text-2xl font-semibold mb-6 text-gray-900">Cart Summary</h3>
-      
+
 //       <div className="space-y-3 mb-6">
 //         <div className="flex justify-between items-center">
 //           <span className="text-gray-600">
@@ -493,22 +511,22 @@ export default function CartPageAPI() {
 //           </span>
 //           <span className="font-medium">${displaySubtotal}</span>
 //         </div>
-        
+
 //         {shippingCost > 0 && (
 //           <div className="flex justify-between items-center">
 //             <span className="text-gray-600">Shipping:</span>
 //             <span className="font-medium">${displayShipping}</span>
 //           </div>
 //         )}
-        
+
 //         <hr className="border-gray-200" />
-        
+
 //         <div className="flex justify-between items-center text-lg font-bold text-gray-900">
 //           <span>Total:</span>
 //           <span>${displayTotal}</span>
 //         </div>
 //       </div>
-      
+
 //       <Button
 //         asChild
 //         className="w-full bg-[#2c5d7c] text-white font-semibold h-12 hover:bg-[#1e4258] transition-colors duration-200"
@@ -532,8 +550,8 @@ export default function CartPageAPI() {
 //       <p className="text-gray-600 mb-8 leading-relaxed">
 //         Discover amazing products and add them to your cart to get started
 //       </p>
-//       <Button 
-//         asChild 
+//       <Button
+//         asChild
 //         className="bg-[#2c5d7c] hover:bg-[#1e4258] text-white font-semibold px-8 py-3 transition-colors duration-200"
 //       >
 //         <Link href="/products">
@@ -556,8 +574,8 @@ export default function CartPageAPI() {
 //       <p className="text-gray-600 mb-8 leading-relaxed">
 //         You need to be logged in to view and manage your cart
 //       </p>
-//       <Button 
-//         asChild 
+//       <Button
+//         asChild
 //         className="bg-[#2c5d7c] hover:bg-[#1e4258] text-white font-semibold px-8 py-3 transition-colors duration-200"
 //       >
 //         <Link href="/sign-in">
@@ -582,7 +600,7 @@ export default function CartPageAPI() {
 //   // Memoized valid items filtering with stable reference
 //   const validItems = useMemo(() => {
 //     if (!items || !Array.isArray(items)) return [];
-    
+
 //     return items.filter((item) => {
 //       if (!item?.resource) return false;
 //       const itemPrice = item.resource.discountPrice || item.resource.price;
@@ -591,15 +609,15 @@ export default function CartPageAPI() {
 //   }, [items]);
 
 //   // Calculate item count locally for header
-//   const itemCount = useMemo(() => 
-//     validItems.reduce((sum, item) => sum + item.quantity, 0), 
+//   const itemCount = useMemo(() =>
+//     validItems.reduce((sum, item) => sum + item.quantity, 0),
 //     [validItems]
 //   );
 
 //   // Memoized handlers to prevent unnecessary re-renders
 //   const handleQuantityChange = useCallback(async (itemId, targetQuantity) => {
 //     if (targetQuantity < 1) return;
-    
+
 //     try {
 //       await updateCartMutation.mutateAsync({ itemId, quantity: targetQuantity });
 //     } catch (error) {
@@ -621,7 +639,7 @@ export default function CartPageAPI() {
 //     const confirmed = window.confirm(
 //       `Are you sure you want to remove all ${itemCount} items from your cart?`
 //     );
-    
+
 //     if (confirmed) {
 //       try {
 //         await clearCartMutation.mutateAsync();
@@ -675,7 +693,7 @@ export default function CartPageAPI() {
 //                     ({itemCount} {itemCount === 1 ? 'item' : 'items'})
 //                   </span>
 //                 </h1>
-                
+
 //                 <Button
 //                   variant="outline"
 //                   onClick={handleClearCart}

@@ -75,7 +75,7 @@ export function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { setOpen } = useCart();
+  const { setOpen, getItemCount } = useCart();
   const searchParams = useSearchParams();
   const activePracticeAreaId = searchParams.get("practiceArea");
   // const [searchQuery, setSearchQuery] = useState("");
@@ -107,7 +107,7 @@ export function Header() {
 
   const session = useSession();
   const user = session?.data?.user;
-  const token = session?.data?.user?.accessToken;
+  // const token = session?.data?.user?.accessToken;
   // Prevent hydration mismatch by only showing dynamic content after mount
   useEffect(() => {
     setIsMounted(true);
@@ -179,19 +179,19 @@ export function Header() {
     ) || [];
 
   // Fetch cart data using react-query
-  const { data: cartResponse } = useQuery({
-    queryKey: ["cart", token],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!res.ok) throw new Error("Failed to fetch cart");
-      return res.json();
-    },
-    enabled: !!token,
-  });
+  // const { data: cartResponse } = useQuery({
+  //   queryKey: ["cart", token],
+  //   queryFn: async () => {
+  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+  //     if (!res.ok) throw new Error("Failed to fetch cart");
+  //     return res.json();
+  //   },
+  //   enabled: !!token,
+  // });
 
   return (
     <>
@@ -358,9 +358,9 @@ export function Header() {
                 <ShoppingCart className="text-2xl text-gray-600" />
                 {isMounted && (
                   <Badge className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
-                    {/* {itemCount} */}
+                    {getItemCount() || 0}
                     {/* {cartResponse.length || 0} */}
-                    {cartResponse?.data?.items?.length || 0}
+                    {/* {cartResponse?.data?.items?.length || 0} */}
                   </Badge>
                 )}
               </button>

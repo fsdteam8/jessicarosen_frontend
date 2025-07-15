@@ -65,7 +65,7 @@ export default function AllProducts() {
     (item) => item.resourceTypeName
   );
 
-  console.log(resourceTypes);
+  // console.log(resourceTypes);
 
   // countery data fetch
   const { data: countryData } = useQuery<CountriesApiResponse>({

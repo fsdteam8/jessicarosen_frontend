@@ -4,22 +4,24 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Lock, CircleX, Loader2, LogIn } from "lucide-react";
+import { Lock, CircleX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCart, useCartTotals, useClearCart } from "@/hooks/use-cart-api";
+// import { useCart, useCartTotals, useClearCart } from "@/hooks/use-cart-api";
 import { formatPrice } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useCoupon, usePayment } from "@/hooks/use-payment";
-import { useSession } from "next-auth/react";
+import { useCart } from "@/hooks/use-cart";
+// import { useSession } from "next-auth/react";
 
 export default function CheckoutPageAPI() {
   // const { isAuthenticated } = useAuth();
-  const { status } = useSession();
-  const { isLoading } = useCart();
-  const { subtotal, shippingCost, items } = useCartTotals();
-  const clearCartMutation = useClearCart();
+  // const { status } = useSession();
+  // const { isLoading } = useCart();
+  const {items, getSubtotal, getTotal} = useCart();
+  // const { subtotal, shippingCost, items } = useCartTotals();
+  // const clearCartMutation = useClearCart();
   const [discountedData, setDiscountedData] = useState<{
     code: string;
     discount: number;
@@ -50,7 +52,7 @@ export default function CheckoutPageAPI() {
   //     : Math.min(appliedCoupon.discount, subtotal)
   //   : 0;
 
-  const finalTotal = Math.max(0, subtotal + shippingCost);
+  // const finalTotal = Math.max(0, subtotal + shippingCost);
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +77,7 @@ export default function CheckoutPageAPI() {
     try {
       const result = await couponMutation.mutateAsync({
         code: promoCode,
-        price: String(subtotal),
+        price: String(getSubtotal()),
       });
 
       if (result.status) {
@@ -157,7 +159,7 @@ export default function CheckoutPageAPI() {
     try {
       await paymentMutation.mutateAsync();
       // Clear cart after successful payment initiation
-      await clearCartMutation.mutateAsync();
+      // await clearCartMutation.mutateAsync();
     } catch {
       // Error is handled by the mutation
       toast({
@@ -170,36 +172,36 @@ export default function CheckoutPageAPI() {
   };
 
   // Show login prompt if not authenticated
-  if (status === "unauthenticated") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <LogIn className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-          <h1 className="text-2xl font-bold mb-4">Please Login</h1>
-          <p className="text-gray-600 mb-6">
-            You need to be logged in to proceed with checkout
-          </p>
-          <Button asChild>
-            <Link href="/sign-in">
-              <LogIn className="mr-2 h-4 w-4" />
-              Login
-            </Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // if (status === "unauthenticated") {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <LogIn className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+  //         <h1 className="text-2xl font-bold mb-4">Please Login</h1>
+  //         <p className="text-gray-600 mb-6">
+  //           You need to be logged in to proceed with checkout
+  //         </p>
+  //         <Button asChild>
+  //           <Link href="/sign-in">
+  //             <LogIn className="mr-2 h-4 w-4" />
+  //             Login
+  //           </Link>
+  //         </Button>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p>Loading checkout...</p>
-        </div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+  //         <p>Loading checkout...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -236,36 +238,38 @@ export default function CheckoutPageAPI() {
                   </div>
                   {items.map((item) => (
                     <div
-                      key={item._id}
+                      key={item.id}
                       className="flex items-center gap-4 p-4 border-b"
                     >
                       <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0">
                         <Image
                           src={
-                            item.resource.thumbnail ||
+                            item.thumbnail ||
                             "/placeholder.svg?height=64&width=64"
                           }
-                          alt={item.resource.title}
+                          alt={item.title}
                           fill
                           className="object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium truncate">
-                          {item.resource.title}
+                          {item.title}
                         </h4>
                         <div className="flex justify-between items-center mt-1">
                           <div className="text-sm text-gray-500">
                             Price: $
-                            {item.resource.discountPrice || item.resource.price}
-                            {item.resource.discountPrice && (
+                            {item.discountPrice || item.price}
+                            {item.discountPrice && (
                               <span className="line-through ml-1 text-red-500">
-                                ${item.resource.price}
+                                ${item.price}
                               </span>
                             )}
                           </div>
-                          <div className="text-sm flex items-center ">
+                          <div className=" -mt-7">
+                            <div className="text-sm  flex items-center">
                             Qty: {item.quantity}
+                          </div>
                           </div>
                         </div>
                       </div>
@@ -273,8 +277,8 @@ export default function CheckoutPageAPI() {
                         <div className="font-medium">
                           $
                           {formatPrice(
-                            (item.resource.discountPrice ||
-                              item.resource.price) * item.quantity
+                            (item.discountPrice ||
+                              item.price) * item.quantity
                           )}
                         </div>
                       </div>
@@ -346,8 +350,8 @@ export default function CheckoutPageAPI() {
                             {formatPrice(
                               Number(
                                 discountedData?.finalPrice === 0
-                                  ? subtotal
-                                  : discountedData?.finalPrice ?? subtotal
+                                  ? getSubtotal()
+                                  : discountedData?.finalPrice ?? getSubtotal()
                               )
                             )}
                           </span>
@@ -380,8 +384,8 @@ export default function CheckoutPageAPI() {
                           {formatPrice(
                             Number(
                               discountedData?.finalPrice === 0
-                                ? subtotal
-                                : discountedData?.finalPrice ?? subtotal
+                                ? getSubtotal()
+                                : discountedData?.finalPrice ?? getSubtotal()
                             )
                           )}
                         </span>
@@ -418,7 +422,7 @@ export default function CheckoutPageAPI() {
               ) : (
                 <>
                   <Lock className="mr-2 h-4 w-4" />
-                  Make Your Payment (${formatPrice(finalTotal)})
+                  Make Your Payment (${formatPrice(getTotal())})
                 </>
               )}
             </Button>
