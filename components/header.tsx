@@ -37,6 +37,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
+import { SearchDropdown } from "./search-dropdown";
 
 interface PromoCodeCreator {
   _id: string;
@@ -77,6 +78,8 @@ export function Header() {
   const { setOpen } = useCart();
   const searchParams = useSearchParams();
   const activePracticeAreaId = searchParams.get("practiceArea");
+  // const [searchQuery, setSearchQuery] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -113,19 +116,26 @@ export function Header() {
   // const itemCount = isMounted ? getItemCount() : 0;
   const wishlistCount = isMounted ? items.length : 0;
 
+  // const handleSearch = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (searchQuery.trim()) {
+  //     setIsSearchModalOpen(true);
+  //     setIsSearchOpen(false);
+  //   }
+  // };
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      setIsSearchModalOpen(true);
-      setIsSearchOpen(false);
+      router.push(`/products/${encodeURIComponent(searchQuery)}`);
+      setDropdownOpen(false);
     }
   };
 
-  const handleSearchButtonClick = () => {
-    if (searchQuery.trim()) {
-      setIsSearchModalOpen(true);
-    }
-  };
+  // const handleSearchButtonClick = () => {
+  //   if (searchQuery.trim()) {
+  //     setIsSearchModalOpen(true);
+  //   }
+  // };
 
   const handleMobileSearchClick = () => {
     if (isSearchOpen && searchQuery.trim()) {
@@ -300,23 +310,30 @@ export function Header() {
             </div>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-md mx-8 hidden md:block">
-              <form onSubmit={handleSearch} className="relative ">
+            <div className="flex-1 max-w-md mx-8 hidden md:block relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Input
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setDropdownOpen(true)}
                   className="w-full h-[52px] pl-4 pr-12 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <button
-                  type="button"
-                  onClick={handleSearchButtonClick}
+                  type="submit"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white rounded-full bg-[#23547B] p-2 hover:bg-[#1a3f5c] transition-colors"
                 >
                   <Search className="text-xl text-white" />
                 </button>
               </form>
+
+              {dropdownOpen && (
+                <SearchDropdown
+                  query={searchQuery}
+                  onClose={() => setDropdownOpen(false)}
+                />
+              )}
             </div>
 
             {/* Mobile Search Button */}
