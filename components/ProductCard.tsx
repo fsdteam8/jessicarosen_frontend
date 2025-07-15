@@ -7,10 +7,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { addToCartAPI } from "@/lib/cart";
-import { useSession } from "next-auth/react";
+// import { useMutation, useQueryClient } from "@tanstack/react-query";
+// import { toast } from "sonner";
+// import { addToCartAPI } from "@/lib/cart";
+// import { useSession } from "next-auth/react";
 
 export interface ProductDataType {
   _id: string;
@@ -32,6 +32,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
+  console.log(addItem)
  
   const {
     addItem: addToWish,
@@ -39,48 +40,48 @@ export default function ProductCard({ product }: ProductCardProps) {
     items: wishlistItems,
   } = useWishlist();
 
-  const session = useSession();
-  const token = session?.data?.user?.accessToken;
+  // const session = useSession();
+  // const token = session?.data?.user?.accessToken;
 
   const isInWishlist = wishlistItems.some((item) => item.id === product?._id);
 
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
-const mutation = useMutation({
-  mutationFn: () =>
-    addToCartAPI({
-      resourceId: product?._id ?? "",
-      quantity: 1,
-      token,
-    }),
-  onSuccess: (data) => {
-    toast.success(data.message || "Item added to cart");
+// const mutation = useMutation({
+//   mutationFn: () =>
+//     addToCartAPI({
+//       resourceId: product?._id ?? "",
+//       quantity: 1,
+//       token,
+//     }),
+//   onSuccess: (data) => {
+//     toast.success(data.message || "Item added to cart");
 
     
-    queryClient.invalidateQueries({ queryKey: ["cart"] });
+//     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
    
-    if (product) {
-      addItem({
-        id: product._id,
-        title: product.title,
-        price: product.price,
-        discountPrice: product.discountPrice,
-        image: Array.isArray(product.thumbnail)
-          ? product.thumbnail[0] || "/placeholder.svg"
-          : product.thumbnail || "/images/no-image.jpg",
-        thumbnail: Array.isArray(product.thumbnail)
-          ? product.thumbnail[0] || "/placeholder.svg"
-          : product.thumbnail || "/images/no-image.jpg",
-        quantity: 1,
-      });
-    }
-  },
-  onError: (error) => {
-    toast.error("Login in to add items to cart");
-    console.error("Add to cart error:", error);
-  },
-});
+//     if (product) {
+//       addItem({
+//         id: product._id,
+//         title: product.title,
+//         price: product.price,
+//         discountPrice: product.discountPrice,
+//         image: Array.isArray(product.thumbnail)
+//           ? product.thumbnail[0] || "/placeholder.svg"
+//           : product.thumbnail || "/images/no-image.jpg",
+//         thumbnail: Array.isArray(product.thumbnail)
+//           ? product.thumbnail[0] || "/placeholder.svg"
+//           : product.thumbnail || "/images/no-image.jpg",
+//         quantity: 1,
+//       });
+//     }
+//   },
+//   onError: (error) => {
+//     toast.error("Login in to add items to cart");
+//     console.error("Add to cart error:", error);
+//   },
+// });
 
   const toggleWishlist = () => {
     if (!product) return;
@@ -188,11 +189,24 @@ const mutation = useMutation({
             <div className="flex justify-between items-center gap-2 mt-auto w-full">
              <div>
                <Button
-                onClick={() => mutation.mutate()}
-                disabled={mutation.isPending}
+                onClick={() => addItem({
+                  id: product?._id || "",
+                  title: product?.title || "",
+                  price: product?.price || 0,
+                  discountPrice: product?.discountPrice || 0,
+                  image: Array.isArray(product?.thumbnail)
+                    ? product?.thumbnail[0] || "/placeholder.svg"
+                    : product?.thumbnail || "/images/no-image.jpg",
+                  thumbnail: Array.isArray(product?.thumbnail)
+                    ? product?.thumbnail[0] || "/placeholder.svg"
+                    : product?.thumbnail || "/images/no-image.jpg",
+                  quantity: 1,
+                })}
+                // disabled={mutation.isPending}
                 className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-[#133958] text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
               >
-                {mutation.isPending ? "Adding..." : "Add To Cart"}
+                Add To Cart
+                {/* {mutation.isPending ? "Adding..." : "Add To Cart"} */}
               </Button>
              </div>
 

@@ -6,7 +6,7 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api";
+// import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api";
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
@@ -20,6 +20,7 @@ import ErrorContainer from "../shared/ErrorContainer/ErrorContainer";
 import NotFound from "../shared/NotFound/NotFound";
 // import { toast } from "@/hooks/use-toast";
 import { toast } from "sonner";
+import { useCart } from "@/hooks/use-cart";
 
 interface ProductListProps {
   viewMode?: "grid" | "list";
@@ -48,51 +49,53 @@ export default function ProductList({
       ? "USA"
       : null;
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: cartData } = useCart();
-  const { mutateAsync: addToCart } = useAddToCart();
-  const updateCartMutation = useUpdateCartItem();
+  // const { data: cartData } = useCart();
+  // const { mutateAsync: addToCart } = useAddToCart();
+  // const updateCartMutation = useUpdateCartItem();
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
     items: wishlistItems,
   } = useWishlist();
 
+  const { addItem } = useCart();
+
   const isInWishlist = (productId: number | string) => {
     return wishlistItems.some((item) => item.id === productId);
   };
 
   // NEW: State to track loading per product
-  const [loadingProductId, setLoadingProductId] = useState<string | number | null>(null);
+  // const [loadingProductId, setLoadingProductId] = useState<string | number | null>(null);
 
-  const handleAddToCart = async (product: any) => {
-    setLoadingProductId(product._id); // set loading state for this product
-    try {
-      const cartItem = cartData?.data?.items?.find(
-        (item) => item.resource._id === product._id
-      );
+  // const handleAddToCart = async (product: any) => {
+  //   setLoadingProductId(product._id); // set loading state for this product
+  //   try {
+  //     const cartItem = cartData?.data?.items?.find(
+  //       (item) => item.resource._id === product._id
+  //     );
 
-      if (cartItem) {
-        await updateCartMutation.mutateAsync({
-          itemId: cartItem._id,
-          quantity: cartItem.quantity + 1,
-        });
-      } else {
-        await addToCart({
-          resourceId: product._id,
-          quantity: 1,
-        });
-      }
+  //     if (cartItem) {
+  //       await updateCartMutation.mutateAsync({
+  //         itemId: cartItem._id,
+  //         quantity: cartItem.quantity + 1,
+  //       });
+  //     } else {
+  //       await addToCart({
+  //         resourceId: product._id,
+  //         quantity: 1,
+  //       });
+  //     }
 
-      toast.success("Item added to cart");
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      toast.error(
-        error instanceof Error ? error.message : "Failed to add item"
-      );
-    } finally {
-      setLoadingProductId(null); // clear loading state when done
-    }
-  };
+  //     toast.success("Item added to cart");
+  //   } catch (error) {
+  //     console.error("Add to cart error:", error);
+  //     toast.error(
+  //       error instanceof Error ? error.message : "Failed to add item"
+  //     );
+  //   } finally {
+  //     setLoadingProductId(null); // clear loading state when done
+  //   }
+  // };
 
   const toggleWishlist = (item: any) => {
     const id = item._id;
@@ -154,7 +157,7 @@ export default function ProductList({
     });
 
   const products = data?.data || [];
-  console.log("short-product", products)
+  console.log("short-product", products);
 
   let content;
 
@@ -279,11 +282,28 @@ export default function ProductList({
 
                     <div className="space-y-2">
                       <Button
-                        onClick={() => handleAddToCart(product)}
-                        disabled={loadingProductId === product._id}
+                        onClick={() =>
+                          addItem({
+                            id: product._id,
+                            title: product.title,
+                            price: product.price,
+                            discountPrice: product.discountPrice,
+                            image: Array.isArray(product.thumbnail)
+                              ? product.thumbnail[0] || "/images/no-image.jpg"
+                              : product.thumbnail || "/images/no-image.jpg",
+                            thumbnail: Array.isArray(product.thumbnail)
+                              ? product.thumbnail[0] || "/images/no-image.jpg"
+                              : product.thumbnail || "/images/no-image.jpg",
+                            // category: product.category || "",
+                            // categoryId: product.categoryId || "",
+                            quantity: 1,
+                          })
+                        }
+                        // disabled={loadingProductId === product._id}
                         className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
                       >
-                        {loadingProductId === product._id ? "Adding..." : "Add To Cart"}
+                        Add To Cart
+                        {/* {loadingProductId === product._id ? "Adding..." : "Add To Cart"} */}
                       </Button>
 
                       <Button
@@ -401,13 +421,39 @@ export default function ProductList({
                         </div>
 
                         <div className="w-full space-y-3 md:space-y-4 lg:space-y-6">
-                          <Button
+                          {/* <Button
                             size="lg"
                             className=" bg-[#23547B] text-base font-bold text-white leading-[120%] tracking-normal py-[14px] rounded-[8px] w-full md:max-w-[250px]"
                             onClick={() => handleAddToCart(product)}
                             disabled={loadingProductId === product._id}
                           >
                             {loadingProductId === product._id ? "Adding..." : "Add To Cart"}
+                          </Button> */}
+                          <Button
+                            onClick={() =>
+                              addItem({
+                                id: product._id,
+                                title: product.title,
+                                price: product.price,
+                                discountPrice: product.discountPrice,
+                                image: Array.isArray(product.thumbnail)
+                                  ? product.thumbnail[0] ||
+                                    "/images/no-image.jpg"
+                                  : product.thumbnail || "/images/no-image.jpg",
+                                thumbnail: Array.isArray(product.thumbnail)
+                                  ? product.thumbnail[0] ||
+                                    "/images/no-image.jpg"
+                                  : product.thumbnail || "/images/no-image.jpg",
+                                // category: product.category || "",
+                                // categoryId: product.categoryId || "",
+                                quantity: 1,
+                              })
+                            }
+                            // disabled={loadingProductId === product._id}
+                            className="bg-[#23547B] text-sm font-bold text-white leading-[120%] py-2 rounded-[8px] w-full"
+                          >
+                            Add To Cart
+                            {/* {loadingProductId === product._id ? "Adding..." : "Add To Cart"} */}
                           </Button>
 
                           <Button
