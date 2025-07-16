@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -15,11 +16,19 @@ import { useCoupon, usePayment } from "@/hooks/use-payment";
 import { useCart } from "@/hooks/use-cart";
 // import { useSession } from "next-auth/react";
 
+// type MyPaymentRequest = {
+//   items: {
+//     resource: string;
+//     quantity: number;
+//   }[];
+//   couponCode?: string;
+// };
+
 export default function CheckoutPageAPI() {
   // const { isAuthenticated } = useAuth();
   // const { status } = useSession();
   // const { isLoading } = useCart();
-  const {items, getSubtotal, getTotal} = useCart();
+  const { items, getSubtotal, getTotal } = useCart();
   // const { subtotal, shippingCost, items } = useCartTotals();
   // const clearCartMutation = useClearCart();
   const [discountedData, setDiscountedData] = useState<{
@@ -32,6 +41,7 @@ export default function CheckoutPageAPI() {
   } | null>(null);
 
   // console.log(cartData);
+  console.log(items);
 
   const [promoCode, setPromoCode] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -41,9 +51,19 @@ export default function CheckoutPageAPI() {
     type: "percentage" | "fixed";
   } | null>(null);
 
+  const [paymentData] = useState<any>({
+    items: items.map((item) => ({
+      resource: item.id,
+      quantity: item.quantity,
+    })),
+    // total: getTotal(),
+    couponCode: appliedCoupon?.code,
+  });
+
   const { toast } = useToast();
   const couponMutation = useCoupon();
-  const paymentMutation = usePayment();
+
+  const paymentMutation = usePayment(paymentData);
 
   // Calculate coupon discount
   // const couponDiscount = appliedCoupon
@@ -253,13 +273,10 @@ export default function CheckoutPageAPI() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-medium truncate">
-                          {item.title}
-                        </h4>
+                        <h4 className="font-medium truncate">{item.title}</h4>
                         <div className="flex justify-between items-center mt-1">
                           <div className="text-sm text-gray-500">
-                            Price: $
-                            {item.discountPrice || item.price}
+                            Price: ${item.discountPrice || item.price}
                             {item.discountPrice && (
                               <span className="line-through ml-1 text-red-500">
                                 ${item.price}
@@ -268,8 +285,8 @@ export default function CheckoutPageAPI() {
                           </div>
                           <div className=" -mt-7">
                             <div className="text-sm  flex items-center">
-                            Qty: {item.quantity}
-                          </div>
+                              Qty: {item.quantity}
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -277,8 +294,7 @@ export default function CheckoutPageAPI() {
                         <div className="font-medium">
                           $
                           {formatPrice(
-                            (item.discountPrice ||
-                              item.price) * item.quantity
+                            (item.discountPrice || item.price) * item.quantity
                           )}
                         </div>
                       </div>
