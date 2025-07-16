@@ -180,10 +180,10 @@ export const useCart = create<CartState>()(
 
       getTotal: () => {
         const subtotal = get().getSubtotal();
-        const shipping = get().getShippingCost();
+        // const shipping = get().getShippingCost();
         const couponDiscount = get().getCouponDiscount();
 
-        return Math.max(0, subtotal + shipping - couponDiscount);
+        return Math.max(0, subtotal - couponDiscount);
       },
     }),
     {
