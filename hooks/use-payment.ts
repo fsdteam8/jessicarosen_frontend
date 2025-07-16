@@ -74,7 +74,7 @@ const applyCoupon = async (
 };
 
 const createPaymentSession = async (
-  // paymentData: PaymentRequest,
+  paymentData: PaymentRequest,
   token: string
 ): Promise<PaymentResponse> => {
   const response = await fetch(
@@ -82,10 +82,10 @@ const createPaymentSession = async (
     {
       method: "POST",
       headers: {
-        // "Content-Type": "application/json",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      // body: JSON.stringify(paymentData),
+      body: JSON.stringify(paymentData),
     }
   );
 
@@ -128,17 +128,18 @@ export function useCoupon() {
   });
 }
 
-export function usePayment() {
+export function usePayment(paymentData: PaymentRequest) {
   const { data: session, status } = useSession();
   const token = session?.user?.accessToken || null;
   const router = useRouter();
+  // console.log(token)
 
   return useMutation({
     mutationFn: () => {
       if (status === "unauthenticated" || !token) {
         throw new Error("Please login to make payment");
       }
-      return createPaymentSession(token);
+      return createPaymentSession(paymentData, token);
     },
 
     onSuccess: (data) => {

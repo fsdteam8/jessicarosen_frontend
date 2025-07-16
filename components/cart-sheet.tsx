@@ -204,16 +204,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/hooks/use-cart";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { toast } from "sonner"; // ✅ Ensure you have this
+// import { toast } from "sonner"; // ✅ Ensure you have this
 import { formatPrice } from "@/lib/utils";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function CartSheet() {
   const { getSubtotal, items, isOpen, setOpen, removeItem } = useCart();
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
   const session = useSession();
   const token = session?.data?.user?.accessToken;
 
@@ -236,13 +236,13 @@ export function CartSheet() {
       // Optimistically update UI
       removeItem(resourceId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-      toast.success("Item removed from cart");
-    },
-    onError: () => {
-      toast.error("Failed to remove item");
-    },
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["cart"] });
+    //   toast.success("Item removed from cart");
+    // },
+    // onError: () => {
+    //   toast.error("Failed to remove item");
+    // },
   });
 
   // if (!data?.data?.items) return null;
