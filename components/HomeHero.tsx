@@ -2,13 +2,13 @@
 import Image from "next/image";
 import { useAppSelector } from "@/redux/hooks";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { useRef } from "react";
-import Autoplay from "embla-carousel-autoplay";
+// import {
+//   Carousel,
+//   CarouselContent,
+//   CarouselItem,
+// } from "@/components/ui/carousel";
+// import { useRef } from "react";
+// import Autoplay from "embla-carousel-autoplay";
 import { Button } from "./ui/button";
 import Link from "next/link";
 
@@ -27,68 +27,68 @@ interface ApiResponse {
   };
 }
 
-interface HeroPromoCarouselProps {
-  specialPromos: PromoCode[];
-}
+// interface HeroPromoCarouselProps {
+//   specialPromos: PromoCode[];
+// }
 
-function HeroPromoCarousel({ specialPromos }: HeroPromoCarouselProps) {
-  const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
+// function HeroPromoCarousel({ specialPromos }: HeroPromoCarouselProps) {
+//   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
 
-  if (specialPromos.length === 0) {
-    return (
-      <div className="lg:mt-4">
-        <p className="text-[32px] font-bold text-[#E0B15E]">30%</p>
-        <p className="text-base font-medium leading-[120%]">
-          Purchase discount.
-        </p>
-        <p className="text-sm text-[#E0B15E] mt-1">Code: SAVE30</p>
-      </div>
-    );
-  }
+//   if (specialPromos.length === 0) {
+//     return (
+//       <div className="lg:mt-4">
+//         <p className="text-[32px] font-bold text-[#E0B15E]">30%</p>
+//         <p className="text-base font-medium leading-[120%]">
+//           Purchase discount.
+//         </p>
+//         <p className="text-sm text-[#E0B15E] mt-1">Code: SAVE30</p>
+//       </div>
+//     );
+//   }
 
-  if (specialPromos.length === 1) {
-    return (
-      <div className="lg:mt-4">
-        <p className="text-[32px] font-bold text-[#E0B15E]">
-          {specialPromos[0].discountValue}%
-        </p>
-        <p className="text-base font-medium leading-[120%]">
-          Purchase discount.
-        </p>
-        <p className="text-sm text-[#E0B15E] mt-1">
-          Code: {specialPromos[0].code}
-        </p>
-      </div>
-    );
-  }
+//   if (specialPromos.length === 1) {
+//     return (
+//       <div className="lg:mt-4">
+//         <p className="text-[32px] font-bold text-[#E0B15E]">
+//           {specialPromos[0].discountValue}%
+//         </p>
+//         <p className="text-base font-medium leading-[120%]">
+//           Purchase discount.
+//         </p>
+//         <p className="text-sm text-[#E0B15E] mt-1">
+//           Code: {specialPromos[0].code}
+//         </p>
+//       </div>
+//     );
+//   }
 
-  return (
-    <div className="lg:mt-4">
-      <Carousel
-        className="w-full max-w-xs"
-        plugins={[plugin.current]}
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
-        opts={{
-          align: "center",
-          loop: true,
-        }}
-      >
-        <CarouselContent>
-          {specialPromos.map((promo) => (
-            <CarouselItem key={promo._id}>
-              <div className="text-center">
-                <p className="text-[32px] font-bold text-[#E0B15E]">
-                  {promo.discountValue}%
-                </p>
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
-    </div>
-  );
-}
+//   return (
+//     <div className="lg:mt-4">
+//       <Carousel
+//         className="w-full max-w-xs"
+//         plugins={[plugin.current]}
+//         onMouseEnter={plugin.current.stop}
+//         onMouseLeave={plugin.current.reset}
+//         opts={{
+//           align: "center",
+//           loop: true,
+//         }}
+//       >
+//         <CarouselContent>
+//           {specialPromos.map((promo) => (
+//             <CarouselItem key={promo._id}>
+//               <div className="text-center">
+//                 <p className="text-[32px] font-bold text-[#E0B15E]">
+//                   {promo.discountValue}%
+//                 </p>
+//               </div>
+//             </CarouselItem>
+//           ))}
+//         </CarouselContent>
+//       </Carousel>
+//     </div>
+//   );
+// }
 
 export default function HomeHero() {
   const currentRegion = useAppSelector((state) => state.region.currentRegion);
@@ -100,7 +100,7 @@ export default function HomeHero() {
       : "Canada";
 
   // Fetch promo codes for hero section
-  const { data, isLoading, error } = useQuery<ApiResponse>({
+  const {  isLoading, error } = useQuery<ApiResponse>({
     queryKey: ["hero-promo"],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`);
@@ -114,8 +114,8 @@ export default function HomeHero() {
   });
 
   // Filter special promo codes
-  const specialPromoCodes =
-    data?.data.data.filter((promo) => promo.special && promo.active) || [];
+  // const specialPromoCodes =
+  //   data?.data.data.filter((promo) => promo.special && promo.active) || [];
 
   if (isLoading) {
     return (
@@ -189,31 +189,40 @@ export default function HomeHero() {
               </div>
 
               <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
-                Deal Of The <span className="text-[#E0B15E]">Day</span>!
+                {/* Deal Of The <span className="text-[#E0B15E]">Day</span>! */}
               </h1>
-              <p className="text-base font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
-                Widely used materials that help students, legal professionals,
-                and researchers understand and apply legal principles.
+              <p className=" text-3xl font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
+                Real lawyers. Real documents. Real money.
+Access proven legal materials. Upload your own. Get paid
               </p>
               <div className="flex items-center justify-center w-[95%] mz"></div>
 
-              <div className="lg:mt-6 text-start flex justify-between items-center">
-                <div className="lg:h-[54px] lg:w-[242px] ">
+              <div className="lg:mt-6 text-start flex justify-arround items-center">
+                <div className="lg:h-[54px] lg:w-[222px] ">
                   <Link href="/products">
                     <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
                       Explore Resources
                     </Button>
                   </Link>
                 </div>
-                <div className="lg:mt-4">
+                <div className="ml-5 lg:h-[54px] lg:w-[212px] ">
+                  <Link href="/dashboard">
+                    <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
+                     sell your work
+                    </Button>
+                  </Link>
+                </div>
+                {/* <div className="lg:mt-4">
                   <p className="text-[32px] font-bold text-[#E0B15E]">
                     <HeroPromoCarousel specialPromos={specialPromoCodes} />
                   </p>
                   <p className="text-base font-medium leading-[120%] text-white tracking-[0%]">
                     Purchase discount.
                   </p>
-                </div>
+                </div> */}
               </div>
+
+
             </div>
           </div>
         </div>

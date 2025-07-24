@@ -402,13 +402,13 @@ export function Header() {
                 <div className="flex items-center gap-4">
                   <Link
                     href="/sign-up"
-                    className="bg-[#23547B] hover:bg-[#174468] text-white px-6 py-2 rounded-md hidden sm:flex"
+                    className="bg-[#23547B] hover:bg-[#174468] text-white px-3 py-1 rounded-md hidden sm:flex"
                   >
                     Sign Up
                   </Link>
                   <Link
                     href="/sign-in"
-                    className="bg-[#23547B] hover:bg-[#174468] text-white px-6 py-2 rounded-md hidden sm:flex"
+                    className="bg-[#23547B] hover:bg-[#174468] text-white px-3 py-1 rounded-md hidden sm:flex"
                   >
                     Login
                   </Link>
