@@ -25,7 +25,7 @@ export function DashboardOverview() {
     queryKey: ["dashboard-overview"],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}seller/dashboard/dashboard-summary`,
+        `${process.env.NEXT_PUBLIC_API_URL}/seller/dashboard/dashboard-summary`,
         {
           headers: {
             "Content-Type": "application/json",
