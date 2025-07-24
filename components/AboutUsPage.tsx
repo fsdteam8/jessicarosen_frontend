@@ -201,7 +201,7 @@ export default function AboutUsPage() {
 
   <div className="pt-4 border-t">
     <h3 className="text-lg sm:text-xl font-semibold">
-      Looking for Legal Documents?
+      Looking for Legal Documents?s
     </h3>
     <p className="text-sm sm:text-base">
       Thousands of templates. No subscription. One-time purchase. Upload yours and get paid.

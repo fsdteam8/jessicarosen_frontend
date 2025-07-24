@@ -24,19 +24,18 @@ const LegalDoc = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex gap-3 items-center">
-              <div className="w-[146px] lg:w-[176px] h-[66px] lg:h-[88px]">
+              <div className="w-[146px] lg:w-[146px] h-[5px] lg:h-[68px]">
                 <Image
                   src={countryName === 'Canada' ? "/images/flage.png" : "/images/flage1.png"}
-                  alt="Hero Image"
+                  alt="Hero Image" 
                   // fill
-                  width={200}
-                  height={200}
+                  width={150}                 height={150}
                   className="object-cover w-full h-full rounded-lg"
                   priority
                 />
               </div>
               <div>
-                <h2 className="text-xl md:text-3xl lg:text-[40px] font-semibold leading-[120%] mb-2">
+                <h2 className="text-xl md:text-3xl lg:text-[25px] font-semibold leading-[120%] mb-2">
                   Looking For Legal Documents?
                 </h2>
                 <p className="text-sm">
