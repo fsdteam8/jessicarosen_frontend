@@ -115,49 +115,42 @@ export default function AboutUsPage() {
 </div>
 
 
-          {/* Unique & researchable content Section */}
-          <div className="max-w-none">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
-              Unique & researchable content
-            </h2>
-            <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6">
-              Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-              eget euismod velit, ut dapibus est urna. Suspendisse dictum
-              facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-              placerat dui. Morbi condimentum porttitor turpis sed ultrices.
-              Suspendisse auctor facilisis ullamcorper. Maecenas vitae
-              efficitur lorem, in placerat dui.
-            </p>
-            <ul className="space-y-3 sm:space-y-4 text-gray-600">
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-            </ul>
-          </div>
+          {/* Unique & Researchable Content Section */}
+<div className="max-w-none">
+  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
+    Unique & Researchable Content
+  </h2>
+  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6">
+    Lawbie isn’t just a template hub—it’s a growing marketplace built on trust, quality, and community. Every resource has been drafted by practicing lawyers and vetted for clarity and use in real-world cases. You can browse by practice area, buy only what you need, and skip the guesswork.
+  </p>
+  <ul className="space-y-3 sm:space-y-4 text-gray-600">
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        Litigation bundles, contracts, agreements
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        Client intake and admin forms
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        Practice-specific checklists and playbooks
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        Tools for family law, real estate, employment, corporate, and more
+      </span>
+    </li>
+  </ul>
+</div>
+
 
           {/* Our Commitment Section */}
           <div className="max-w-none">
@@ -165,17 +158,7 @@ export default function AboutUsPage() {
               Our Commitment
             </h2>
             <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-              Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-              eget euismod velit, ut dapibus est urna. Suspendisse dictum
-              facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-              placerat dui. Morbi condimentum porttitor turpis sed ultrices.
-              Suspendisse auctor facilisis ullamcorper. Maecenas vitae
-              efficitur lorem, in placerat dui. Morbi condimentum porttitor
-              turpis sed ultrices. Suspendisse auctor facilisis ullamcorper.
-              Maecenas vitae efficitur lorem, in placerat dui. Morbi
-              condimentum porttitor turpis sed ultrices. Suspendisse auctor
-              facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-              placerat dui.
+            We’re committed to giving lawyers flexibility, financial opportunity, and fast access to tools that save time and deliver results. No bloated libraries. No auto-renewals. Just real work, real tools, and real results—shared by the legal professionals who know what works best.
             </p>
           </div>
 
@@ -185,10 +168,7 @@ export default function AboutUsPage() {
               Join Us
             </h2>
             <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-              Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-              eget euismod velit, ut dapibus est urna. Suspendisse dictum
-              facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-              placerat dui. Morbi condimentum porttitor turpis sed ultrices.
+        Why reinvent the wheel—or chase down a precedent from a friend? With Lawbie, you get instant access to documents you can trust and the chance to monetize work you’ve already done. Join Lawbie today and help build the future of legal collaboration.
             </p>
             <p className="text-sm sm:text-base text-gray-600 leading-relaxed mt-4">
               Suspendisse auctor facilisis ullamcorper. Maecenas vitae
@@ -200,6 +180,41 @@ export default function AboutUsPage() {
               placerat dui.
             </p>
           </div>
+
+
+{/* Make Money Info Message Section */}
+<div className="bg-gray-50 rounded-xl p-6 sm:p-8 shadow-md text-gray-800 space-y-4">
+  <div>
+    <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+      Make Money from Work You’ve Already Done
+    </h2>
+    <p className="text-sm sm:text-base">
+      Have documents sitting in old case files or client folders? Don’t let them go to waste.
+    </p>
+    <p className="text-sm sm:text-base">
+      Upload your unused legal templates, agreements, or checklists and turn them into passive income.
+    </p>
+    <p className="text-sm sm:text-base">
+      Make money from the documents you don’t need anymore—while helping other lawyers save time.
+    </p>
+  </div>
+
+  <div className="pt-4 border-t">
+    <h3 className="text-lg sm:text-xl font-semibold">
+      Looking for Legal Documents?
+    </h3>
+    <p className="text-sm sm:text-base">
+      Thousands of templates. No subscription. One-time purchase. Upload yours and get paid.
+    </p>
+  </div>
+
+  <div className="pt-4 border-t flex items-center text-sm sm:text-base space-x-2">
+    <span role="img" aria-label="email">📩</span>
+    <span>support@lawbie.com</span>
+  </div>
+</div>
+
+          
         </div>
       </div>
       <LegalDoc />
