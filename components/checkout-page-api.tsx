@@ -5,32 +5,22 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Lock, CircleX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-// import { useCart, useCartTotals, useClearCart } from "@/hooks/use-cart-api";
-import { formatPrice } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import { useCoupon, usePayment } from "@/hooks/use-payment";
 import { useCart } from "@/hooks/use-cart";
-// import { useSession } from "next-auth/react";
-
-// type MyPaymentRequest = {
-//   items: {
-//     resource: string;
-//     quantity: number;
-//   }[];
-//   couponCode?: string;
-// };
+import { formatPrice } from "@/lib/utils";
+import { useCoupon, usePayment } from "@/hooks/use-payment";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function CheckoutPageAPI() {
-  // const { isAuthenticated } = useAuth();
-  // const { status } = useSession();
-  // const { isLoading } = useCart();
+  const { status } = useSession();
+  const router = useRouter();
   const { items, getSubtotal, getTotal } = useCart();
-  // const { subtotal, shippingCost, items } = useCartTotals();
-  // const clearCartMutation = useClearCart();
+  const couponMutation = useCoupon();
   const [discountedData, setDiscountedData] = useState<{
     code: string;
     discount: number;
@@ -39,9 +29,6 @@ export default function CheckoutPageAPI() {
     finalPrice: string | number;
     discountAmount: string | number;
   } | null>(null);
-
-  // console.log(cartData);
-  console.log(items);
 
   const [promoCode, setPromoCode] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
@@ -56,39 +43,23 @@ export default function CheckoutPageAPI() {
       resource: item.id,
       quantity: item.quantity,
     })),
-    // total: getTotal(),
     couponCode: appliedCoupon?.code,
   });
 
-  const { toast } = useToast();
-  const couponMutation = useCoupon();
-
   const paymentMutation = usePayment(paymentData);
-
-  // Calculate coupon discount
-  // const couponDiscount = appliedCoupon
-  //   ? appliedCoupon.type === "percentage"
-  //     ? (subtotal * appliedCoupon.discount) / 100
-  //     : Math.min(appliedCoupon.discount, subtotal)
-  //   : 0;
-
-  // const finalTotal = Math.max(0, subtotal + shippingCost);
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!promoCode.trim()) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Please enter a promo code",
-        variant: "destructive",
       });
       return;
     }
 
     if (appliedCoupon?.code === promoCode) {
-      toast({
-        title: "Info",
+      toast.info("Info", {
         description: "This coupon is already applied",
       });
       return;
@@ -108,120 +79,60 @@ export default function CheckoutPageAPI() {
         });
         setPromoCode("");
 
-        console.log(discountedData);
-        toast({
-          title: "Coupon applied",
+        toast.success("Coupon applied", {
           description: `${result.data.code} has been applied to your order.`,
         });
 
-        // console.log(result.data.finalPrice);
         setDiscountedData({
           ...result.data,
-          isValid: true, // or set this based on your logic or result.data if available
+          isValid: true,
         });
       } else {
-        toast({
-          title: "Invalid Coupon",
+        toast.error("Invalid Coupon", {
           description: "The coupon code is not valid or has expired",
-          variant: "destructive",
         });
       }
     } catch {
-      // Error is handled by the mutation
-      toast({
-        title: "Error",
-        description:
-          "There was an error applying the coupon. Please try again.",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "There was an error applying the coupon. Please try again.",
       });
     }
   };
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
-    toast({
-      title: "Coupon removed",
+    toast.success("Coupon removed", {
       description: "The coupon has been removed from your order.",
     });
   };
 
   const handlePayment = async () => {
+    if (status === "unauthenticated") {
+      toast.error("Authentication Required", {
+        description: "Please log in to proceed with payment.",
+      });
+      router.push("/sign-in");
+      return;
+    }
+
     if (!agreeTerms) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Please agree to the shipping & billing address terms",
-        variant: "destructive",
       });
       return;
     }
 
-    // if (!items || items.length === 0) {
-    //   toast({
-    //     title: "Error",
-    //     description: "Your cart is empty",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
-    alert("Processing payment...");
-
-    // const paymentData = {
-    //   items: items.map((item) => ({
-    //     id: item.resourceId,
-    //     title: item.resource.title,
-    //     price: item.resource.discountPrice || item.resource.price,
-    //     quantity: item.quantity,
-    //   })),
-    //   total: finalTotal,
-    //   couponCode: appliedCoupon?.code,
-    // };
-
     try {
       await paymentMutation.mutateAsync();
-      // Clear cart after successful payment initiation
-      // await clearCartMutation.mutateAsync();
+      toast.success("Payment Initiated", {
+        description: "Processing your payment...",
+      });
     } catch {
-      // Error is handled by the mutation
-      toast({
-        title: "Payment Error",
-        description:
-          "There was an error processing your payment. Please try again.",
-        variant: "destructive",
+      toast.error("Payment Error", {
+        description: "There was an error processing your payment. Please try again.",
       });
     }
   };
-
-  // Show login prompt if not authenticated
-  // if (status === "unauthenticated") {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="text-center">
-  //         <LogIn className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-  //         <h1 className="text-2xl font-bold mb-4">Please Login</h1>
-  //         <p className="text-gray-600 mb-6">
-  //           You need to be logged in to proceed with checkout
-  //         </p>
-  //         <Button asChild>
-  //           <Link href="/sign-in">
-  //             <LogIn className="mr-2 h-4 w-4" />
-  //             Login
-  //           </Link>
-  //         </Button>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="text-center">
-  //         <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-  //         <p>Loading checkout...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -251,7 +162,6 @@ export default function CheckoutPageAPI() {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 max-w-6xl mx-auto">
               <div className="lg:col-span-2">
-                {/* Order Summary */}
                 <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
                   <div className="p-4 border-b">
                     <h3 className="text-lg font-semibold">Order items: </h3>
@@ -274,7 +184,7 @@ export default function CheckoutPageAPI() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium truncate">{item.title}</h4>
-                        <div className="flex justify-between items-center mt-1">
+                        <div className="flex justify-between items-center justify-off items-center mt-1">
                           <div className="text-sm text-gray-500">
                             Price: ${item.discountPrice || item.price}
                             {item.discountPrice && (
@@ -302,7 +212,6 @@ export default function CheckoutPageAPI() {
                   ))}
                 </div>
 
-                {/* Coupon Code */}
                 <div className="mb-8">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -314,9 +223,6 @@ export default function CheckoutPageAPI() {
                             Number(discountedData?.discountAmount ?? 0)
                           )}
                         </span>
-                        {/* <span className="ml-2 text-green-600">
-                          (-${formatPrice(couponDiscount)})
-                        </span> */}
                       </div>
                       <Button
                         variant="ghost"
@@ -357,41 +263,17 @@ export default function CheckoutPageAPI() {
                     <h2 className="text-xl font-bold mb-4">Order Summary</h2>
                     <div className="space-y-2 mb-6">
                       <div className="flex justify-between">
-                        {/* <span className="text-gray-600">
-                          Subtotal ({discountedData.item.length} items):
-                        </span> */}
-                        {
-                          <span>
-                            $
-                            {formatPrice(
-                              Number(
-                                discountedData?.finalPrice === 0
-                                  ? getSubtotal()
-                                  : discountedData?.finalPrice ?? getSubtotal()
-                              )
-                            )}
-                          </span>
-                        }
+                        <span>
+                          $
+                          {formatPrice(
+                            Number(
+                              discountedData?.finalPrice === 0
+                                ? getSubtotal()
+                                : discountedData?.finalPrice ?? getSubtotal()
+                            )
+                          )}
+                        </span>
                       </div>
-
-                      {/* {couponDiscount > 0 && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Coupon Discount:</span>
-                          <span>-${formatPrice(couponDiscount)}</span>
-                        </div>
-                      )} */}
-
-                      {/* {shippingCost > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">
-                            Shipping Charge:
-                          </span>
-                          <span>
-                            $
-                            
-                          </span>
-                        </div>
-                      )} */}
 
                       <div className="pt-2 border-t flex justify-between font-bold">
                         <span>Total:</span>
