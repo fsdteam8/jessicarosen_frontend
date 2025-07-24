@@ -206,7 +206,7 @@ Access proven legal materials. Upload your own. Get paid
                   </Link>
                 </div>
                 <div className="ml-5 lg:h-[54px] lg:w-[212px] ">
-                  <Link href="/dashboard">
+                  <Link href="/account">
                     <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
                      sell your work
                     </Button>
