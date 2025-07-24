@@ -15,16 +15,8 @@ export default function AboutUsPage() {
                   About Your Website
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  eget euismod velit, ut dapibus est urna. Suspendisse dictum
-                  facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-                  placerat dui. Morbi condimentum porttitor turpis sed
-                  ultrices. Suspendisse auctor facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui. Morbi condimentum
-                  porttitor turpis sed ultrices. Suspendisse auctor facilisis
-                  ullamcorper. Maecenas vitae efficitur lorem, in placerat
-                  dui. Morbi condimentum porttitor turpis sed ultrices.
-                  Suspendisse auctor facilisis ullamcorper. Maecenas vitae
+              Lawbie is the flexible, one-stop marketplace where lawyers buy and sell real legal documents—no subscription required.
+ Why pay monthly for generic templates you may never use? On Lawbie, you shop by product. Just find what you need, buy it once, and use it forever. Whether you're building a case, onboarding a client, or managing firm workflows, Lawbie connects you with resources drafted and used by real lawyers in practice. And if you’ve already done the work? Upload it, share it, and get paid—again and again.
                   efficitur lorem, in placerat dui.
                 </p>
               </div>
@@ -35,17 +27,8 @@ export default function AboutUsPage() {
                   Our Mission
                 </h2>
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                  Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  eget euismod velit, ut dapibus est urna. Suspendisse dictum
-                  facilisis ullamcorper. Maecenas vitae efficitur lorem, in
-                  placerat dui. Morbi condimentum porttitor turpis sed
-                  ultrices. Suspendisse auctor facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui. Morbi condimentum
-                  porttitor turpis sed ultrices. Suspendisse auctor facilisis
-                  ullamcorper. Maecenas vitae efficitur lorem, in placerat
-                  dui. Morbi condimentum porttitor turpis sed ultrices.
-                  Suspendisse auctor facilisis ullamcorper. Maecenas vitae
-                  efficitur lorem, in placerat dui.
+                To empower lawyers with control, community, and compensation.
+ Lawbie was built to replace the outdated scramble for precedents and the burden of costly subscriptions. Our mission is to let lawyers access what they need, when they need it—while turning their existing work into a new income stream. We’re here to build a collaborative legal community that shares what works, lifts each other up, and helps everyone practice smarter.
                 </p>
               </div>
 
