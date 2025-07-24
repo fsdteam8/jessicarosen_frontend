@@ -33,9 +33,9 @@ export function Header({ setSidebarOpen }: HeaderProps) {
 
 
         <div className="flex items-center space-x-3">
-          <span className="text-white text-sm font-medium hidden sm:block">
+          {/* <span className="text-white text-sm font-medium hidden sm:block">
             Mr. Raja
-          </span>
+          </span> */}
           <div className="w-8 h-8 rounded-full overflow-hidden">
             <Avatar>
               <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
