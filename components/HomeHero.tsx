@@ -189,19 +189,26 @@ export default function HomeHero() {
               </div>
 
               <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
-                Deal Of The <span className="text-[#E0B15E]">Day</span>!
+                {/* Deal Of The <span className="text-[#E0B15E]">Day</span>! */}
               </h1>
               <p className="text-base font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
-                Widely used materials that help students, legal professionals,
-                and researchers understand and apply legal principles.
+                Real lawyers. Real documents. Real money.
+Access proven legal materials. Upload your own. Get paid
               </p>
               <div className="flex items-center justify-center w-[95%] mz"></div>
 
               <div className="lg:mt-6 text-start flex justify-between items-center">
-                <div className="lg:h-[54px] lg:w-[242px] ">
+                <div className="lg:h-[54px] lg:w-[222px] ">
                   <Link href="/products">
                     <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
                       Explore Resources
+                    </Button>
+                  </Link>
+                </div>
+                <div className="ml-5 lg:h-[54px] lg:w-[212px] ">
+                  <Link href="/dashboard">
+                    <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
+                     sell your work
                     </Button>
                   </Link>
                 </div>

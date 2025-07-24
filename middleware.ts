@@ -5,7 +5,7 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   // Protect only specific routes
-  const protectedPaths = ["/account", "/my-order"];
+  const protectedPaths = ["/account", "/my-order","/dashboard"];
   const currentPath = req.nextUrl.pathname;
 
   const isProtected = protectedPaths.some((path) =>
@@ -20,5 +20,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account", "/my-order"],
+  matcher: ["/account", "/my-order"  , "/dashboard"],
 };

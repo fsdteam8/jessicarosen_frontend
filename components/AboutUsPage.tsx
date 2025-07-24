@@ -16,7 +16,7 @@ export default function AboutUsPage() {
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
               Lawbie is the flexible, one-stop marketplace where lawyers buy and sell real legal documents—no subscription required.
- Why pay monthly for generic templates you may never use? On Lawbie, you shop by product. Just find what you need, buy it once, and use it forever. Whether you're building a case, onboarding a client, or managing firm workflows, Lawbie connects you with resources drafted and used by real lawyers in practice. And if you’ve already done the work? Upload it, share it, and get paid—again and again.
+ Why pay monthly for generic templates you may never use? On Lawbie, you shop by product. Just find what you need, buy it once, and use it forever. Whether you&apos;re building a case, onboarding a client, or managing firm workflows, Lawbie connects you with resources drafted and used by real lawyers in practice. And if you’ve already done the work? Upload it, share it, and get paid—again and again.
                   efficitur lorem, in placerat dui.
                 </p>
               </div>
