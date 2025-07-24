@@ -72,55 +72,48 @@ export default function AboutUsPage() {
             </div>
           </div>
 
-          {/* What We Offer Section */}
-          <div className="max-w-none">
-            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
-              What We Offer
-            </h2>
-            <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6">
-              Lorem Ipsum dolor sit amet, consectetur adipiscing elit. Sed
-              eget euismod velit, ut dapibus est urna. Suspendisse dictum
-              facilisis ullamcorper.
-            </p>
-            <ul className="space-y-3 sm:space-y-4 text-gray-600">
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                <span className="text-sm sm:text-base leading-relaxed">
-                  Lorem Ipsum. Lorem Ipsum dolor sit amet, consectetur
-                  adipiscing elit. Sed eget euismod velit, ut dapibus est
-                  urna. Suspendisse dictum facilisis ullamcorper. Maecenas
-                  vitae efficitur lorem, in placerat dui.
-                </span>
-              </li>
-            </ul>
-          </div>
+     {/* What We Offer Section */}
+<div className="max-w-none">
+  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">
+    What We Offer
+  </h2>
+  <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6">
+    Explore our core value propositions designed to simplify your legal workflow and boost your productivity.
+  </p>
+  <ul className="space-y-3 sm:space-y-4 text-gray-600">
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        <strong>One-Time Payments, Full Access Forever —</strong> Buy only what you need—no subscription, no commitment.
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        <strong>Earn on Work You’ve Already Done —</strong> Turn your old precedents, templates, and checklists into passive income.
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        <strong>One-Click Access to Quality Documents —</strong> Stop asking colleagues for precedents. Find what you need in seconds.
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        <strong>By Lawyers, For Lawyers —</strong> All documents are created by professionals who’ve used them in real practice.
+      </span>
+    </li>
+    <li className="flex items-start">
+      <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+      <span className="text-sm sm:text-base leading-relaxed">
+        <strong>Everything You Need, Nothing You Don’t —</strong> From pleadings to policies, contracts to client letters—we’ve got you covered.
+      </span>
+    </li>
+  </ul>
+</div>
+
 
           {/* Unique & researchable content Section */}
           <div className="max-w-none">
