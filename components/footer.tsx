@@ -21,11 +21,11 @@ export function Footer() {
                 className="h-[60px] w-auto mb-2"
               />
             </Link>
-            <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
+            {/* <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
               &apos;Connecting hearts through meaningful dedications, fostering
               deeper bonds, creating lasting memories, and celebrating the
               beauty of shared emotions.&apos;
-            </p>
+            </p> */}
             <div className="flex space-x-3">
               <span className="bg-[#9AB0C266] rounded-full p-3">
                 <FaTwitter className="h-4 w-4 text-[#23547B] cursor-pointer" />
