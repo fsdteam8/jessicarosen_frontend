@@ -100,7 +100,7 @@ export default function HomeHero() {
       : "Canada";
 
   // Fetch promo codes for hero section
-  const {  isLoading, error } = useQuery<ApiResponse>({
+  const { isLoading, error } = useQuery<ApiResponse>({
     queryKey: ["hero-promo"],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`);
@@ -156,7 +156,7 @@ export default function HomeHero() {
           <Image
             src={
               countryName === "Canada"
-                ? "/images/dImage.svg"
+                ? "/images/canadaImg.png"
                 : "/images/canadaImage.svg"
             }
             alt="Hero Image"
@@ -172,28 +172,24 @@ export default function HomeHero() {
           {/* Text Content */}
           <div className="absolute inset-0 flex lg:px-16 px-5 mt-[3%]">
             <div className="text-white">
-              <div className="flex items-center gap-2">
-                <Image
-                  src={
-                    countryName === "Canada"
-                      ? "/images/flage.png"
-                      : "/images/flage1.png"
-                  }
-                  alt="Flag"
-                  width={100}
-                  height={100}
-                />
-                <p className="text-sm font-semibold">
-                  {countryName === "Canada" ? "Canadian Laws" : "US Laws"}
-                </p>
-              </div>
+              {countryName === "USA" && (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/images/flage.png"
+                    alt="Flag"
+                    width={100}
+                    height={100}
+                  />
+                  <p className="text-sm font-semibold">US Laws</p>
+                </div>
+              )}
 
               <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
                 {/* Deal Of The <span className="text-[#E0B15E]">Day</span>! */}
               </h1>
               <p className=" text-3xl font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
-                Real lawyers. Real documents. Real money.
-Access proven legal materials. Upload your own. Get paid
+                Real lawyers. Real documents. Real money. Access proven legal
+                materials. Upload your own. Get paid
               </p>
               <div className="flex items-center justify-center w-[95%] mz"></div>
 
@@ -208,7 +204,7 @@ Access proven legal materials. Upload your own. Get paid
                 <div className="ml-5 lg:h-[54px] lg:w-[212px] ">
                   <Link href="/account">
                     <Button className="w-full h-full text-lg font-bold text-white  bg-[#E0B15E]">
-                     sell your work
+                      sell your work
                     </Button>
                   </Link>
                 </div>
@@ -221,8 +217,6 @@ Access proven legal materials. Upload your own. Get paid
                   </p>
                 </div> */}
               </div>
-
-
             </div>
           </div>
         </div>

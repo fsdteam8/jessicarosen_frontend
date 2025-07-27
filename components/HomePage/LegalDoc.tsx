@@ -58,7 +58,8 @@ const LegalDoc = () => {
                 </span>
                 <div>
                   <p className="font-bold">EMAIL US</p>
-                  <p className="text-xs inline-block">support@lawbie.com</p>
+                  <Link className="text-xs inline-block" href="mailto:support@lawbie.com">support@lawbie.com</Link>
+                  {/* <p className="text-xs inline-block">support@lawbie.com</p> */}
                 </div>
               </div>
             </div>

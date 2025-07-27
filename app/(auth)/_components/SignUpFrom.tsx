@@ -13,7 +13,7 @@ import { registerUser } from "@/app/actions/auth"
 type FormData = {
   firstName: string
   lastName: string
-  phoneNumber: string
+  // phoneNumber: string
   email: string
   password: string
   confirmPassword: string
@@ -72,7 +72,7 @@ export default function SignUpPage() {
       const result = await registerUser({
         firstName: data.firstName,
         lastName: data.lastName,
-        phoneNumber: data.phoneNumber,
+        // phoneNumber: data.phoneNumber,
         email: data.email,
         password: data.password,
       })
@@ -142,7 +142,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="phoneNumber" className="block mb-1 font-medium">
               Phone Number<span className="text-red-500 ml-1">*</span>
             </label>
@@ -158,7 +158,7 @@ export default function SignUpPage() {
             {errors.phoneNumber && (
               <p className="text-red-500 text-sm mt-1">{errors.phoneNumber.message?.toString()}</p>
             )}
-          </div>
+          </div> */}
 
           <div>
             <label htmlFor="email" className="block mb-1 font-medium">
