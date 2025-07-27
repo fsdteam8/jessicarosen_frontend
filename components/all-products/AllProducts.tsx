@@ -133,7 +133,6 @@ export default function AllProducts() {
     { label: "Best Sellers (People)", value: "best sellers(people)" },
   ];
 
-
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   const selectedArea = useSelector(
@@ -166,7 +165,7 @@ export default function AllProducts() {
               {allProductData?.data?.length}+ Results
             </div> */}
             <h1 className="lg:text-[40px] leading-[120%] font-bold mb-4">
-              Resources
+              All Resources
             </h1>
           </div>
           <div className="flex items-center gap-2">
