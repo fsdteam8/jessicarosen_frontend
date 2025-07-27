@@ -349,7 +349,7 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  
+
 
   const handelSubmitMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -547,53 +547,6 @@ export default function ProfilePage() {
                 </Button>
               </div>
 
-              {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  { label: "First Name", name: "firstName" },
-                  { label: "Last Name", name: "lastName" },
-                  {
-                    label: "Email Address",
-                    name: "email",
-                    type: "email",
-                    readOnly: true,
-                  },
-                  { label: "Phone", name: "phone" },
-                  { label: "Country", name: "country" },
-                  { label: "City/State", name: "cityState" },
-                  { label: "Road/Area", name: "roadArea", span: true },
-                  { label: "Postal Code", name: "postalCode" },
-                  { label: "TAX ID", name: "taxId" },
-                ].map(({ label, name, type = "text", span, readOnly }) => (
-                  <div key={name} className={span ? "md:col-span-2" : ""}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {label}
-                    </label>
-                    {isEditing && !readOnly ? (
-                      <Input
-                        name={name}
-                        value={
-                          name === "postalCode"
-                            ? formData.postalCode.toString()
-                            : formData[name as keyof typeof formData]
-                        }
-                        onChange={handleChange}
-                        className="w-full h-[49px] border border-[#645949] disabled:opacity-50"
-                        type={name === "postalCode" ? "number" : type}
-                        disabled={isAnyOperationPending}
-                      />
-                    ) : (
-                      <div
-                        className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
-                          readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
-                        }`}
-                      >
-                        {formData[name as keyof typeof formData]}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div> */}
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {[
                   { label: "First Name", name: "firstName" },
@@ -607,16 +560,15 @@ export default function ProfilePage() {
                   { label: "Phone", name: "phone" },
                   { label: "Country", name: "country" },
                   { label: "City/State", name: "cityState" },
-                  { label: "Road/Area", name: "roadArea", span: true },
+                  { label: "Region / District", name: "roadArea" }, // ✅ label fixed, span removed
                   { label: "Postal Code", name: "postalCode" },
                   { label: "TAX ID", name: "taxId" },
-                ].map(({ label, name, type = "text", span, readOnly }) => (
-                  <div key={name} className={span ? "md:col-span-2" : ""}>
+                ].map(({ label, name, type = "text", readOnly }) => (
+                  <div key={name} >
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
 
-                    {/* Special case for country dropdown */}
                     {name === "country" && isEditing ? (
                       <select
                         name="country"
@@ -653,6 +605,7 @@ export default function ProfilePage() {
                   </div>
                 ))}
               </div>
+
             </div>
           </div>
         )}

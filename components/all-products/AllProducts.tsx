@@ -22,8 +22,8 @@ export default function AllProducts() {
     currentRegion === "canada"
       ? "Canada"
       : currentRegion === "us"
-      ? "USA"
-      : null;
+        ? "USA"
+        : null;
   const [sortBy, setSortBy] = useState("");
   const [selectedPracticeArea, setSelectedPracticeArea] = useState<
     string | null
