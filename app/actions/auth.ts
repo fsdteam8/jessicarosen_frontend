@@ -7,7 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
 export async function registerUser(userData: {
   firstName: string
   lastName: string
-  phoneNumber: string
+  // phoneNumber: string
   email: string
   password: string
 }) {
