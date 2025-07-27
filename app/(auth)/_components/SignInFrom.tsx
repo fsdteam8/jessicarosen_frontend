@@ -83,7 +83,7 @@ export default function SignInForm() {
           Welcome Back!
         </h2>
         <h3 className="text-center text-[#787878] text-base font-medium mb-10">
-          Enter to get unlimited data & information
+          Login to Lawbie
         </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-lg">
