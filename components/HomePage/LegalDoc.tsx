@@ -26,10 +26,10 @@ const LegalDoc = () => {
             <div className="flex gap-3 items-center">
               <div className="w-[146px] lg:w-[146px] h-[5px] lg:h-[68px]">
                 <Image
-                  src={countryName === 'Canada' ? "/images/flage.png" : "/images/flage1.png"}
+                  src={countryName === 'Canada' ? "/Flag_of_Canada.svg.png" : "/images/flage1.png"}
                   alt="Hero Image" 
                   // fill
-                  width={150}                 height={150}
+                  width={900}                 height={900}
                   className="object-cover w-full h-full rounded-lg"
                   priority
                 />

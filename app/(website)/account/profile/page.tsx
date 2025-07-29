@@ -327,13 +327,18 @@ export default function ProfilePage() {
     }
   }, [data]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: name === "postalCode" ? Number(value) : value,
     }));
   };
+
 
   const handleUpdate = () => {
     updateMutation.mutate(formData);
@@ -371,39 +376,7 @@ export default function ProfilePage() {
     fileInputRef.current?.click();
   };
 
-  // const handelSubmitMutation = useMutation({
-  //   mutationFn: async (email: string) => {
-  //     const response = await fetch(
-  //       `${process.env.NEXT_PUBLIC_API_URL}/seller/apply`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
 
-  //     if (!response.ok) {
-  //       const errorData = await response.json().catch(() => ({}));
-  //       throw new Error(errorData.message || "Failed to submit");
-  //     }
-
-  //     return email;
-  //   },
-  //   onSuccess: () => {},
-  //   onError: (error) => {
-  //     console.error("Delete failed:", error);
-  //   },
-  // });
-
-  // const handleSubmit = async () => {
-  //   if (data?.email) {
-  //     handelSubmitMutation.mutate(data.email);
-  //   } else {
-  //     toast.error("Email is not available.");
-  //   }
-  // };
 
   const handelSubmitMutation = useMutation({
     mutationFn: async (email: string) => {
@@ -425,7 +398,7 @@ export default function ProfilePage() {
 
       return email;
     },
-    onSuccess: () => {},
+    onSuccess: () => { },
     onError: (error) => {
       console.error("Delete failed:", error);
     },
@@ -474,14 +447,14 @@ export default function ProfilePage() {
               {/* Loading overlay for profile section */}
               {(uploadImageMutation.isPending ||
                 deleteImageMutation.isPending) && (
-                <LoadingOverlay
-                  message={
-                    uploadImageMutation.isPending
-                      ? "Uploading image..."
-                      : "Deleting image..."
-                  }
-                />
-              )}
+                  <LoadingOverlay
+                    message={
+                      uploadImageMutation.isPending
+                        ? "Uploading image..."
+                        : "Deleting image..."
+                    }
+                  />
+                )}
 
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border relative">
@@ -492,9 +465,8 @@ export default function ProfilePage() {
                   )}
                   <Image
                     key={imageKey} // Force re-render when imageKey changes
-                    src={`${
-                      data?.profileImage || "/images/not-imge.png"
-                    }?t=${imageKey}`} // Cache busting
+                    src={`${data?.profileImage || "/images/not-imge.png"
+                      }?t=${imageKey}`} // Cache busting
                     alt="Profile"
                     width={128}
                     height={128}
@@ -614,16 +586,15 @@ export default function ProfilePage() {
                     readOnly: true,
                   },
                   { label: "Phone", name: "phone" },
-                  // { label: "Country", name: "country" },
-                  // { label: "State/Province", name: "cityState" },
-                  { label: "Road/Area", name: "roadArea", span: true },
+                  { label: "Region / District", name: "roadArea" },
                   { label: "Postal Code", name: "postalCode" },
                   { label: "TAX ID", name: "taxId" },
-                ].map(({ label, name, type = "text", span, readOnly }) => (
-                  <div key={name} className={span ? "md:col-span-2" : ""}>
+                ].map(({ label, name, type = "text", readOnly }) => (
+                  <div key={name}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
+
                     {isEditing && !readOnly ? (
                       <Input
                         name={name}
@@ -639,11 +610,10 @@ export default function ProfilePage() {
                       />
                     ) : (
                       <div
-                        className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${
-                          readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
-                        }`}
+                        className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
+                          }`}
                       >
-                        {formData[name as keyof typeof formData]}
+                        {formData[name as keyof typeof formData] || "N/A"}
                       </div>
                     )}
                   </div>
@@ -675,6 +645,8 @@ export default function ProfilePage() {
                     </div>
                   )}
                 </div>
+
+                {/* State/Province Select Dropdown */}
                 <div className="md:col-span-1">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     State/Province
@@ -690,7 +662,7 @@ export default function ProfilePage() {
                       }
                     >
                       <SelectTrigger className="w-full h-[49px] border border-[#645949]">
-                        <SelectValue placeholder="Select a country" />
+                        <SelectValue placeholder="Select a state or province" />
                       </SelectTrigger>
                       <SelectContent>
                         {provinces?.map((state: string) => (
@@ -707,6 +679,8 @@ export default function ProfilePage() {
                   )}
                 </div>
               </div>
+
+
             </div>
           </div>
         )}

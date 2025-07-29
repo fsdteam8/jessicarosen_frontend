@@ -252,7 +252,7 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base px-3 py-5 rounded-[8px] transition-all duration-200 ${
+                className={`text-base px-1 py-2 rounded-[8px] transition-all duration-200 ${
                   currentRegion === "canada"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
@@ -271,7 +271,7 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base px-3 py-5 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                className={`text-base px-1 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                   currentRegion === "us"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white  border-white hover:bg-white/10"

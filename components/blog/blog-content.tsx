@@ -67,7 +67,7 @@ export function BlogContent({ post }: BlogContentProps) {
               <div className="w-[50px] h-[2.5px] bg-[#008000]"></div>
               <p>Posted by</p>
               <div className="w-5 h-5 rounded-full bg-gray-400"></div>
-              <p>jemmi</p>
+              <p>Lawbie</p>
             </div>
           </div>
 
