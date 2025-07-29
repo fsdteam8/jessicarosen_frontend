@@ -19,6 +19,15 @@ import { useSession } from "next-auth/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CountriesApiResponse } from "@/types/countery-data-type";
+
 interface Address {
   country: string;
   cityState: string;
@@ -147,6 +156,23 @@ export default function ProfilePage() {
     const response = await res.json();
     return response.data as UserData;
   };
+
+  // country api logic
+
+  const { data: countryAllData } = useQuery<CountriesApiResponse>({
+    queryKey: ["all-countries"],
+    queryFn: () =>
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/country-state/all`).then(
+        (res) => res.json()
+      ),
+  });
+
+  // console.log(countryAllData?.data);
+
+  const provinces =
+    countryAllData?.data?.find((c) => c.countryName === formData.country)
+      ?.states || [];
+  console.log(provinces);
 
   const updateUserById = async ({
     userId,
@@ -316,6 +342,7 @@ export default function ProfilePage() {
 
   const handleUpdate = () => {
     updateMutation.mutate(formData);
+    console.log({ formData });
   };
 
   // Handle file selection
@@ -500,13 +527,14 @@ export default function ProfilePage() {
                   {formData.firstName} {formData.lastName}
                 </h3>
                 <p className="text-gray-500 mb-2">
-                  @{formData.firstName.toLowerCase()}
-                  {formData.lastName.toLowerCase()}
+                  {/* @{formData.firstName.toLowerCase()}
+                  {formData.lastName.toLowerCase()} */}
+                  {formData?.email}
                 </p>
-                <p className="text-gray-700">
+                {/* <p className="text-gray-700">
                   {formData.roadArea}, {formData.cityState}, {formData.country},{" "}
                   {formData.postalCode}
-                </p>
+                </p> */}
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
                   onClick={() => {
@@ -558,30 +586,16 @@ export default function ProfilePage() {
                     readOnly: true,
                   },
                   { label: "Phone", name: "phone" },
-                  { label: "Country", name: "country" },
-                  { label: "City/State", name: "cityState" },
-                  { label: "Region / District", name: "roadArea" }, // ✅ label fixed, span removed
+                  { label: "Region / District", name: "roadArea" },
                   { label: "Postal Code", name: "postalCode" },
                   { label: "TAX ID", name: "taxId" },
                 ].map(({ label, name, type = "text", readOnly }) => (
-                  <div key={name} >
+                  <div key={name}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
 
-                    {name === "country" && isEditing ? (
-                      <select
-                        name="country"
-                        value={formData.country}
-                        onChange={handleChange}
-                        className="w-full h-[49px] border border-[#645949] rounded-md px-3"
-                        disabled={isAnyOperationPending}
-                      >
-                        <option value="">Select Country</option>
-                        <option value="Canada">Canada</option>
-                        <option value="USA">USA</option>
-                      </select>
-                    ) : isEditing && !readOnly ? (
+                    {isEditing && !readOnly ? (
                       <Input
                         name={name}
                         value={
@@ -599,12 +613,73 @@ export default function ProfilePage() {
                         className={`p-2.5 border rounded-md h-[49px] border-[#645949] ${readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
                           }`}
                       >
-                        {formData[name as keyof typeof formData]}
+                        {formData[name as keyof typeof formData] || "N/A"}
                       </div>
                     )}
                   </div>
                 ))}
+
+                {/* Country Select Dropdown */}
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Country
+                  </label>
+                  {isEditing ? (
+                    <Select
+                      value={formData.country}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, country: value }))
+                      }
+                    >
+                      <SelectTrigger className="w-full h-[49px] border border-[#645949]">
+                        <SelectValue placeholder="Select a country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USA">US</SelectItem>
+                        <SelectItem value="Canada">Canada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50">
+                      {formData.country || "N/A"}
+                    </div>
+                  )}
+                </div>
+
+                {/* State/Province Select Dropdown */}
+                <div className="md:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    State/Province
+                  </label>
+                  {isEditing ? (
+                    <Select
+                      value={formData.cityState}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          cityState: value,
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-full h-[49px] border border-[#645949]">
+                        <SelectValue placeholder="Select a state or province" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {provinces?.map((state: string) => (
+                          <SelectItem key={state} value={state}>
+                            {state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50">
+                      {formData.cityState || "N/A"}
+                    </div>
+                  )}
+                </div>
               </div>
+
 
             </div>
           </div>

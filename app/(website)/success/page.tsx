@@ -7,6 +7,7 @@ export default function page() {
   return (
     <div className="">
       <OtherHistory />
+      
       <HappyCustomer />
       <LegalDoc />
     </div>

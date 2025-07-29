@@ -9,7 +9,7 @@ import {
   ShoppingCart,
   Heart,
   Menu,
-  Mail,
+  // Mail,
   UserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -28,45 +28,45 @@ import { SearchModal } from "@/components/search-modal";
 import { usePracticeAreas } from "@/hooks/use-practice-areas";
 import { useRouter } from "next/navigation";
 import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
+// import { useQuery } from "@tanstack/react-query";
+// import {
+//   Carousel,
+//   CarouselContent,
+//   CarouselItem,
+// } from "@/components/ui/carousel";
+// import Autoplay from "embla-carousel-autoplay";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import { SearchDropdown } from "./search-dropdown";
 
-interface PromoCodeCreator {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
+// interface PromoCodeCreator {
+//   _id: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+// }
 
-interface PromoCode {
-  _id: string;
-  code: string;
-  discountType: string;
-  discountValue: number;
-  expiryDate: string;
-  usageLimit: number;
-  special: boolean;
-  active: boolean;
-  usedCount: number;
-  createdBy: PromoCodeCreator;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
+// interface PromoCode {
+//   _id: string;
+//   code: string;
+//   discountType: string;
+//   discountValue: number;
+//   expiryDate: string;
+//   usageLimit: number;
+//   special: boolean;
+//   active: boolean;
+//   usedCount: number;
+//   createdBy: PromoCodeCreator;
+//   createdAt: string;
+//   updatedAt: string;
+//   __v: number;
+// }
 
-interface PromoCodeResponse {
-  data: {
-    data: PromoCode[];
-  };
-}
+// interface PromoCodeResponse {
+//   data: {
+//     data: PromoCode[];
+//   };
+// }
 
 export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -159,24 +159,24 @@ export function Header() {
     );
   };
 
-  const { data } = useQuery<PromoCodeResponse>({
-    queryKey: ["hero-promo"],
-    queryFn: async (): Promise<PromoCodeResponse> => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch promo codes");
-      }
-      return res.json();
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 10 * 60 * 1000, // 10 minutes
-  });
+  // const { data } = useQuery<PromoCodeResponse>({
+  //   queryKey: ["hero-promo"],
+  //   queryFn: async (): Promise<PromoCodeResponse> => {
+  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`);
+  //     if (!res.ok) {
+  //       throw new Error("Failed to fetch promo codes");
+  //     }
+  //     return res.json();
+  //   },
+  //   staleTime: 5 * 60 * 1000, // 5 minutes
+  //   refetchInterval: 10 * 60 * 1000, // 10 minutes
+  // });
 
   // Filter special promo codes
-  const specialPromoCodes: PromoCode[] =
-    data?.data.data.filter(
-      (promo: PromoCode) => promo.special && promo.active
-    ) || [];
+  // const specialPromoCodes: PromoCode[] =
+  //   data?.data.data.filter(
+  //     (promo: PromoCode) => promo.special && promo.active
+  //   ) || [];
 
   // Fetch cart data using react-query
   // const { data: cartResponse } = useQuery({
@@ -199,7 +199,8 @@ export function Header() {
         {/* Top Blue Bar */}
         <div className="bg-[#23547B] text-white font-medium leading-[120%] px-2 text-sm py-2">
           <div className="container mx-auto flex items-center justify-between">
-            <div className="flex items-center space-x-4 pl-2 md:pl-0">
+            
+            {/* <div className="flex items-center space-x-4 pl-2 md:pl-0">
               <span className="flex items-center">
                 <span className="mr-2 border p-2 rounded-full">
                   <Mail size={25} />
@@ -239,16 +240,15 @@ export function Header() {
                       </CarouselItem>
                     ))}
                   </CarouselContent>
-                  {/* <CarouselPrevious className="hidden sm:flex -left-12 bg-white/20 border-white/30 text-white hover:bg-white/30" />
-                  <CarouselNext className="hidden sm:flex -right-12 bg-white/20 border-white/30 text-white hover:bg-white/30" /> */}
                 </Carousel>
               ) : (
                 <span className="text-sm">
                   Welcome to Lawbie - Your Legal Resource Hub
                 </span>
               )}
-            </div>
-            <div className="hidden lg:flex items-center space-x-2">
+            </div> */}
+
+            <div className="w-full hidden lg:flex items-center justify-between space-x-2">
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
