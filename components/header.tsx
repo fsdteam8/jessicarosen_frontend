@@ -303,7 +303,7 @@ export function Header() {
                     alt="Lawbie Logo"
                     width={186}
                     height={60}
-                    className="w-full h-[60px] bg-cover"
+                    className="w-full h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>
               </div>
