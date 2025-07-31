@@ -187,7 +187,7 @@ export default function HomeHero() {
               <h1 className="lg:text-[48px] text-4xl font-bold leading-[120%] lg:my-7 my-3 text-start">
                 {/* Deal Of The <span className="text-[#E0B15E]">Day</span>! */}
               </h1>
-              <p className=" text-3xl font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
+              <p className=" lg:text-3xl my-10 lg:my-0   text-xl font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
                 Real lawyers. Real documents. Real money. Access proven legal
                 materials. Upload your own. Get paid
               </p>
