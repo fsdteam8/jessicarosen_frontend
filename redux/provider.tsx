@@ -12,3 +12,5 @@ const ReduxProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default ReduxProvider;
+
+
