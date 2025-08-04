@@ -264,9 +264,10 @@ export default function HomeHero() {
   }
 
   // Filter by country
-  const filteredHero = heroes?.find(
-    (hero) => hero.country.toLowerCase().includes(countryName.toLowerCase())
-  );
+  const filteredHero = Array.isArray(heroes)
+    ? heroes.find(hero => hero.country.toLowerCase().includes(countryName.toLowerCase()))
+    : undefined;
+
 
   return (
     <div className="w-full my-5 bg-none">
