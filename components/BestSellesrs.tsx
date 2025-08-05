@@ -70,8 +70,8 @@ export default function BestSellers() {
                 <div
                   key={i}
                   className={`relative group ${i === 0
-                      ? "-mt-6 sm:-mt-8 lg:-mt-12"
-                      : "-mb-6 sm:-mb-8 lg:-mb-12"
+                    ? "-mt-6 sm:-mt-8 lg:-mt-12"
+                    : "-mb-6 sm:-mb-8 lg:-mb-12"
                     }`}
                 >
                   <div className="relative w-full max-w-[188px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[240px] xl:max-w-[188px] mx-auto sm:mx-0">
