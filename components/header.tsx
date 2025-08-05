@@ -147,28 +147,28 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base px-1 py-2 rounded-[8px] transition-all duration-200 ${
+                className={`text-base px-3 py-2 rounded-[8px] transition-all duration-200 ${
                   currentRegion === "canada"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
                 }`}
               >
                 <span className="w-[48px] h-[24px]">
-                  <Image src="/images/flag.png" alt="Canada Flag" width={48} height={24} />
+                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
                 </span>
-                Lawbie Canada
+                Lawbie CA
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base px-1 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                className={`text-base px-3 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                   currentRegion === "us"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
-                  <Image src="/images/flag1.png" alt="US Flag" fill className="object-contain" />
+                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
                 </span>
                 <span>Lawbie US</span>
               </Button>
