@@ -1,289 +1,174 @@
-"use client";
+"use client"
+import type React from "react"
+import { useState, useEffect } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { Search, ShoppingCart, Heart, Menu, UserRound, ChevronDown, ChevronUp } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useCart } from "@/hooks/use-cart"
+import { CartSheet } from "@/components/cart-sheet"
+import Image from "next/image"
+import { useWishlist } from "@/hooks/use-wishlist"
+import { useSession, signOut } from "next-auth/react"
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+import { type Region, setRegion } from "@/redux/features/regionSlice"
+import { SearchModal } from "@/components/search-modal"
+import { usePracticeAreas } from "@/hooks/use-practice-areas"
+import { useRouter } from "next/navigation"
+import { setSelectedArea } from "@/redux/features/practiceAreaSlice"
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useRef } from "react"
+import { SearchDropdown } from "./search-dropdown"
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import {
-  Search,
-  ShoppingCart,
-  Heart,
-  Menu,
-  // Mail,
-  UserRound,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useCart } from "@/hooks/use-cart";
-// import { useAuth } from "@/hooks/use-auth";
-import { CartSheet } from "@/components/cart-sheet";
-import Image from "next/image";
-import { useWishlist } from "@/hooks/use-wishlist";
-import { useSession, signOut } from "next-auth/react";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { type Region, setRegion } from "@/redux/features/regionSlice";
-import { SearchModal } from "@/components/search-modal";
-import { usePracticeAreas } from "@/hooks/use-practice-areas";
-import { useRouter } from "next/navigation";
-import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
-// import { useQuery } from "@tanstack/react-query";
-// import {
-//   Carousel,
-//   CarouselContent,
-//   CarouselItem,
-// } from "@/components/ui/carousel";
-// import Autoplay from "embla-carousel-autoplay";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useRef } from "react";
-import { SearchDropdown } from "./search-dropdown";
+// Define User type for next-auth session
+interface User {
+  name?: string | null
+  email?: string | null
+}
 
-// interface PromoCodeCreator {
-//   _id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-// }
+type SubPracticeArea = {
+  _id: string
+  name: string
+  category: string
+  createdAt: string
+  updatedAt: string
+  __v: number
+}
 
-// interface PromoCode {
-//   _id: string;
-//   code: string;
-//   discountType: string;
-//   discountValue: number;
-//   expiryDate: string;
-//   usageLimit: number;
-//   special: boolean;
-//   active: boolean;
-//   usedCount: number;
-//   createdBy: PromoCodeCreator;
-//   createdAt: string;
-//   updatedAt: string;
-//   __v: number;
-// }
+type PracticeArea = {
+  _id: string
+  name: string
+  description: string
+  createdAt: string
+  updatedAt: string
+  __v: number
+  subPracticeAreas: SubPracticeArea[]
+}
 
-// interface PromoCodeResponse {
-//   data: {
-//     data: PromoCode[];
-//   };
-// }
+interface PracticeAreasResponse {
+  success: boolean
+  message: string
+  data: PracticeArea[]
+}
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const { setOpen, getItemCount } = useCart();
-  const searchParams = useSearchParams();
-  const activePracticeAreaId = searchParams.get("practiceArea");
-  // const [searchQuery, setSearchQuery] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [isMounted, setIsMounted] = useState(false)
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+  const { setOpen, getItemCount } = useCart()
+  const searchParams = useSearchParams()
+  const activePracticeAreaId = searchParams.get("practiceArea")
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 200; // Adjust this value as needed
+      const scrollAmount = 200
       if (direction === "left") {
-        scrollContainerRef.current.scrollLeft -= scrollAmount;
+        scrollContainerRef.current.scrollLeft -= scrollAmount
       } else {
-        scrollContainerRef.current.scrollLeft += scrollAmount;
+        scrollContainerRef.current.scrollLeft += scrollAmount
       }
     }
-  };
+  }
 
-  // const { isAuthenticated, logout } = useAuth();
-  const { items } = useWishlist();
-  const dispatch = useAppDispatch();
-  const currentRegion = useAppSelector((state) => state.region.currentRegion);
-  const { data: practiceAreasData, isLoading: practiceAreasLoading } =
-    usePracticeAreas();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
+  const [expandedMobileAreaId, setExpandedMobileAreaId] = useState<string | null>(null)
+  const { items } = useWishlist()
+  const dispatch = useAppDispatch()
+  const currentRegion = useAppSelector((state) => state.region.currentRegion)
+  const { data: practiceAreasData, isLoading: practiceAreasLoading } = usePracticeAreas() as {
+    data: PracticeAreasResponse | undefined
+    isLoading: boolean
+  }
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+
   const handleRegionChange = (region: Region) => {
-    dispatch(setRegion(region));
-  };
+    dispatch(setRegion(region))
+  }
 
-  const session = useSession();
-  const user = session?.data?.user;
-  // const token = session?.data?.user?.accessToken;
-  // Prevent hydration mismatch by only showing dynamic content after mount
+  const { data: session } = useSession()
+  const user = session?.user as User | undefined
+
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    setIsMounted(true)
+  }, [])
 
-  // const itemCount = isMounted ? getItemCount() : 0;
-  const wishlistCount = isMounted ? items.length : 0;
+  const wishlistCount = isMounted ? items.length : 0
 
-  // const handleSearch = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   if (searchQuery.trim()) {
-  //     setIsSearchModalOpen(true);
-  //     setIsSearchOpen(false);
-  //   }
-  // };
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/products/${encodeURIComponent(searchQuery)}`);
-      setDropdownOpen(false);
+      router.push(`/products/${encodeURIComponent(searchQuery)}`)
+      setDropdownOpen(false)
     }
-  };
-
-  // const handleSearchButtonClick = () => {
-  //   if (searchQuery.trim()) {
-  //     setIsSearchModalOpen(true);
-  //   }
-  // };
+  }
 
   const handleMobileSearchClick = () => {
     if (isSearchOpen && searchQuery.trim()) {
-      setIsSearchModalOpen(true);
-      setIsSearchOpen(false);
+      setIsSearchModalOpen(true)
+      setIsSearchOpen(false)
     } else {
-      setIsSearchOpen(!isSearchOpen);
+      setIsSearchOpen(!isSearchOpen)
     }
-  };
+  }
 
-  const handlePracticeAreaClick = (
-    practiceAreaId: string,
-    practiceAreaName: string
-  ) => {
-    dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
-
+  const handlePracticeAreaClick = (practiceAreaId: string, practiceAreaName: string) => {
+    dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }))
     router.push(
-      `/products?practiceArea=${encodeURIComponent(
-        practiceAreaId
-      )}&name=${encodeURIComponent(practiceAreaName)}`
-    );
-  };
+      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&name=${encodeURIComponent(practiceAreaName)}`
+    )
+  }
 
-  // const { data } = useQuery<PromoCodeResponse>({
-  //   queryKey: ["hero-promo"],
-  //   queryFn: async (): Promise<PromoCodeResponse> => {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/promo-codes`);
-  //     if (!res.ok) {
-  //       throw new Error("Failed to fetch promo codes");
-  //     }
-  //     return res.json();
-  //   },
-  //   staleTime: 5 * 60 * 1000, // 5 minutes
-  //   refetchInterval: 10 * 60 * 1000, // 10 minutes
-  // });
+  const handleSubPracticeAreaClick = (subArea: SubPracticeArea, parentAreaName: string) => {
+    dispatch(setSelectedArea({ id: subArea._id, name: subArea.name }))
+    router.push(
+      `/products?practiceArea=${encodeURIComponent(subArea._id)}&name=${encodeURIComponent(subArea.name)}&parent=${encodeURIComponent(parentAreaName)}`
+    )
+  }
 
-  // Filter special promo codes
-  // const specialPromoCodes: PromoCode[] =
-  //   data?.data.data.filter(
-  //     (promo: PromoCode) => promo.special && promo.active
-  //   ) || [];
-
-  // Fetch cart data using react-query
-  // const { data: cartResponse } = useQuery({
-  //   queryKey: ["cart", token],
-  //   queryFn: async () => {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-  //     if (!res.ok) throw new Error("Failed to fetch cart");
-  //     return res.json();
-  //   },
-  //   enabled: !!token,
-  // });
+  const toggleMobileExpansion = (areaId: string) => {
+    setExpandedMobileAreaId(expandedMobileAreaId === areaId ? null : areaId)
+  }
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full  bg-white">
+      <header className="sticky top-0 z-40 w-full bg-white">
         {/* Top Blue Bar */}
         <div className="bg-[#23547B] text-white font-medium leading-[120%] px-2 text-sm py-2">
           <div className="container mx-auto flex items-center justify-between">
-            
-            {/* <div className="flex items-center space-x-4 pl-2 md:pl-0">
-              <span className="flex items-center">
-                <span className="mr-2 border p-2 rounded-full">
-                  <Mail size={25} />
-                </span>
-                <span className="">support@lawbie.com</span>
-              </span>
-            </div>
-            <div className="flex-1 text-center hidden lg:block">
-              {specialPromoCodes.length > 0 ? (
-                <Carousel
-                  opts={{
-                    align: "center",
-                    loop: true,
-                  }}
-                  plugins={[
-                    Autoplay({
-                      delay: 4000,
-                    }),
-                  ]}
-                  className="w-full max-w-md mx-auto"
-                >
-                  <CarouselContent>
-                    {specialPromoCodes.map((promo: PromoCode) => (
-                      <CarouselItem key={promo._id}>
-                        <div className="text-center">
-                          <span className="text-sm font-medium">
-                            <span>Special Offers :</span> Save up to{" "}
-                            <span className="text-[#E0B15E] font-bold">
-                              {promo.discountValue}%
-                            </span>{" "}
-                            Using Promo Code{" "}
-                            <span className="font-bold text-[#E0B15E]">
-                              {promo.code}
-                            </span>
-                          </span>
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                </Carousel>
-              ) : (
-                <span className="text-sm">
-                  Welcome to Lawbie - Your Legal Resource Hub
-                </span>
-              )}
-            </div> */}
-
             <div className="w-full hidden lg:flex items-center justify-between space-x-2">
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base px-1 py-2 rounded-[8px] transition-all duration-200 ${
+                className={`text-base px-3 py-2 rounded-[8px] transition-all duration-200 ${
                   currentRegion === "canada"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
                 }`}
               >
                 <span className="w-[48px] h-[24px]">
-                  <Image
-                    src="/images/flage.png"
-                    alt="Canada Flag"
-                    width={48}
-                    height={24}
-                  />
+                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
                 </span>
-                Lawbie Canada
+                Lawbie CA
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base px-1 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                className={`text-base px-3 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                   currentRegion === "us"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
-                    : "bg-transparent text-white  border-white hover:bg-white/10"
+                    : "bg-transparent text-white border-white hover:bg-white/10"
                 }`}
               >
                 <span className="w-[48px] h-[24px] relative">
-                  <Image
-                    src="/images/flage1.png"
-                    alt="US Flag"
-                    fill
-                    className="object-contain"
-                  />
+                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
                 </span>
                 <span>Lawbie US</span>
               </Button>
@@ -297,7 +182,7 @@ export function Header() {
             {/* Logo */}
             <div className="flex items-center">
               <div className="text-[#23547B]">
-                <Link href="/" className="text-2xl font-bold ">
+                <Link href="/" className="text-2xl font-bold">
                   <Image
                     src="/images/nav_logo.png"
                     alt="Lawbie Logo"
@@ -327,20 +212,11 @@ export function Header() {
                   <Search className="text-xl text-white" />
                 </button>
               </form>
-
-              {dropdownOpen && (
-                <SearchDropdown
-                  query={searchQuery}
-                  onClose={() => setDropdownOpen(false)}
-                />
-              )}
+              {dropdownOpen && <SearchDropdown query={searchQuery} onClose={() => setDropdownOpen(false)} />}
             </div>
 
             {/* Mobile Search Button */}
-            <button
-              className="md:hidden text-gray-600 mr-3"
-              onClick={handleMobileSearchClick}
-            >
+            <button className="md:hidden text-gray-600 mr-3" onClick={handleMobileSearchClick}>
               <Search className="text-2xl" />
             </button>
 
@@ -359,13 +235,12 @@ export function Header() {
                 {isMounted && (
                   <Badge className="absolute -top-1 -right-1 bg-[#23547B] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center p-0">
                     {getItemCount() || 0}
-                    {/* {cartResponse.length || 0} */}
-                    {/* {cartResponse?.data?.items?.length || 0} */}
                   </Badge>
                 )}
               </button>
+
               {session && user ? (
-                <div className="relative group hidden sm:block ">
+                <div className="relative group hidden sm:block">
                   <button className="text-[#131313]">
                     <span>
                       <UserRound className="text-2xl" />
@@ -373,21 +248,13 @@ export function Header() {
                   </button>
                   <div className="absolute right-0 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
                     <div className="py-2 text-sm text-[#131313]">
-                      <p className="font-medium text-center">{user?.name}</p>
-                      <p className="text-gray-500 text-xs text-center border-b">
-                        {user?.email}
-                      </p>
+                      <p className="font-medium text-center">{user?.name ?? "User"}</p>
+                      <p className="text-gray-500 text-xs text-center border-b">{user?.email ?? "No email"}</p>
                     </div>
-                    <Link
-                      href="/account/profile"
-                      className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100"
-                    >
+                    <Link href="/account/profile" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
                       My Account
                     </Link>
-                    <Link
-                      href="/account/orders"
-                      className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100"
-                    >
+                    <Link href="/account/orders" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
                       My Orders
                     </Link>
                     <button
@@ -427,11 +294,7 @@ export function Header() {
                     <Link
                       href="/"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${
-                        pathname === "/"
-                          ? "text-[#23547B]"
-                          : "hover:text-[#23547B]"
-                      }`}
+                      className={`text-lg font-medium ${pathname === "/" ? "text-[#23547B]" : "hover:text-[#23547B]"}`}
                     >
                       Home
                     </Link>
@@ -439,9 +302,7 @@ export function Header() {
                       href="/products"
                       onClick={() => setIsSheetOpen(false)}
                       className={`text-lg font-medium ${
-                        pathname === "/products"
-                          ? "text-[#23547B]"
-                          : "hover:text-[#23547B]"
+                        pathname === "/products" ? "text-[#23547B]" : "hover:text-[#23547B]"
                       }`}
                     >
                       All Resources
@@ -450,42 +311,67 @@ export function Header() {
                       href="/blog"
                       onClick={() => setIsSheetOpen(false)}
                       className={`text-lg font-medium ${
-                        pathname === "/blog"
-                          ? "text-[#23547B]"
-                          : "hover:text-[#23547B]"
+                        pathname === "/blog" ? "text-[#23547B]" : "hover:text-[#23547B]"
                       }`}
                     >
                       Blog
                     </Link>
 
-                    {/* Practice Areas */}
+                    {/* Practice Areas - Mobile */}
                     <div className="border-t pt-4 mt-4">
-                      <h3 className="text-base font-semibold text-gray-500 mb-3">
-                        Practice Areas
-                      </h3>
-                      <div className="h-[250px] w-full overflow-y-scroll">
+                      <h3 className="text-base font-semibold text-gray-500 mb-3">Practice Areas</h3>
+                      <div className="h-[300px] w-full overflow-y-scroll">
                         {practiceAreasLoading ? (
                           <div className="space-y-2">
                             {[...Array(3)].map((_, i) => (
-                              <div
-                                key={i}
-                                className="h-8 bg-gray-200 rounded animate-pulse"
-                              />
+                              <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
                             ))}
                           </div>
                         ) : (
                           <div className="space-y-2">
                             {practiceAreasData?.data?.map((area) => (
-                              <button
-                                key={area._id}
-                                onClick={() => {
-                                  handlePracticeAreaClick(area._id, area.name);
-                                  setIsSheetOpen(false);
-                                }}
-                                className="w-full text-left text-base font-medium hover:text-[#23547B] py-1"
-                              >
-                                {area.name}
-                              </button>
+                              <div key={area._id} className="border-b border-gray-100 pb-2">
+                                <div className="flex items-center justify-between">
+                                  <button
+                                    onClick={() => {
+                                      handlePracticeAreaClick(area._id, area.name)
+                                      setIsSheetOpen(false)
+                                    }}
+                                    className="flex-1 text-left text-base font-medium hover:text-[#23547B] py-1"
+                                  >
+                                    {area.name}
+                                  </button>
+                                  {area.subPracticeAreas?.length > 0 && (
+                                    <button
+                                      onClick={() => toggleMobileExpansion(area._id)}
+                                      className="p-1 hover:bg-gray-100 rounded"
+                                    >
+                                      {expandedMobileAreaId === area._id ? (
+                                        <ChevronUp className="h-4 w-4" />
+                                      ) : (
+                                        <ChevronDown className="h-4 w-4" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                                {/* Sub Practice Areas - Mobile */}
+                                {expandedMobileAreaId === area._id && area.subPracticeAreas?.length > 0 && (
+                                  <div className="ml-4 mt-2 space-y-1">
+                                    {area.subPracticeAreas.map((subArea) => (
+                                      <button
+                                        key={subArea._id}
+                                        onClick={() => {
+                                          handleSubPracticeAreaClick(subArea, area.name)
+                                          setIsSheetOpen(false)
+                                        }}
+                                        className="block w-full text-left text-sm text-gray-600 hover:text-[#23547B] py-1 px-2 hover:bg-gray-50 rounded"
+                                      >
+                                        {subArea.name}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             ))}
                           </div>
                         )}
@@ -505,8 +391,8 @@ export function Header() {
                         </Link>
                         <button
                           onClick={() => {
-                            signOut();
-                            setIsSheetOpen(false);
+                            signOut()
+                            setIsSheetOpen(false)
                           }}
                           className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
                         >
@@ -537,8 +423,8 @@ export function Header() {
                       <Button
                         variant="outline"
                         onClick={() => {
-                          handleRegionChange("canada");
-                          setIsSheetOpen(false);
+                          handleRegionChange("canada")
+                          setIsSheetOpen(false)
                         }}
                         className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                           currentRegion === "canada"
@@ -547,29 +433,17 @@ export function Header() {
                         }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
-                          <Image
-                            src="/images/flage.png"
-                            alt="Canada Flag"
-                            fill
-                            className="object-contain"
-                          />
+                          <Image src="/images/flag.png" alt="Canada Flag" fill className="object-contain" />
                         </span>
-                        <span
-                          className={`${
-                            currentRegion === "canada"
-                              ? "text-white"
-                              : "text-[#23547b]"
-                          }`}
-                        >
+                        <span className={`${currentRegion === "canada" ? "text-white" : "text-[#23547b]"}`}>
                           Lawbie Canada
                         </span>
                       </Button>
-
                       <Button
                         variant="outline"
                         onClick={() => {
-                          handleRegionChange("us");
-                          setIsSheetOpen(false);
+                          handleRegionChange("us")
+                          setIsSheetOpen(false)
                         }}
                         className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
                           currentRegion === "us"
@@ -578,22 +452,9 @@ export function Header() {
                         }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
-                          <Image
-                            src="/images/flage1.png"
-                            alt="US Flag"
-                            fill
-                            className="object-contain"
-                          />
+                          <Image src="/images/flag1.png" alt="US Flag" fill className="object-contain" />
                         </span>
-                        <span
-                          className={`${
-                            currentRegion === "us"
-                              ? "text-white"
-                              : "text-[#23547b]"
-                          }`}
-                        >
-                          Lawbie US
-                        </span>
+                        <span className={`${currentRegion === "us" ? "text-white" : "text-[#23547b]"}`}>Lawbie US</span>
                       </Button>
                     </div>
                   </nav>
@@ -615,18 +476,14 @@ export function Header() {
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
                 autoFocus
               />
-              <Button
-                type="submit"
-                size="sm"
-                className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3"
-              >
+              <Button type="submit" size="sm" className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3">
                 <Search className="h-4 w-4 text-white" />
               </Button>
             </form>
           </div>
         )}
 
-        {/* Navigation Menu */}
+        {/* Navigation Menu - Desktop */}
         <div className="bg-white pb-4 px-4 hidden md:block border-b-[1.5px] border-[#23547B]">
           <div className="container mx-auto px-7 relative">
             <nav className="flex items-center text-base space-x-8 justify-center">
@@ -640,15 +497,16 @@ export function Header() {
 
               <div
                 ref={scrollContainerRef}
-                className="flex items-center space-x-8 overflow-x-auto scroll-smooth whitespace-nowrap py-2 px-4 hide-scrollbar"
+                className="flex items-center space-x-8 whitespace-nowrap py-2 px-4 scroll-smooth"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                <div>
+                <div className="flex items-center space-x-8">
                   <Link
                     href="/"
                     className={`font-medium transition-colors ${
                       pathname === "/"
                         ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
                     }`}
                   >
                     Home
@@ -658,7 +516,7 @@ export function Header() {
                     className={`font-medium transition-colors ${
                       pathname === "/products"
                         ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                     }`}
                   >
                     All Resources
@@ -668,46 +526,81 @@ export function Header() {
                     className={`font-medium transition-colors ${
                       pathname === "/blog"
                         ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                     }`}
                   >
                     Blog
                   </Link>
                 </div>
 
-                {/* Dynamic Practice Areas */}
-                <div className="">
+                {/* Dynamic Practice Areas - Desktop */}
+                <div className="flex items-center space-x-8">
                   {practiceAreasLoading ? (
-                    <div className="flex space-x-8 ">
+                    <div className="flex space-x-8">
                       {[...Array(3)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-6 w-24 bg-gray-200 rounded animate-pulse"
-                        />
+                        <div key={i} className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
                       ))}
                     </div>
                   ) : (
                     <>
                       {practiceAreasData?.data?.map((area) => {
-                        const isActive = activePracticeAreaId === area._id;
-
+                        const isActive = activePracticeAreaId === area._id
+                        const isHovered = hoveredAreaId === area._id
                         return (
-                          <button
+                          <div
                             key={area._id}
-                            onClick={() =>
-                              handlePracticeAreaClick(area._id, area.name)
-                            }
-                            className={`font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md
-                    ${
-                      isActive
-                        ? "bg-[#8eb5d4] text-white"
-                        : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
-                    }`}
-                            title={area.name}
+                            className="relative inline-block"
+                            onMouseEnter={() => setHoveredAreaId(area._id)}
+                            onMouseLeave={() => setHoveredAreaId(null)}
                           >
-                            {area.name}
-                          </button>
-                        );
+                            <button
+                              onClick={() => handlePracticeAreaClick(area._id, area.name)}
+                              className={`font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${
+                                isActive
+                                  ? "bg-[#8eb5d4] text-white"
+                                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
+                              }`}
+                              title={area.name}
+                            >
+                              {area.name}
+                            </button>
+                            {/* Hover Dropdown - Desktop Only */}
+                            {isHovered && (
+                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px] max-w-[320px]">
+                                {/* Arrow */}
+                                <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-gray-200 rotate-45"></div>
+                                <div className="px-4 py-3">
+                                  <p className="text-gray-900 font-semibold text-base mb-3">{area.name}</p>
+                                  {/* Sub Practice Areas - Desktop Hover */}
+                                  {area?.subPracticeAreas?.length > 0 && (
+                                    <div className="mb-3">
+                                      {/* <p className="text-gray-700 font-medium text-xs mb-2">Sub-categories:</p> */}
+                                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                                        {area.subPracticeAreas.slice(0, 6).map((subArea: SubPracticeArea) => (
+                                          <button
+                                            key={subArea._id}
+                                            className="block w-full text-left text-gray-600 text-[13px] px-2 py-1 rounded cursor-pointer hover:bg-gray-100 hover:text-[#23547B] transition-colors"
+                                            onClick={() => handleSubPracticeAreaClick(subArea, area.name)}
+                                          >
+                                            {subArea.name}
+                                          </button>
+                                        ))}
+                                        {area.subPracticeAreas.length > 6 && (
+                                          <p className="text-gray-500 text-xs italic px-2">
+                                            +{area.subPracticeAreas.length - 6} more...
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {/* <div className="text-xs text-[#23547B] font-medium">
+                                    Click to view all resources →
+                                  </div> */}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )
                       })}
                     </>
                   )}
@@ -727,14 +620,10 @@ export function Header() {
       </header>
 
       {/* Search Modal */}
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={() => setIsSearchModalOpen(false)}
-        initialQuery={searchQuery}
-      />
+      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} initialQuery={searchQuery} />
 
       {/* Cart Sheet */}
       <CartSheet />
     </>
-  );
+  )
 }

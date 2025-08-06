@@ -1,8 +1,14 @@
-import AddResourceForm from "@/components/AddResourceForm";
+// import { AddResource } from '@/components/add-resource'
+import ResourceForm from '@/components/AddResourceForm'
+import React from 'react'
 
-export default function AddResourcePage() {
+const page = () => {
   return (
-    // <AddResource />
-    <AddResourceForm />
-  );
+    <div>
+      {/* <AddResource/> */}
+      <ResourceForm/>
+    </div>
+  )
 }
+
+export default page

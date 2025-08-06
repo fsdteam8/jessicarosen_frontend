@@ -340,7 +340,7 @@ const VerifyOtpForm = () => {
 
             if (response.ok) {
                 toast.success("OTP verified successfully!")
-                router.push(`/sgin-in`)
+                router.push(`/sign-in`)
             } else {
                 const errorData = await response.json()
                 toast.error(errorData.message || "Invalid OTP. Please try again.")

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 interface PracticeArea {
+  subPracticeAreas: boolean;
   _id: string;
   name: string;
   description: string;
