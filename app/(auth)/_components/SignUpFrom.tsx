@@ -84,7 +84,7 @@ export default function SignUpPage() {
 
       // Show success message and redirect to sign-in
       toast.success("Account created successfully! Please sign in to continue.")
-      router.push("/sign-in")
+      router.push(`/verify-account?email=${encodeURIComponent(data.email)}`)
     } catch (error) {
       console.error("Registration error:", error)
       toast.error("An error occurred during registration")
@@ -118,9 +118,8 @@ export default function SignUpPage() {
               <input
                 id="firstName"
                 {...register("firstName", { validate: validateName })}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.firstName ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.firstName ? "border-red-500" : "border-gray-300"
+                  }`}
                 placeholder="First name"
               />
               {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName?.message?.toString()}</p>}
@@ -133,9 +132,8 @@ export default function SignUpPage() {
               <input
                 id="lastName"
                 {...register("lastName", { validate: validateName })}
-                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.lastName ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.lastName ? "border-red-500" : "border-gray-300"
+                  }`}
                 placeholder="Last name"
               />
               {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName?.message?.toString()}</p>}
@@ -168,9 +166,8 @@ export default function SignUpPage() {
               id="email"
               type="email"
               {...register("email", { validate: validateEmail })}
-              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.email ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Enter your email..."
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message?.toString()}</p>}
@@ -184,9 +181,8 @@ export default function SignUpPage() {
               id="password"
               type={showPassword ? "text" : "password"}
               {...register("password", { validate: validatePassword })}
-              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.password ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.password ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Enter your password..."
             />
             <div
@@ -208,9 +204,8 @@ export default function SignUpPage() {
               {...register("confirmPassword", {
                 validate: (value) => validateConfirmPassword(value, password),
               })}
-              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.confirmPassword ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                }`}
               placeholder="Confirm your password..."
             />
             <div

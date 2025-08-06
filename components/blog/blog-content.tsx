@@ -42,8 +42,8 @@ export function BlogContent({ post }: BlogContentProps) {
   }
 
   return (
-    <div>
-      <article className="container mx-auto">
+    <div className=" ">
+      <article className="container">
         <div className="mb-4 md:mb-6 lg:mb-8">
           <div className="relative h-[350px] md:h-[420px] lg:h-[500px] w-full overflow-hidden rounded-lg mb-4 md:mb-5 lg:mb-6">
             <Image
