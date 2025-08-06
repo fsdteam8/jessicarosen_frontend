@@ -35,8 +35,8 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col container px-4 md:px-0">
-      <main className="flex-1">
+    <div className="min-h-screen flex flex-col  px-4 md:px-0">
+      <main className="flex-1 container">
         {/* Hero Section */}
         <div className="text-center my-[22px] md:my-[40px] lg:my-[88px]">
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
@@ -49,11 +49,12 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           </p>
         </div>
 
-        <div>
-          <BlogContent post={post} />
-          {/* <RelatedPosts posts={relatedPosts} isLoading={isLoading} /> */}
-        </div>
+
       </main>
+      <div>
+        <BlogContent post={post} />
+        {/* <RelatedPosts posts={relatedPosts} isLoading={isLoading} /> */}
+      </div>
     </div>
   );
 }
