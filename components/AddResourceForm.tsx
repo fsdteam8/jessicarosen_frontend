@@ -34,6 +34,7 @@ import { useState, useEffect, useRef } from "react";
 import "react-quill/dist/quill.snow.css";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -55,6 +56,7 @@ interface PracticeArea {
   _id: string;
   name: string;
   description: string;
+  subPracticeAreas?: { _id: string; name: string }[]; // Add this property
 }
 
 interface ResourceType {
@@ -67,6 +69,7 @@ interface FormDataState {
   title: string;
   price: string;
   discountPrice: string;
+  productStatus: string;
   quantity: string;
   format: string;
   country: string;
@@ -89,7 +92,9 @@ export default function ResourceForm() {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const [practiceArea, setPracticeArea] = useState("");
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
@@ -98,6 +103,7 @@ export default function ResourceForm() {
     quantity: "",
     format: "",
     country: "",
+    productStatus: "",
     states: [],
     description: "",
     practiceArea: "",
@@ -109,12 +115,16 @@ export default function ResourceForm() {
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
   const { data: session } = useSession();
-  const API_TOKEN = session?.user?.accessToken;
+  const API_TOKEN = session?.user.accessToken;
 
   // Set isClient to true after component mounts
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  useEffect(() => {
+    console.log("Practice Area updated:", practiceArea);
+  }, [practiceArea]);
 
   const modules = {
     toolbar: [
@@ -148,44 +158,56 @@ export default function ResourceForm() {
           "Content-Type": "application/json",
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch countries");
+
       const data = await response.json();
       return data.success ? data.data : [];
     },
   });
-
   const { data: practiceAreasData, isLoading: isLoadingPracticeAreas } =
     useQuery<PracticeArea[]>({
       queryKey: ["practiceAreas-all"],
       queryFn: async () => {
-        const response = await fetch(
-          `${API_BASE_URL}/practice-area/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${API_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/practice-area/all`, {
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch practice areas");
         const data = await response.json();
+        console.log(data)
         return data.success ? data.data : [];
       },
     });
+
+  const singelPracticeArea = practiceAreasData?.find(
+    (p) => p.name.toLowerCase() === practiceArea.toLowerCase()
+  );
+  const handleCheckboxChange = (id: string, checked: boolean) => {
+    setSelectedSubAreas((prev) =>
+      checked ? [...prev, id] : prev.filter((item) => item !== id)
+    );
+  };
+
+  console.log(singelPracticeArea)
+  useEffect(() => {
+    if (singelPracticeArea) {
+      setPracticeArea(singelPracticeArea.name);
+    }
+  }, [singelPracticeArea]);
+
+  // Fetch resource types
 
   const { data: resourceTypesData, isLoading: isLoadingResourceTypes } =
     useQuery<ResourceType[]>({
       queryKey: ["resourceTypes-all"],
       queryFn: async () => {
-        const response = await fetch(
-          `${API_BASE_URL}/resource-type/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${API_TOKEN}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const response = await fetch(`${API_BASE_URL}/resource-type/all`, {
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
         if (!response.ok) throw new Error("Failed to fetch resource types");
         const data = await response.json();
         return data.success ? data.data : [];
@@ -194,6 +216,7 @@ export default function ResourceForm() {
 
   const { mutate: submitResource, isPending: isSubmitting } = useMutation({
     mutationFn: async (currentFormData: FormDataState) => {
+      console.log("Submitting resource with data:", currentFormData);
       const submitData = new FormData();
       submitData.append("title", currentFormData.title);
       submitData.append("description", currentFormData.description);
@@ -202,7 +225,7 @@ export default function ResourceForm() {
       submitData.append("format", currentFormData.format);
       submitData.append("quantity", currentFormData.quantity);
       submitData.append("country", currentFormData.country);
-
+      submitData.append("productStatus", currentFormData.productStatus);
       currentFormData.states.forEach((state) => {
         submitData.append("states[]", state);
       });
@@ -245,8 +268,7 @@ export default function ResourceForm() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          `Failed to publish resource: ${
-            errorData.message || response.statusText
+          `Failed to publish resource: ${errorData.message || response.statusText
           }`
         );
       }
@@ -272,7 +294,11 @@ export default function ResourceForm() {
   });
 
   const handleInputChange = (field: keyof FormDataState, value: string) => {
+    console.log(`Input changed: ${field} = ${value}`);
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === "practiceArea") {
+      setPracticeArea(value);
+    }
   };
 
   const handleCountrySelect = (country: Country) => {
@@ -416,7 +442,55 @@ export default function ResourceForm() {
     }));
   };
 
-  const handleSubmit = () => {
+  // const handleSubmit = (action: "publish" | "draft") => {
+
+  //   const practiceAreaObj = practiceAreasData?.find(
+  //     (p) => p._id === formData.practiceArea
+  //   );
+  //   const resourceTypeObj = resourceTypesData?.find(
+  //     (rt) => rt._id === formData.resourceType
+  //   );
+
+
+  //   const dataToLog = {
+  //     title: formData.title,
+  //     description: formData.description,
+  //     price: formData.price,
+  //     discountPrice: formData.discountPrice,
+  //     format: formData.format,
+  //     quantity: formData.quantity,
+  //     country: formData.country,
+  //     states: formData.states,
+  //     subPracticeAreas: selectedSubAreas,
+  //     practiceAreas: practiceAreaObj
+  //       ? [practiceAreaObj.name]
+  //       : formData.practiceArea
+  //         ? [formData.practiceArea]
+  //         : [],
+  //     resourceType: resourceTypeObj
+  //       ? [resourceTypeObj.resourceTypeName]
+  //       : formData.resourceType
+  //         ? [formData.resourceType]
+  //         : [],
+  //     thumbnail: formData.thumbnail
+  //       ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
+  //       : null,
+  //     file: formData.file
+  //       ? {
+  //         url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
+  //         type: formData.file.type,
+  //       }
+  //       : null,
+  //     images: formData.images.map(
+  //       (img) =>
+  //         `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`
+  //     ),
+  //   };
+  //   console.log("Form Data (for logging):", dataToLog);
+  //   submitResource(formData);
+  // };
+ 
+  const handleSubmit = (action: "publish" | "draft") => {
     const practiceAreaObj = practiceAreasData?.find(
       (p) => p._id === formData.practiceArea
     );
@@ -424,41 +498,52 @@ export default function ResourceForm() {
       (rt) => rt._id === formData.resourceType
     );
 
+    // Clone formData and add productStatus
+    const formDataToSubmit: FormDataState = {
+      ...formData,
+      productStatus: action === "publish" ? "pending" : "draft", // ✅ This line adds productStatus
+    };
+
     const dataToLog = {
-      title: formData.title,
-      description: formData.description,
-      price: formData.price,
-      discountPrice: formData.discountPrice,
-      format: formData.format,
-      quantity: formData.quantity,
-      country: formData.country,
-      states: formData.states,
+      title: formDataToSubmit.title,
+      description: formDataToSubmit.description,
+      price: formDataToSubmit.price,
+      discountPrice: formDataToSubmit.discountPrice,
+      format: formDataToSubmit.format,
+      quantity: formDataToSubmit.quantity,
+      country: formDataToSubmit.country,
+      states: formDataToSubmit.states,
+      subPracticeAreas: selectedSubAreas,
+      productStatus: formDataToSubmit.productStatus, // ✅ For logging
       practiceAreas: practiceAreaObj
         ? [practiceAreaObj.name]
         : formData.practiceArea
-        ? [formData.practiceArea]
-        : [],
+          ? [formData.practiceArea]
+          : [],
       resourceType: resourceTypeObj
         ? [resourceTypeObj.resourceTypeName]
         : formData.resourceType
-        ? [formData.resourceType]
-        : [],
+          ? [formData.resourceType]
+          : [],
       thumbnail: formData.thumbnail
         ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
         : null,
       file: formData.file
         ? {
-            url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
-            type: formData.file.type,
-          }
+          url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
+          type: formData.file.type,
+        }
         : null,
       images: formData.images.map(
         (img) =>
           `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`
       ),
     };
+
     console.log("Form Data (for logging):", dataToLog);
-    submitResource(formData);
+
+    // ✅ Pass the updated formData with productStatus
+    submitResource(formDataToSubmit);
   };
 
   const filteredStates =
@@ -475,6 +560,7 @@ export default function ResourceForm() {
     };
   }, [thumbnailPreview, imagePreviews]);
 
+
   return (
     <div>
       <div className="max-w-9xl mx-auto p-6">
@@ -484,7 +570,7 @@ export default function ResourceForm() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-xl font-semibold">
-                  Add Resource
+                  Add Resourcess
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -700,9 +786,13 @@ export default function ResourceForm() {
                   </Label>
                   <Select
                     value={formData.practiceArea}
-                    onValueChange={(value) =>
-                      handleInputChange("practiceArea", value)
-                    }
+                    onValueChange={(value) => {
+                      handleInputChange("practiceArea", value);
+                      const selectedArea = practiceAreasData?.find(
+                        (area) => area._id === value
+                      );
+                      setPracticeArea(selectedArea ? selectedArea.name : value);
+                    }}
                   >
                     <SelectTrigger className="h-[49px] border border-gray-400">
                       <SelectValue placeholder="Select a practice area" />
@@ -722,6 +812,39 @@ export default function ResourceForm() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* {singelPracticeArea && singelPracticeArea.subPracticeAreas?.map((subArea) => (
+                  <div key={subArea._id} className="mt-2">
+                    <Label className="text-sm font-medium">
+                      {subArea.name}
+                    </Label>
+                  </div>
+                ))
+                } */}
+
+                <div>
+                  {singelPracticeArea?.subPracticeAreas?.map((subArea) => (
+                    <div key={subArea._id} className="flex items-center space-x-2 mt-2">
+                      <Checkbox
+                        id={subArea.name}
+                        checked={selectedSubAreas.includes(subArea.name)}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange(subArea.name, Boolean(checked))
+                        }
+                      />
+                      <Label htmlFor={subArea.name} className="text-sm font-medium">
+                        {subArea.name}
+                      </Label>
+                    </div>
+                  ))}
+
+                  {/* Debug output or pass to form submission */}
+                  {/* <div className="mt-4 text-sm text-gray-500">
+                    Selected SubPracticeAreas:{" "}
+                    <pre>{JSON.stringify(selectedSubAreas, null, 2)}</pre>
+                  </div> */}
+                </div>
+
                 <div className="space-y-2 mt-4">
                   <Label className="text-base font-semibold">
                     Resource Type
@@ -922,15 +1045,26 @@ export default function ResourceForm() {
                 </div>
               </CardContent>
             </Card>
+            <div className="flex gap-4 items-center justify-center">
+              <Button
+                onClick={() => handleSubmit("publish")}
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Publishing..." : "Publish Resources"}
+              </Button>
 
-            {/* Submit Button */}
-            <Button
-              onClick={handleSubmit}
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Publishing..." : "Publish Resources"}
-            </Button>
+              <Button
+                onClick={() => handleSubmit("draft")}
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Drafting..." : " Draft"}
+              </Button>
+            </div>
+
+
+
           </div>
         </div>
       </div>

@@ -260,7 +260,6 @@ export function Header() {
               >
                 <span className="w-[48px] h-[24px]">
                   <Image
-                  
                     src="/images/flage.png"
                     alt="Canada Flag"
                     width={48}
@@ -299,13 +298,13 @@ export function Header() {
             <div className="flex items-center">
               <div className="text-[#23547B]">
                 <Link href="/" className="text-2xl font-bold ">
-                  {/* <Image
+                  <Image
                     src="/images/nav_logo.png"
                     alt="Lawbie Logo"
                     width={186}
                     height={60}
                     className="w-full h-[40px] lg:h-[60px] bg-cover"
-                  /> */}
+                  />
                 </Link>
               </div>
             </div>
