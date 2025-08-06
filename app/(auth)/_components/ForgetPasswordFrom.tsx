@@ -52,7 +52,7 @@ const ForgetPasswordPage = () => {
     <div className="flex flex-col md:flex-row justify-center items-center lg:gap-[100px] gap-10 min-h-screen bg-gray-100 px-4 py-8">
       <div className="w-full max-w-md">
         <Image
-          src="/placeholder.svg?height=700&width=600"
+          src="/images/authImg.svg"
           width={600}
           height={700}
           alt="Forget Password Illustration"
@@ -81,11 +81,10 @@ const ForgetPasswordPage = () => {
                   message: "Invalid email address",
                 },
               })}
-              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${
-                errors.email
+              className={`w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 ${errors.email
                   ? "border-red-500 ring-red-400 placeholder-red-500"
                   : "border-gray-300 focus:ring-green-500"
-              }`}
+                }`}
               placeholder="Enter your email..."
               aria-invalid={errors.email ? "true" : "false"}
               disabled={isLoading}

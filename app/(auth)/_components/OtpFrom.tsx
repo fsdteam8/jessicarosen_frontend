@@ -161,7 +161,7 @@ const VerifyOtpPage = () => {
       {/* Image Section */}
       <div className="w-full max-w-md">
         <Image
-          src="/placeholder.svg?height=700&width=600"
+          src="/images/authImg.svg"
           width={600}
           height={700}
           alt="OTP Verification Illustration"
