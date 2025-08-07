@@ -63,7 +63,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
       name: "Reply To Question",
       href: "/dashboard/reply-to-question",
       icon: Reply ,
-      current: pathname === "/dashboard/sales",
+      current: pathname === "/dashboard/reply-to-question",
     },
     {
       name: "Setup Stripe",

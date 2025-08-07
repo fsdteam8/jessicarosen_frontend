@@ -92,8 +92,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         id: product._id,
         slug: product.title.toLowerCase().replace(/\s+/g, "-"),
         image: Array.isArray(product.thumbnail)
-          ? product.thumbnail[0] || "/placeholder.svg"
-          : product.thumbnail || "/images/no-image.jpg",
+          ? product.thumbnail[0] || "/lawImage.jpg"
+          : product.thumbnail || "/lawImage.jpg",
         rating: product.averageRating,
         price: product.price,
         discountPrice: product.discountPrice,
@@ -139,8 +139,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               <Image
                 src={
                   Array.isArray(product?.thumbnail)
-                    ? product?.thumbnail[0] || "/placeholder.svg"
-                    : product?.thumbnail || "/images/no-image.jpg"
+                    ? product?.thumbnail[0] || "/lawImage.jpg"
+                    : product?.thumbnail || "/lawImage.jpg"
                 }
                 alt={product?.title || "Product Image"}
                 width={370}

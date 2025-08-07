@@ -115,8 +115,8 @@ export function MySales() {
   const {
     data: allSalesData = [],
     isLoading: isLoadingAll,
-    error: allSalesError,
-    refetch: refetchAll,
+    // error: allSalesError,
+    // refetch: refetchAll,
   } = useQuery({
     queryKey: ["sales", "all"],
     queryFn: fetchAllSales,
@@ -129,7 +129,7 @@ export function MySales() {
   const {
     data: searchResults = [],
     isLoading: isLoadingSearch,
-    error: searchError,
+    // error: searchError,
     refetch: refetchSearch,
   } = useQuery({
     queryKey: ["sales", "search", searchTerm],
@@ -144,7 +144,7 @@ export function MySales() {
     isSearching && searchTerm.trim() ? searchResults : allSalesData;
   const isLoading =
     isSearching && searchTerm.trim() ? isLoadingSearch : isLoadingAll;
-  const error = isSearching && searchTerm.trim() ? searchError : allSalesError;
+  // const error = isSearching && searchTerm.trim() ? searchError : allSalesError;
 
   // Pagination
   const paginatedData = displayData.slice(
@@ -171,13 +171,13 @@ export function MySales() {
     setCurrentPage(1);
   };
 
-  const handleRefresh = () => {
-    if (isSearching && searchTerm.trim()) {
-      refetchSearch();
-    } else {
-      refetchAll();
-    }
-  };
+  // const handleRefresh = () => {
+  //   if (isSearching && searchTerm.trim()) {
+  //     refetchSearch();
+  //   } else {
+  //     refetchAll();
+  //   }
+  // };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -198,23 +198,23 @@ export function MySales() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-        <div className="text-red-600 text-center">
-          <p className="font-semibold">
-            {isSearching
-              ? "Error searching sales data"
-              : "Error loading sales data"}
-          </p>
-          <p className="text-sm">{error.message}</p>
-        </div>
-        <Button onClick={handleRefresh} variant="outline">
-          Try Again
-        </Button>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+  //       <div className="text-red-600 text-center">
+  //         <p className="font-semibold">
+  //           {isSearching
+  //             ? "Error searching sales data"
+  //             : "Error loading sales data"}
+  //         </p>
+  //         <p className="text-sm">{error.message}</p>
+  //       </div>
+  //       <Button onClick={handleRefresh} variant="outline">
+  //         Try Again
+  //       </Button>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">

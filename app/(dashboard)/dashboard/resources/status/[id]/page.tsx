@@ -87,6 +87,7 @@ interface ResourceData {
 interface FormDataState {
   title: string;
   price: string;
+  productStatus: string
   discountPrice: string;
   quantity: string;
   format: string;
@@ -131,6 +132,7 @@ export default function EditPage() {
     quantity: "",
     format: "",
     country: "",
+    productStatus: "",
     states: [],
     description: "",
     practiceArea: "",
@@ -290,6 +292,7 @@ export default function EditPage() {
         quantity: resourceData.quantity?.toString() || "",
         format: resourceData.format || "",
         country: resourceData.country || "",
+        productStatus: "",
         states: resourceData.states || [],
         description: resourceData.description || "",
         practiceArea: practiceArea?._id || "",
@@ -322,6 +325,7 @@ export default function EditPage() {
       submitData.append("discountPrice", currentFormData.discountPrice);
       submitData.append("format", currentFormData.format);
       submitData.append("quantity", currentFormData.quantity);
+      submitData.append("productStatus", currentFormData.productStatus);
       submitData.append("country", currentFormData.country);
 
       currentFormData.states.forEach((state) => {
@@ -366,8 +370,7 @@ export default function EditPage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          `Failed to update resource: ${
-            errorData.message || response.statusText
+          `Failed to update resource: ${errorData.message || response.statusText
           }`
         );
       }
@@ -593,8 +596,13 @@ export default function EditPage() {
     );
   }, []);
 
-  const handleSubmit = useCallback(() => {
-    updateResource(formData);
+  const handleSubmit = useCallback((action: "publish" | "draft") => {
+    const formDataToSubmit: FormDataState = {
+      ...formData,
+      productStatus: action === "publish" ? "approved" : "draft",
+    };
+
+    updateResource(formDataToSubmit);
   }, [updateResource, formData]);
 
   // Memoize filtered states to prevent unnecessary recalculations
@@ -648,7 +656,7 @@ export default function EditPage() {
   return (
     <div>
       <div className="mt-6 px-6">
-       
+
         <p className="text-gray-500 -mt-4">Dashboard &gt; Resource List</p>
       </div>
       <div className="max-w-9xl mx-auto p-6">
@@ -1049,8 +1057,8 @@ export default function EditPage() {
                         {formData.file
                           ? formData.file.name
                           : existingFile
-                          ? "Click to replace file"
-                          : "Click to upload file"}
+                            ? "Click to replace file"
+                            : "Click to upload file"}
                       </p>
                     </label>
                   </div>
@@ -1160,20 +1168,23 @@ export default function EditPage() {
             </Card>
 
             {/* Submit Button */}
-            <Button
-              onClick={handleSubmit}
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Resource"
-              )}
-            </Button>
+            <div className="flex gap-4 items-center justify-center">
+              <Button
+                onClick={() => handleSubmit("publish")}
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Publishing..." : "Publish Resources"}
+              </Button>
+
+              <Button
+                onClick={() => handleSubmit("draft")}
+                className="w-full"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Drafting..." : " Draft"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
