@@ -135,7 +135,7 @@ export default function ProfilePage() {
   const [imageLoading, setImageLoading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const userId = session?.user?.id;
   const token = session?.user?.accessToken;
 
@@ -393,23 +393,49 @@ export default function ProfilePage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        if (errorData.data === "User is already a seller") {
+          window.location.href = "/dashboard";
+        }
+
         throw new Error(errorData.message || "Failed to submit");
       }
 
       return email;
     },
-    onSuccess: () => { },
+    onSuccess: async () => {
+      toast.success("Application submitted successfully");
+
+      await update({
+        User: {
+          role: "SELLER",
+        }
+      })
+
+      window.location.href = "/dashboard";
+
+
+    },
     onError: (error) => {
-      console.error("Delete failed:", error);
+
+      toast.error(error.message || "Failed to submit application");
     },
   });
 
   const handleSubmit = async () => {
-    if (data?.email) {
-      handelSubmitMutation.mutate(data.email);
-    } else {
-      toast.error("Email is not available.");
+    // if(token )
+
+    if (session?.user.role !== "SELLER") {
+      if (data?.email) {
+        handelSubmitMutation.mutate(data.email);
+      } else {
+        toast.error("Email is not available.");
+      }
     }
+    else {
+      console.log("sdfsdfsdfsdfsdfdsfds")
+      window.location.href = "/dashboard";
+    }
+
   };
   // Handle image delete
   const handleImageDelete = () => {
@@ -537,11 +563,7 @@ export default function ProfilePage() {
                 </p> */}
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={() => {
-                    handleSubmit();
-                    window.location.href = "/dashboard";
-                  }}
-                >
+                  onClick={handleSubmit}>
                   <SquareArrowOutUpRight className="mr-2" />
                   Go To Dashboard
                 </Button>

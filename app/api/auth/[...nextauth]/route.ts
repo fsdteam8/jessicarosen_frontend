@@ -27,7 +27,7 @@ const handler = NextAuth({
           throw new Error("You can't log in as admin, please use admin dashboard")
         }
 
-
+      console.log("User logged in:", result.data.user)
         return {
           id: result.data.user._id,
           name: `${result.data.user.firstName} ${result.data.user.lastName}`,
@@ -46,13 +46,17 @@ const handler = NextAuth({
     error: "/error",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
         token.role = user.role
         token.profileImage = user.profileImage
         token.accessToken = user.accessToken
         token.refreshToken = user.refreshToken
+      }
+
+      if(trigger === "update" && session) {
+        token.role = session.User.role
       }
       return token
     },

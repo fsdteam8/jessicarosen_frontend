@@ -95,7 +95,7 @@ const ForgetPasswordPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#23547B] hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+            className="w-full bg-[#23547B] hover:bg-[#2b699c] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
           >
             {isLoading ? "Sending OTP..." : "Send OTP"}
           </button>
