@@ -1,6 +1,6 @@
-// @typescript-eslint/no-explicit-any
-"use client";
 
+"use client";
+// @typescript-eslint/no-explicit-any
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
@@ -413,9 +413,9 @@ export default function ProfilePage() {
   };
   // Handle image delete
   const handleImageDelete = () => {
-    if (window.confirm("Are you sure you want to delete your profile image?")) {
+    
       deleteImageMutation.mutate();
-    }
+    
   };
 
   // Handle image load start
