@@ -74,9 +74,9 @@ export default function BestSellers() {
                     : "-mb-6 sm:-mb-8 lg:-mb-12"
                     }`}
                 >
-                  <div className="relative w-full max-w-[188px] sm:max-w-[240px] md:max-w-[280px] lg:max-w-[240px] xl:max-w-[188px] mx-auto sm:mx-0">
+                  <div className="relative w-full max-w-[188px]   sm:max-w-[240px] md:max-w-[280px] lg:max-w-[240px] xl:max-w-[188px] mx-auto sm:mx-0">
                     {isLoading ? (
-                      <div className="h-[250px] bg-gray-300 rounded-2xl animate-pulse"></div>
+                      <div className="h-[336px] bg-gray-300 rounded-2xl animate-pulse"></div>
                     ) : image[i] ? (
                       <Image
                         src={image[i]}

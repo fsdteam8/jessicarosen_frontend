@@ -161,7 +161,7 @@ const VerifyOtpPage = () => {
       {/* Image Section */}
       <div className="w-full max-w-md">
         <Image
-          src="/placeholder.svg?height=700&width=600"
+          src="/images/authImg.svg"
           width={600}
           height={700}
           alt="OTP Verification Illustration"
@@ -217,7 +217,7 @@ const VerifyOtpPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-[#23547B] hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
+            className="w-full bg-[#23547B] hover:bg-[#3072a8] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2 sm:py-3 px-4 rounded-lg transition duration-200"
           >
             {isLoading ? "Verifying..." : "Verify"}
           </button>

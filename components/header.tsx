@@ -96,6 +96,8 @@ export function Header() {
   const { data: session } = useSession()
   const user = session?.user as User | undefined
 
+  console.log(user)
+
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -122,14 +124,14 @@ export function Header() {
   const handlePracticeAreaClick = (practiceAreaId: string, practiceAreaName: string) => {
     dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }))
     router.push(
-      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&name=${encodeURIComponent(practiceAreaName)}`
+      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&subPracticeAreas=${encodeURIComponent(practiceAreaName)}`
     )
   }
 
   const handleSubPracticeAreaClick = (subArea: SubPracticeArea, parentAreaName: string) => {
     dispatch(setSelectedArea({ id: subArea._id, name: subArea.name }))
     router.push(
-      `/products?practiceArea=${encodeURIComponent(subArea._id)}&name=${encodeURIComponent(subArea.name)}&parent=${encodeURIComponent(parentAreaName)}`
+      `/products?practiceArea=${encodeURIComponent(subArea._id)}&subPracticeAreas=${encodeURIComponent(subArea.name)}&parent=${encodeURIComponent(parentAreaName)}`
     )
   }
 
