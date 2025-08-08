@@ -1,6 +1,9 @@
+
+
+
 "use client"
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Search, ShoppingCart, Heart, Menu, UserRound, ChevronDown, ChevronUp } from 'lucide-react'
@@ -20,8 +23,12 @@ import { usePracticeAreas } from "@/hooks/use-practice-areas"
 import { useRouter } from "next/navigation"
 import { setSelectedArea } from "@/redux/features/practiceAreaSlice"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useRef } from "react"
 import { SearchDropdown } from "./search-dropdown"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 // Define User type for next-auth session
 interface User {
@@ -66,19 +73,20 @@ export function Header() {
   const activePracticeAreaId = searchParams.get("practiceArea")
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = 200
+      const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
       if (direction === "left") {
-        scrollContainerRef.current.scrollLeft -= scrollAmount
+        scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
       } else {
-        scrollContainerRef.current.scrollLeft += scrollAmount
+        scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
       }
     }
   }
 
-  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
   const [expandedMobileAreaId, setExpandedMobileAreaId] = useState<string | null>(null)
   const { items } = useWishlist()
   const dispatch = useAppDispatch()
@@ -95,8 +103,6 @@ export function Header() {
 
   const { data: session } = useSession()
   const user = session?.user as User | undefined
-
-  console.log(user)
 
   useEffect(() => {
     setIsMounted(true)
@@ -126,6 +132,7 @@ export function Header() {
     router.push(
       `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&subPracticeAreas=${encodeURIComponent(practiceAreaName)}`
     )
+    setHoveredAreaId(null)
   }
 
   const handleSubPracticeAreaClick = (subArea: SubPracticeArea, parentAreaName: string) => {
@@ -133,10 +140,24 @@ export function Header() {
     router.push(
       `/products?practiceArea=${encodeURIComponent(subArea._id)}&subPracticeAreas=${encodeURIComponent(subArea.name)}&parent=${encodeURIComponent(parentAreaName)}`
     )
+    setHoveredAreaId(null)
   }
 
   const toggleMobileExpansion = (areaId: string) => {
     setExpandedMobileAreaId(expandedMobileAreaId === areaId ? null : areaId)
+  }
+
+  const handleMouseEnter = (areaId: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    setHoveredAreaId(areaId)
+  }
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setHoveredAreaId(null)
+    }, 150) // Adjust delay as needed to prevent flicker
   }
 
   return (
@@ -145,34 +166,32 @@ export function Header() {
         {/* Top Blue Bar */}
         <div className="bg-[#23547B] text-white font-medium leading-[120%] px-2 text-sm py-2">
           <div className="container mx-auto flex items-center justify-between">
-            <div className="w-full hidden lg:flex items-center justify-between space-x-2">
+            <div className="w-full hidden lg:flex items-center justify-end  space-x-4">
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base px-3 py-2 rounded-[8px] transition-all duration-200 ${
-                  currentRegion === "canada"
-                    ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
-                    : "bg-transparent text-white border-white hover:bg-white/10"
-                }`}
+                className={`text-base flex items-center justify-center px-1 py-2 rounded-[8px] transition-all duration-200 ${currentRegion === "canada"
+                  ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
+                  : "bg-transparent text-white border-white hover:bg-white/10"
+                  }`}
               >
-                <span className="w-[48px] h-[24px]">
+                <span className="w-[40px] h-[18px]">
                   <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
                 </span>
-                Lawbie CA
+                <span className="text-[14px]">   Lawbie CA</span>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base px-3 py-2 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-                  currentRegion === "us"
-                    ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
-                    : "bg-transparent text-white border-white hover:bg-white/10"
-                }`}
+                className={`text-base px-1 py-1 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "us"
+                  ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
+                  : "bg-transparent text-white border-white hover:bg-white/10"
+                  }`}
               >
-                <span className="w-[48px] h-[24px] relative">
+                <span className="w-[40px] h-[18px] relative">
                   <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
                 </span>
-                <span>Lawbie US</span>
+                <span className="text-sm">Lawbie US</span>
               </Button>
             </div>
           </div>
@@ -182,7 +201,7 @@ export function Header() {
         <div className="bg-white border-gray-200 py-4 px-4">
           <div className="container mx-auto flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center w-20 md:w-32">
               <div className="text-[#23547B]">
                 <Link href="/" className="text-2xl font-bold">
                   <Image
@@ -259,6 +278,9 @@ export function Header() {
                     <Link href="/account/orders" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
                       My Orders
                     </Link>
+                     <Link href={session.user.role === "SELLER" ? "/dashboard" : "/account"} className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
+                      Go to Dashboard
+                    </Link>
                     <button
                       onClick={() => signOut()}
                       className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -303,21 +325,19 @@ export function Header() {
                     <Link
                       href="/products"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${
-                        pathname === "/products" ? "text-[#23547B]" : "hover:text-[#23547B]"
-                      }`}
+                      className={`text-lg font-medium ${pathname === "/products" ? "text-[#23547B]" : "hover:text-[#23547B]"
+                        }`}
                     >
                       All Resources
                     </Link>
-                    <Link
+                    {/* <Link
                       href="/blog"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${
-                        pathname === "/blog" ? "text-[#23547B]" : "hover:text-[#23547B]"
-                      }`}
+                      className={`text-lg font-medium ${pathname === "/blog" ? "text-[#23547B]" : "hover:text-[#23547B]"
+                        }`}
                     >
                       Blog
-                    </Link>
+                    </Link> */}
 
                     {/* Practice Areas - Mobile */}
                     <div className="border-t pt-4 mt-4">
@@ -428,11 +448,10 @@ export function Header() {
                           handleRegionChange("canada")
                           setIsSheetOpen(false)
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-                          currentRegion === "canada"
-                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
-                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                        }`}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "canada"
+                          ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                          : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                          }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image src="/images/flag.png" alt="Canada Flag" fill className="object-contain" />
@@ -447,11 +466,10 @@ export function Header() {
                           handleRegionChange("us")
                           setIsSheetOpen(false)
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-                          currentRegion === "us"
-                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
-                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                        }`}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "us"
+                          ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                          : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                          }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image src="/images/flag1.png" alt="US Flag" fill className="object-contain" />
@@ -489,50 +507,46 @@ export function Header() {
         <div className="bg-white pb-4 px-4 hidden md:block border-b-[1.5px] border-[#23547B]">
           <div className="container mx-auto px-7 relative">
             <nav className="flex items-center text-base space-x-8 justify-center">
-              {/* Left Arrow */}
               <button
                 onClick={() => handleScroll("left")}
-                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 z-10"
+                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 z-20"
               >
                 <ChevronLeft className="h-5 w-5 text-[#23547B]" />
               </button>
 
               <div
                 ref={scrollContainerRef}
-                className="flex items-center space-x-8 whitespace-nowrap py-2 px-4 scroll-smooth"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                className="flex items-center space-x-8 whitespace-nowrap py-2 px-4 overflow-x-auto scroll-smooth"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
                 <div className="flex items-center space-x-8">
                   <Link
                     href="/"
-                    className={`font-medium transition-colors ${
-                      pathname === "/"
-                        ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                    }`}
+                    className={`font-medium transition-colors ${pathname === "/"
+                      ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      }`}
                   >
                     Home
                   </Link>
                   <Link
                     href="/products"
-                    className={`font-medium transition-colors ${
-                      pathname === "/products"
-                        ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                    }`}
+                    className={`font-medium transition-colors ${pathname === "/products"
+                      ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      }`}
                   >
                     All Resources
                   </Link>
-                  <Link
+                  {/* <Link
                     href="/blog"
-                    className={`font-medium transition-colors ${
-                      pathname === "/blog"
-                        ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                    }`}
+                    className={`font-medium transition-colors ${pathname === "/blog"
+                      ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                      }`}
                   >
                     Blog
-                  </Link>
+                  </Link> */}
                 </div>
 
                 {/* Dynamic Practice Areas - Desktop */}
@@ -546,73 +560,71 @@ export function Header() {
                   ) : (
                     <>
                       {practiceAreasData?.data?.map((area) => {
-                        const isActive = activePracticeAreaId === area._id
-                        const isHovered = hoveredAreaId === area._id
+                        const isActive = activePracticeAreaId === area._id;
                         return (
-                          <div
+                          <Popover
                             key={area._id}
-                            className="relative inline-block"
-                            onMouseEnter={() => setHoveredAreaId(area._id)}
-                            onMouseLeave={() => setHoveredAreaId(null)}
+                            open={hoveredAreaId === area._id}
+                            onOpenChange={(open) => {
+                              if (!open) {
+                                setHoveredAreaId(null);
+                              }
+                            }}
                           >
-                            <button
-                              onClick={() => handlePracticeAreaClick(area._id, area.name)}
-                              className={`font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${
-                                isActive
-                                  ? "bg-[#8eb5d4] text-white"
-                                  : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
-                              }`}
-                              title={area.name}
+                            <div
+                              onMouseEnter={() => handleMouseEnter(area._id)}
+                              onMouseLeave={handleMouseLeave}
                             >
-                              {area.name}
-                            </button>
-                            {/* Hover Dropdown - Desktop Only */}
-                            {isHovered && (
-                              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[280px] max-w-[320px]">
-                                {/* Arrow */}
-                                <div className="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-l border-t border-gray-200 rotate-45"></div>
+                              <PopoverTrigger asChild className="inline-block border-none outline-none">
+                                <button
+                                  onClick={() => handlePracticeAreaClick(area._id, area.name)}
+                                  className={`font-medium border-none truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${isActive
+                                    ? "bg-[#8eb5d4] text-white"
+                                    : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
+                                    }`}
+                                  title={area.name}
+                                >
+                                  {area.name}
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                side="bottom"
+                                align="center"
+                                className="z-50 w-auto min-w-[280px] outline-none border-none max-w-[320px] p-0"
+                                onMouseEnter={() => handleMouseEnter(area._id)}
+                                onMouseLeave={handleMouseLeave}
+                              >
                                 <div className="px-4 py-3">
                                   <p className="text-gray-900 font-semibold text-base mb-3">{area.name}</p>
-                                  {/* Sub Practice Areas - Desktop Hover */}
                                   {area?.subPracticeAreas?.length > 0 && (
                                     <div className="mb-3">
-                                      {/* <p className="text-gray-700 font-medium text-xs mb-2">Sub-categories:</p> */}
-                                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                                        {area.subPracticeAreas.slice(0, 6).map((subArea: SubPracticeArea) => (
+                                      <div className="space-y-1 max-h-64 overflow-y-auto ">
+                                        {area.subPracticeAreas.map((subArea: SubPracticeArea) => (
                                           <button
                                             key={subArea._id}
-                                            className="block w-full text-left text-gray-600 text-[13px] px-2 py-1 rounded cursor-pointer hover:bg-gray-100 hover:text-[#23547B] transition-colors"
+                                            className="block w-full text-left border-none outline-none text-gray-600 text-[13px] px-2 py-1 rounded cursor-pointer hover:bg-gray-100 hover:text-[#23547B] transition-colors "
                                             onClick={() => handleSubPracticeAreaClick(subArea, area.name)}
                                           >
                                             {subArea.name}
                                           </button>
                                         ))}
-                                        {area.subPracticeAreas.length > 6 && (
-                                          <p className="text-gray-500 text-xs italic px-2">
-                                            +{area.subPracticeAreas.length - 6} more...
-                                          </p>
-                                        )}
                                       </div>
                                     </div>
                                   )}
-                                  {/* <div className="text-xs text-[#23547B] font-medium">
-                                    Click to view all resources →
-                                  </div> */}
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        )
+                              </PopoverContent>
+                            </div>
+                          </Popover>
+                        );
                       })}
                     </>
                   )}
                 </div>
               </div>
 
-              {/* Right Arrow */}
               <button
                 onClick={() => handleScroll("right")}
-                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 z-10"
+                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 z-20"
               >
                 <ChevronRight className="h-5 w-5 text-[#23547B]" />
               </button>

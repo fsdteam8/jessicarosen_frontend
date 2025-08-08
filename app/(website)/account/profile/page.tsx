@@ -439,9 +439,9 @@ export default function ProfilePage() {
   };
   // Handle image delete
   const handleImageDelete = () => {
-    
-      deleteImageMutation.mutate();
-    
+
+    deleteImageMutation.mutate();
+
   };
 
   // Handle image load start
@@ -565,7 +565,7 @@ export default function ProfilePage() {
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
                   onClick={handleSubmit}>
                   <SquareArrowOutUpRight className="mr-2" />
-                  Go To Dashboard
+                  {session?.user.role === "SELLER" ? "Go to Dashboard" : "Active a Seller"}
                 </Button>
               </div>
             </div>
