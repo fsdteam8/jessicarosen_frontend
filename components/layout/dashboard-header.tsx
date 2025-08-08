@@ -1,17 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface HeaderProps {
   setSidebarOpen: (open: boolean) => void;
 }
 
 export function Header({ setSidebarOpen }: HeaderProps) {
+  const session = useSession();
   return (
-    <header className="bg-slate-700 border-b border-slate-600 h-16 flex items-center justify-between px-4 lg:px-6">
+    <header className="bg-gray-300  border-slate-600 h-16 flex items-center justify-between px-4 lg:px-6">
       <Button
         variant="ghost"
         size="icon"
@@ -33,13 +36,16 @@ export function Header({ setSidebarOpen }: HeaderProps) {
 
 
         <div className="flex items-center space-x-3">
-          {/* <span className="text-white text-sm font-medium hidden sm:block">
-            Mr. Raja
-          </span> */}
+          <span className=" text-white text-sm font-medium hidden sm:block">
+            <Link href={'/account'} className="flex items-center space-x-1 text-black cursor-pointer">
+              <ArrowLeft/> Return to Lawbie
+              </Link> 
+          </span>
           <div className="w-8 h-8 rounded-full overflow-hidden">
-            <Avatar>
-              <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-              <AvatarFallback></AvatarFallback>
+            
+            <Avatar className="w-full h-full border flex items-center justify-center">
+              <AvatarImage src={session.data?.user?.profileImage} alt="@shadcn" />
+              <AvatarFallback>{session.data?.user.name?.slice(0,2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>

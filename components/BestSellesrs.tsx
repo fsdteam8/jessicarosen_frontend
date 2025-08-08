@@ -89,6 +89,7 @@ export default function BestSellers() {
                       />
                     ) : null}
                   </div>
+                  
                 </div>
               ))}
             </div>
