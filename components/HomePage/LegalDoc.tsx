@@ -107,20 +107,23 @@ const LegalDoc = () => {
                   </span>
                 </Button>
               </Link>
-              <div className="flex gap-2">
-                <span className="bg-white h-12 w-12 rounded-full flex items-center justify-center">
-                  <Mail className="text-xl text-[#23547B]" />
-                </span>
-                <div>
-                  <p className="font-bold">EMAIL US</p>
-                  <Link
-                    className="text-xs inline-block"
-                    href={`mailto:${documentData?.email || "support@lawbie.com"}`}
-                  >
-                    {documentData?.email || "support@lawbie.com"}
-                  </Link>
+              <Link href={`mailto:${documentData?.email || "support@lawbie.com"}`}>
+                <div className="flex gap-2">
+                  <span className="bg-white h-12 w-12 rounded-full flex items-center justify-center">
+                    <Mail className="text-xl text-[#23547B]" />
+                  </span>
+                  <div>
+                    <p className="font-bold">Contact Us</p>
+                    <Link
+                      className="text-xs inline-block"
+                      href={`mailto:${documentData?.email || "support@lawbie.com"}`}
+                    >
+                      {documentData?.email || "support@lawbie.com"}
+                    </Link>
+                  </div>
                 </div>
-              </div>
+              </Link>
+
             </div>
           </div>
           {/* Show the document image if present (optional large image below) */}

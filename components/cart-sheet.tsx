@@ -138,7 +138,7 @@ export function CartSheet() {
                 <span>${formatPrice(getSubtotal())}</span>
               </div>
             </div>
-            <div className="mt-6 space-y-2">
+            <div className="mt-6 space-y-2 mb-10">
               <Button
                 onClick={handleCheckout}
                 className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]"
@@ -156,6 +156,21 @@ export function CartSheet() {
                 <Link href="/cart">View Cart</Link>
               </Button>
             </div>
+            {!session?.data?.user &&
+              <div>
+                <hr className="border mb-5 " />
+                <Button
+                  onClick={() => {
+                    setOpen(false); // Close the cart sheet
+                  }}
+                  asChild
+                  variant="outline"
+                  className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]"
+                >
+                  <Link href="/cart" className="text-white hover:text-white">Checkout as a gust</Link>
+                </Button>
+              </div>
+            }
           </div>
         )}
       </SheetContent>

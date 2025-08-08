@@ -83,7 +83,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-slate-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-gray-200  transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -111,10 +111,10 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                         "w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                         item.current
                           ? "bg-slate-700 text-white"
-                          : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                          : "text-black hover:bg-slate-700 hover:text-white"
                       )}
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-3 ">
                         <item.icon className="w-5 h-5" />
                         <span>{item.name}</span>
                       </div>
@@ -134,7 +134,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                               "block px-3 py-2 text-sm rounded-lg transition-colors",
                               child.current
                                 ? "bg-orange-500 text-white"
-                                : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                                : "text-black hover:bg-slate-700 hover:text-white"
                             )}
                           >
                             {child.name}
@@ -148,7 +148,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                     onClick={item.onClick}
                     className={cn(
                       "flex w-full items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                      "text-slate-300 hover:bg-slate-700 hover:text-white"
+                      "text-black hover:bg-slate-700 hover:text-white"
                     )}
                   >
                     <item.icon className="w-5 h-5" />
@@ -161,7 +161,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
                       "flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                       item.current
                         ? "bg-orange-500 text-white"
-                        : "text-slate-300 hover:bg-slate-700 hover:text-white"
+                        : "text-black hover:bg-slate-700 hover:text-white"
                     )}
                   >
                     <item.icon className="w-5 h-5" />
@@ -175,7 +175,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           <div className="p-4">
             <Button
               variant="ghost"
-              className="w-full justify-start text-slate-300 hover:bg-slate-700 hover:text-white"
+              className="w-full justify-start text-black hover:bg-slate-700 hover:text-white"
               onClick={() => signOut({ callbackUrl: "/" })}
             >
               <LogOut className="w-5 h-5 mr-3" />
