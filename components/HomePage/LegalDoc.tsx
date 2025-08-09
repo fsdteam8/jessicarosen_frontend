@@ -107,19 +107,18 @@ const LegalDoc = () => {
                   </span>
                 </Button>
               </Link>
-              <Link href={`mailto:${documentData?.email || "support@lawbie.com"}`}>
+              <Link href={`mailto:${documentData?.email || "support@lawbie.com"}`}> 
                 <div className="flex gap-2">
                   <span className="bg-white h-12 w-12 rounded-full flex items-center justify-center">
                     <Mail className="text-xl text-[#23547B]" />
                   </span>
                   <div>
                     <p className="font-bold">Contact Us</p>
-                    <Link
+                    <span
                       className="text-xs inline-block"
-                      href={`mailto:${documentData?.email || "support@lawbie.com"}`}
                     >
                       {documentData?.email || "support@lawbie.com"}
-                    </Link>
+                    </span>
                   </div>
                 </div>
               </Link>
