@@ -17,6 +17,8 @@ import { useMutation } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner"; // Added toast import
 import { formatPrice } from "@/lib/utils";
+import GuestCheckoutModal from "./guestcheckout";
+import { useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,6 +27,7 @@ export function CartSheet() {
   const session = useSession();
   const token = session?.data?.user?.accessToken;
   const router = useRouter();
+  const [open, setOpenModal] = useState(false);
 
   const cartData = items;
   console.log("total Data:", getSubtotal());
@@ -162,18 +165,20 @@ export function CartSheet() {
                 <Button
                   onClick={() => {
                     setOpen(false); // Close the cart sheet
+                    setOpenModal(true); // Open the guest checkout modal
                   }}
                   asChild
                   variant="outline"
                   className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]"
                 >
-                  <Link href="/cart" className="text-white hover:text-white">Checkout as a gust</Link>
+                  <span className="text-white hover:text-white">Checkout as a gust</span>
                 </Button>
               </div>
             }
           </div>
         )}
       </SheetContent>
+      <GuestCheckoutModal open={open} setOpen={setOpenModal}/>
     </Sheet>
   );
 }
