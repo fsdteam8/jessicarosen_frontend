@@ -184,7 +184,7 @@ export default function CheckoutPageAPI() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium truncate">{item.title}</h4>
-                        <div className="flex justify-between items-center justify-off items-center mt-1">
+                        <div className="flex justify-between  justify-off items-center mt-1">
                           <div className="text-sm text-gray-500">
                             Price: ${item.discountPrice || item.price}
                             {item.discountPrice && (
