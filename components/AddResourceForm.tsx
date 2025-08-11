@@ -95,7 +95,9 @@ export default function ResourceForm() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [practiceArea, setPracticeArea] = useState("");
+
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState("")
   const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false)
   const [formData, setFormData] = useState<FormDataState>({
@@ -216,9 +218,9 @@ export default function ResourceForm() {
       },
     });
 
-  const { mutate: submitResource, isPending: isSubmitting } = useMutation({
+  const { mutate: submitResource, } = useMutation({
     mutationFn: async (currentFormData: FormDataState) => {
-      console.log("Submitting resource with data:", currentFormData);
+      setLoading(currentFormData.productStatus)
       const submitData = new FormData();
       submitData.append("title", currentFormData.title);
       submitData.append("description", currentFormData.description);
@@ -228,6 +230,9 @@ export default function ResourceForm() {
       submitData.append("quantity", currentFormData.quantity);
       submitData.append("country", currentFormData.country);
       submitData.append("productStatus", currentFormData.productStatus);
+      selectedSubAreas.forEach((subAreaId) => {
+        submitData.append("subPracticeAreas[]", subAreaId);
+      });
       currentFormData.states.forEach((state) => {
         submitData.append("states[]", state);
       });
@@ -277,6 +282,7 @@ export default function ResourceForm() {
       return response.json();
     },
     onSuccess: (data) => {
+      setLoading("")
       console.log("Resource published successfully:", data);
       toast({
         title: "Success!",
@@ -285,6 +291,7 @@ export default function ResourceForm() {
       });
     },
     onError: (error: Error) => {
+      setLoading("")
       console.error("Error publishing resource:", error);
       toast({
         title: "Error",
@@ -493,12 +500,12 @@ export default function ResourceForm() {
   // };
 
   const handleSubmit = (action: "publish" | "draft") => {
-    const practiceAreaObj = practiceAreasData?.find(
-      (p) => p._id === formData.practiceArea
-    );
-    const resourceTypeObj = resourceTypesData?.find(
-      (rt) => rt._id === formData.resourceType
-    );
+    // const practiceAreaObj = practiceAreasData?.find(
+    //   (p) => p._id === formData.practiceArea
+    // );
+    // const resourceTypeObj = resourceTypesData?.find(
+    //   (rt) => rt._id === formData.resourceType
+    // );
 
     // Clone formData and add productStatus
     const formDataToSubmit: FormDataState = {
@@ -506,43 +513,42 @@ export default function ResourceForm() {
       productStatus: action === "publish" ? "pending" : "draft", // ✅ This line adds productStatus
     };
 
-    const dataToLog = {
-      title: formDataToSubmit.title,
-      description: formDataToSubmit.description,
-      price: formDataToSubmit.price,
-      discountPrice: formDataToSubmit.discountPrice,
-      format: formDataToSubmit.format,
-      quantity: formDataToSubmit.quantity,
-      country: formDataToSubmit.country,
-      states: formDataToSubmit.states,
-      subPracticeAreas: selectedSubAreas,
-      productStatus: formDataToSubmit.productStatus, // ✅ For logging
-      practiceAreas: practiceAreaObj
-        ? [practiceAreaObj.name]
-        : formData.practiceArea
-          ? [formData.practiceArea]
-          : [],
-      resourceType: resourceTypeObj
-        ? [resourceTypeObj.resourceTypeName]
-        : formData.resourceType
-          ? [formData.resourceType]
-          : [],
-      thumbnail: formData.thumbnail
-        ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
-        : null,
-      file: formData.file
-        ? {
-          url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
-          type: formData.file.type,
-        }
-        : null,
-      images: formData.images.map(
-        (img) =>
-          `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`
-      ),
-    };
-
-    console.log("Form Data (for logging):", dataToLog);
+    //     const dataToLog = {
+    //       title: formDataToSubmit.title,
+    //       description: formDataToSubmit.description,
+    //       price: formDataToSubmit.price,
+    //       discountPrice: formDataToSubmit.discountPrice,
+    //       format: formDataToSubmit.format,
+    //       quantity: formDataToSubmit.quantity,
+    //       country: formDataToSubmit.country,
+    //       states: formDataToSubmit.states,
+    //       subPracticeAreas: selectedSubAreas,
+    //       productStatus: formDataToSubmit.productStatus, // ✅ For logging
+    //       practiceAreas: practiceAreaObj
+    //         ? [practiceAreaObj.name]
+    //         : formData.practiceArea
+    //           ? [formData.practiceArea]
+    //           : [],
+    //       resourceType: resourceTypeObj
+    //         ? [resourceTypeObj.resourceTypeName]
+    //         : formData.resourceType
+    //           ? [formData.resourceType]
+    //           : [],
+    //       thumbnail: formData.thumbnail
+    //         ? `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formData.thumbnail.name}`
+    //         : null,
+    //       file: formData.file
+    //         ? {
+    //           url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
+    //           type: formData.file.type,
+    //         }
+    //         : null,
+    //       images: formData.images.map(
+    //         (img) =>
+    //           `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`
+    //       ),
+    //     };
+    // console.log()
 
     // ✅ Pass the updated formData with productStatus
     submitResource(formDataToSubmit);
@@ -1054,17 +1060,17 @@ export default function ResourceForm() {
               <Button
                 onClick={() => handleSubmit("publish")}
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={loading === "pending"}
               >
-                {isSubmitting ? "Publishing..." : "Publish Resources"}
+                {loading === "pending" ? "Publishing..." : "Publish Resources"}
               </Button>
 
               <Button
                 onClick={() => handleSubmit("draft")}
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={loading === "draft"}
               >
-                {isSubmitting ? "Drafting..." : " Draft"}
+                {loading === "draft" ? "Drafting..." : " Draft"}
               </Button>
             </div>
           </div>

@@ -160,6 +160,9 @@ const OtherHistory = () => {
     );
   }
 
+
+
+
   return (
     <div className="container mx-auto">
       <div className="pt-10 md:pt-14 lg:pt-[88px]">
@@ -193,14 +196,14 @@ const OtherHistory = () => {
                   </td>
                 </div>
                 <td className="px-4 py-2">
-                  <button
+                  <a
+                    target="_blank"
+                    href={item?.resource?.file?.url}
+                    download={item?.resource?.file?.url.split("/").pop()} // filename
                     className="flex items-center gap-2 bg-[#23547B] py-2 px-4 rounded text-white font-bold"
-                    onClick={() =>
-                      window.open(item?.resource?.file?.url, "_blank")
-                    }
                   >
                     <Download /> Download
-                  </button>
+                  </a>
                 </td>
               </tr>
             ))}
