@@ -61,7 +61,7 @@ export default function GuestCheckoutModal({
             };
 
             const res = await fetch(
-                "http://localhost:5000/api/v1/payment/create-session",
+                `${process.env.NEXT_PUBLIC_API_URL}/payment/create-session`,
                 {
                     method: "POST",
                     headers: {
