@@ -12,14 +12,15 @@ export function Footer() {
             <Link href="/" className="text-3xl font-bold mb-4 block">
               {/* <span className="text-[#2c5d7c]">L</span>
               <span className="text-[#f0a500]">B</span> */}
-
-              <Image
-                src="/assets/logo.png"
-                alt="Lawbie Logo"
-                width={186}
-                height={60}
-                className="h-[60px] w-auto mb-2"
-              />
+              <span className="w-[40px] h-[18px]">
+                <Image
+                  src="/assets/logo.png"
+                  alt="Lawbie Logo"
+                  width={186}
+                  height={60}
+                  className="h-[44px]  w-auto mb-2"
+                />
+              </span>
             </Link>
             {/* <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
               &apos;Connecting hearts through meaningful dedications, fostering

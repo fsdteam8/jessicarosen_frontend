@@ -171,14 +171,14 @@ export function CartSheet() {
                   variant="outline"
                   className="w-full cursor-pointer bg-[#2c5d7c] hover:bg-[#1e4258]"
                 >
-                  <span className="text-white hover:text-white">Checkout as a gust</span>
+                  <span className="text-white hover:text-white">Check out as a guest</span>
                 </Button>
               </div>
             }
           </div>
         )}
       </SheetContent>
-      <GuestCheckoutModal open={open} setOpen={setOpenModal}/>
+      <GuestCheckoutModal open={open} setOpen={setOpenModal} />
     </Sheet>
   );
 }
