@@ -169,7 +169,7 @@ export function CartSheet() {
                   }}
                   asChild
                   variant="outline"
-                  className="w-full bg-[#2c5d7c] hover:bg-[#1e4258]"
+                  className="w-full cursor-pointer bg-[#2c5d7c] hover:bg-[#1e4258]"
                 >
                   <span className="text-white hover:text-white">Checkout as a gust</span>
                 </Button>
