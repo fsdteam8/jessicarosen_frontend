@@ -170,28 +170,32 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base flex items-center justify-center px-1 py-2 rounded-[8px] transition-all duration-200 ${currentRegion === "canada"
+                className={`text-base flex items-center justify-center px-1 py-2 rounded-[4px] transition-all duration-200 ${currentRegion === "canada"
                   ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                   : "bg-transparent text-white border-white hover:bg-white/10"
                   }`}
               >
-                <span className="w-[40px] h-[18px]">
-                  <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
-                </span>
-                <span className="text-[14px]">   Lawbie CA</span>
+                <div className="flex  justify-center items-center gap-[8px] p-[8px]">
+                  <span className="w-[40px] h-[18px]">
+                    <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
+                  </span>
+                  <span className="text-[14px]">   Lawbie CA</span>
+                </div>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base px-1 py-1 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "us"
+                className={`text-base flex items-center justify-center p-[4px] rounded-[4px] transition-all duration-200 ${currentRegion === "us"
                   ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                   : "bg-transparent text-white border-white hover:bg-white/10"
                   }`}
               >
-                <span className="w-[40px] h-[18px] relative">
-                  <Image src="/images/flage1.png" alt="US Flag" fill className="object-contain" />
-                </span>
-                <span className="text-sm">Lawbie US</span>
+                <div className="flex  justify-center gap-[8px] p-[8px]">
+                  <span className="w-[40px] h-[18px]">
+                    <Image src="/images/flage1.png" alt="Canada Flag" width={48} height={24} />
+                  </span>
+                  <span className="text-[14px]">  Lawbie US</span>
+                </div>
               </Button>
             </div>
           </div>
@@ -201,7 +205,7 @@ export function Header() {
         <div className="bg-white border-gray-200 py-4 px-4">
           <div className="container mx-auto flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center w-20 md:w-32">
+            <div className="flex items-center w-24 md:w-32">
               <div className="text-[#23547B]">
                 <Link href="/" className="text-2xl font-bold">
                   <Image
@@ -209,7 +213,7 @@ export function Header() {
                     alt="Lawbie Logo"
                     width={186}
                     height={60}
-                    className="w-full h-[40px] lg:h-[60px] bg-cover"
+                    className="lg:w-full h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>
               </div>
@@ -278,7 +282,7 @@ export function Header() {
                     <Link href="/account/orders" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
                       My Orders
                     </Link>
-                     <Link href={session.user.role === "SELLER" ? "/dashboard" : "/account"} className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
+                    <Link href={session.user.role === "SELLER" ? "/dashboard" : "/account"} className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
                       Go to Dashboard
                     </Link>
                     <button

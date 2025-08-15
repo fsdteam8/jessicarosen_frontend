@@ -657,7 +657,7 @@ export default function ProfilePage() {
                         <SelectValue placeholder="Select a country" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="USA">US</SelectItem>
+                        <SelectItem value="USA">USA</SelectItem>
                         <SelectItem value="Canada">Canada</SelectItem>
                       </SelectContent>
                     </Select>
