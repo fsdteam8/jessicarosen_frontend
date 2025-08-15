@@ -37,6 +37,7 @@ import { useSession } from "next-auth/react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { useRouter } from "next/navigation";
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -95,7 +96,7 @@ export default function ResourceForm() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [practiceArea, setPracticeArea] = useState("");
-
+  const router = useRouter()
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState("")
   const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
@@ -283,9 +284,9 @@ export default function ResourceForm() {
     },
     onSuccess: (data) => {
       setLoading("")
-      console.log("Resource published successfully:", data);
+      router.push("/dashboard/resources/list")
       toast({
-        title: "Success!",
+        title: data.message || "Success!",
         description: "Resource has been published successfully.",
         variant: "default",
       });
@@ -1087,9 +1088,9 @@ export default function ResourceForm() {
               <p><strong>Quantity:</strong> {formData.quantity}</p>
               <p><strong>Format:</strong> {formData.format}</p>
               <p><strong>Country:</strong> {formData.country}</p>
-              <p><strong>Product Status:</strong> {formData.productStatus}</p>
+              {/* <p><strong>Product Status:</strong> {formData.productStatus}</p> */}
               <p><strong>States:</strong> {formData.states.join(", ")}</p>
-              <p><strong>Description:</strong> {formData.description}</p>
+              {/* <p><strong>Description:</strong> {formData.description}</p> */}
               <p><strong>Practice Area:</strong> {practiceArea}</p>
               {/* <p><strong>Resource Type:</strong> {resourcePreview}</p> */}
 
