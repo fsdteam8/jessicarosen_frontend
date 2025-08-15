@@ -179,7 +179,7 @@ export function Header() {
                   <span className="w-[40px] h-[18px]">
                     <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
                   </span>
-                  <span className="text-[14px]">   Lawbie CA</span>
+                  <span className="text-[14px]">   Lawbie CAN</span>
                 </div>
               </Button>
               <Button

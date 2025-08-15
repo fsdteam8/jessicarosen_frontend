@@ -9,24 +9,22 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 py-8">
           <div>
-            <Link href="/" className="text-3xl font-bold mb-4 block">
-              {/* <span className="text-[#2c5d7c]">L</span>
-              <span className="text-[#f0a500]">B</span> */}
-              <span className="md:w-[40px] w-[30px] h-[10px]  md:h-[18px]">
-                <Image
-                  src="/assets/logo.png"
-                  alt="Lawbie Logo"
-                  width={186}
-                  height={60}
-                  className="md:h-[44px] h-[35px]  w-auto mb-2"
-                />
-              </span>
-            </Link>
-            {/* <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
-              &apos;Connecting hearts through meaningful dedications, fostering
-              deeper bonds, creating lasting memories, and celebrating the
-              beauty of shared emotions.&apos;
-            </p> */}
+            <div className="flex items-center w-24 md:w-32 mb-6">
+              <div className="text-[#23547B]">
+                <Link href="/" className="text-2xl font-bold">
+                  <Image
+                    src="/images/nav_logo.png"
+                    alt="Lawbie Logo"
+                    width={186}
+                    height={60}
+                    className="lg:w-full h-[40px] lg:h-[60px] bg-cover"
+                  />
+                </Link>
+              </div>
+            </div>
+            <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
+              Lawbie is the go-to marketplace for lawyers to buy and sell high-quality, practitioner-drafted documents. Access proven templates, precedents, and tools—or upload your own and get paid. Built by lawyers, for lawyers.
+            </p>
             <div className="flex space-x-3">
               <span className="bg-[#9AB0C266] rounded-full p-3">
                 <FaTwitter className="h-4 w-4 text-[#23547B] cursor-pointer" />
