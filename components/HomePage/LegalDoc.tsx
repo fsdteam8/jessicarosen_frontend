@@ -68,7 +68,7 @@ const LegalDoc = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex gap-3 items-center">
-              <div className="w-[146px] lg:w-[146px] h-[5px] lg:h-[68px] relative">
+              <div className="w-[146px] h-[70px] lg:w-[146px]  lg:h-[68px] relative">
                 {documentData?.image ? (
                   <Image
                     src={documentData.image}

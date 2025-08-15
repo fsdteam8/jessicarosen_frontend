@@ -5,21 +5,22 @@ import { FaTwitter } from "react-icons/fa";
 
 export function Footer() {
   return (
-    <footer className="bg-white pt-[10px] md:pt-[45px] lg:pt-[56px] border-t">
+    <footer className="bg-white container pt-[10px] md:pt-[45px] lg:pt-[56px] border-t">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 py-8">
           <div>
             <Link href="/" className="text-3xl font-bold mb-4 block">
               {/* <span className="text-[#2c5d7c]">L</span>
               <span className="text-[#f0a500]">B</span> */}
-
-              <Image
-                src="/assets/logo.png"
-                alt="Lawbie Logo"
-                width={186}
-                height={60}
-                className="h-[60px] w-auto mb-2"
-              />
+              <span className="md:w-[40px] w-[30px] h-[10px]  md:h-[18px]">
+                <Image
+                  src="/assets/logo.png"
+                  alt="Lawbie Logo"
+                  width={186}
+                  height={60}
+                  className="md:h-[44px] h-[35px]  w-auto mb-2"
+                />
+              </span>
             </Link>
             {/* <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
               &apos;Connecting hearts through meaningful dedications, fostering
