@@ -51,14 +51,14 @@ export default function HomeHero() {
   if (isLoading) {
     return (
       <div className="w-full my-5 bg-none">
-        <section className="relative w-full container mx-auto bg-gray-400 rounded-lg">
-          <div className="relative h-[400px] w-full rounded-lg overflow-hidden animate-pulse flex items-center justify-center border">
-            <Image
+        <section className="relative w-full container mx-auto  rounded-lg">
+          <div className="relative h-[400px] w-full rounded-lg overflow-hidden animate-pulse flex items-center justify-center">
+            {/* <Image
               src="/images/no-image.jpg"
               alt="loading"
               fill
               className="object-cover"
-            />
+            /> */}
           </div>
         </section>
       </div>

@@ -24,7 +24,16 @@ export interface ProductDataType {
   quantity?: number;
   category?: string;
   categoryId?: string;
+  createdBy: User;
 }
+interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  profileImage: string;
+}
+
 
 interface ProductCardProps {
   product?: ProductDataType;
@@ -33,6 +42,8 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
   console.log(addItem)
+
+  const fullName = `${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`
  
   const {
     addItem: addToWish,
@@ -153,9 +164,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Content Section */}
           <div className="flex-1 p-4 flex flex-col">
-            <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-3 line-clamp-2">
+            <h2 className="text-[20px] font-medium text-gray-900 leading-[120%] mb-2 line-clamp-2">
               {product?.title}
             </h2>
+            <div className="flex items-center gap-3 pb-1">
+              <Image src={product?.createdBy?.profileImage || "/assets/no-users.jpeg"} alt="Profile" width={30} height={30} className="w-7 h-7 rounded-full"/> 
+              <Link href={`/store/${fullName}`}>
+              <p className="hover:underline text-sm font-normal hover:cursor-pointer">{`${fullName}`}</p>
+              </Link>
+            </div>
 
             {/* <p
               dangerouslySetInnerHTML={{
