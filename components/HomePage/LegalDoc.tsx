@@ -66,7 +66,7 @@ const LegalDoc = () => {
     <div>
       <section className="py-10 bg-[#4F7695] text-white">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-5 ">
             <div className="flex gap-3 items-center">
               <div className="w-[146px] h-[70px] lg:w-[146px]  lg:h-[68px] relative">
                 {documentData?.image ? (
@@ -90,7 +90,7 @@ const LegalDoc = () => {
                     ? "Loading..."
                     : documentData?.title || "Looking For Legal Documents?"}
                 </h2>
-                <p className="text-sm">
+                <p className="text-sm md:text-base font-normal">
                   {loading
                     ? "Please wait while we load the documents."
                     : documentData?.description ||
@@ -107,21 +107,23 @@ const LegalDoc = () => {
                   </span>
                 </Button>
               </Link>
-              <Link href={`mailto:${documentData?.email || "support@lawbie.com"}`}> 
-                <div className="flex gap-2">
+               <div className="flex items-center gap-2">
+                <Link href="/contact">
                   <span className="bg-white h-12 w-12 rounded-full flex items-center justify-center">
                     <Mail className="text-xl text-[#23547B]" />
                   </span>
-                  <div>
-                    <p className="font-bold">Contact Us</p>
-                    <span
+                </Link>
+                  <div className=" w-[120px]">
+                  <Link href="/contact">
+                    <p className="font-bold inline-block">Contact Us</p>
+                  </Link>
+                    {/* <span
                       className="text-xs inline-block"
                     >
                       {documentData?.email || "support@lawbie.com"}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
-              </Link>
 
             </div>
           </div>
