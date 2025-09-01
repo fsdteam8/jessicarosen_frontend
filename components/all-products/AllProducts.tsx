@@ -224,6 +224,11 @@ export default function AllProducts() {
                   options={provinces}
                   onSelect={(value) => setSelectedProvince(value)}
                 />
+                <FilterDropdown
+                  title="Province/State"
+                  options={provinces}
+                  onSelect={(value) => setSelectedProvince(value)}
+                />
               </div>
 
               {/* Right: All Filters Drawer */}
