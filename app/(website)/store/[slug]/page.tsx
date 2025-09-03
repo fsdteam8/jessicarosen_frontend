@@ -2,7 +2,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { Star, MapPin, Users, Calendar } from "lucide-react";
+import { Star, MapPin, Users, Calendar } from "lucide-react"; // removed ExternalLink
 import Products from "../../products/page";
 
 interface Address {
@@ -107,14 +107,18 @@ const Page = ({ params }: { params: { slug: string } }) => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
-          <p className="text-gray-600">Failed to load seller data</p>
+          <p className="text-gray-600">
+            {(error as Error)?.message || "Failed to load seller data"}
+          </p>
         </div>
       </div>
     );
   }
 
   const { sellerProfile, data: resources, pagination } = sellerData;
-  const fullName = `${sellerProfile.firstName} ${sellerProfile.lastName}`;
+  const fullName = `${sellerProfile?.firstName || ""} ${
+    sellerProfile?.lastName || ""
+  }`;
   const joinDate = new Date(sellerProfile.createdAt).toLocaleDateString(
     "en-US",
     {
@@ -123,72 +127,64 @@ const Page = ({ params }: { params: { slug: string } }) => {
     }
   );
 
-
   return (
-    <div>
+   
+   <div>
       <div className="container mx-auto px-4 py-8">
-        {/* Header Section */}
-
-        {/* Profile Image */}
-        <div className="mb-10">
-          {sellerProfile.profileImage ? (
-            <Image
-              src={sellerProfile.profileImage}
-              alt={fullName}
-              width={80}
-              height={80}
-              className="rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-[150px] h-[150px] bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-              {sellerProfile.firstName.charAt(0)}
-              {sellerProfile.lastName.charAt(0)}
-            </div>
-          )}
-        </div>
-
-        <div className="mb-8">
-          <div className="flex items-start gap-6 mb-6">
-            {/* Profile Info */}
-            <div className="w-[40%]">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {fullName}
-              </h1>
-
-              <div className="flex items-center gap-10 mb-3">
-                <div className="flex items-center">
-                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="ml-1 text-sm font-medium text-gray-700">
-                    4.9 (29.5K)
-                  </span>
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <Users className="w-4 h-4 mr-1" />
-                  {pagination.totalItems} Resources
-                </div>
-                <div className="flex items-center text-sm text-gray-600">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  Oregon, United States
-                </div>
+        {/* Profile Section */}
+        <div className="mb-10 flex items-start gap-6">
+          {/* Profile Image */}
+          <div>
+            {sellerProfile.profileImage ? (
+              <Image
+                src={sellerProfile.profileImage}
+                alt={fullName}
+                width={150}
+                height={150}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-[150px] h-[150px] bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                {sellerProfile.firstName?.charAt(0)}
+                {sellerProfile.lastName?.charAt(0)}
               </div>
+            )}
+          </div>
 
-              {/* {sellerProfile.isVerified && (
-                <div className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full mb-3">
-                  ✓ Verified Seller
-                </div>
-              )} */}
+          {/* Profile Info */}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {fullName}
+            </h1>
 
-              <button className="px-6 py-2 border border-gray-300 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors">
-                Follow
-              </button>
+            <div className="flex items-center gap-10 mb-3">
+              <div className="flex items-center">
+                <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                <span className="ml-1 text-sm font-medium text-gray-700">
+                  4.9 (29.5K)
+                </span>
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <Users className="w-4 h-4 mr-1" />
+                {pagination.totalItems} Resources
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="w-4 h-4 mr-1" />
+                {sellerProfile.address?.cityState},{" "}
+                {sellerProfile.address?.country}
+              </div>
             </div>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">
+
+            <button className="px-6 py-2 border border-gray-300 rounded-full text-sm font-medium hover:bg-gray-50 transition-colors">
+              Follow
+            </button>
+
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
                 About the store
               </h3>
               <p className="text-gray-700 leading-relaxed mb-3">
-                Discover fun and engaging educational puzzle worksheets for
-                learners of all ages! Copyright © 2013 - 2025 {fullName} on TPT
+                {sellerProfile.bio || "No bio available."}
               </p>
               <div className="flex items-center text-sm text-gray-600">
                 <Calendar className="w-4 h-4 mr-2" />
@@ -196,8 +192,6 @@ const Page = ({ params }: { params: { slug: string } }) => {
               </div>
             </div>
           </div>
-
-          {/* About Section */}
         </div>
 
         {/* No Resources Message */}
@@ -215,11 +209,13 @@ const Page = ({ params }: { params: { slug: string } }) => {
         {/* Pagination Info */}
         {pagination.totalPages > 1 && (
           <div className="mt-8 text-center text-sm text-gray-600">
-            Showing page {pagination.currentPage} of {pagination.totalPages}(
+            Showing page {pagination.currentPage} of {pagination.totalPages} (
             {pagination.totalItems} total resources)
           </div>
         )}
       </div>
+
+      {/* Product List */}
       <Products />
     </div>
   );
