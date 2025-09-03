@@ -169,7 +169,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </h2>
             <div className="flex items-center gap-3 pb-1">
               <Image src={product?.createdBy?.profileImage || "/assets/no-users.jpeg"} alt="Profile" width={30} height={30} className="w-7 h-7 rounded-full"/> 
-              <Link href={`/store/${fullName}`}>
+              <Link href={`/store/${product?.createdBy?._id}`}>
               <p className="hover:underline text-sm font-normal hover:cursor-pointer">{`${fullName}`}</p>
               </Link>
             </div>

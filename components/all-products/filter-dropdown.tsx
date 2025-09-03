@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 
 interface FilterDropdownProps {
   title: string
-  options: string[]
+  options: (string | number | null | undefined)[] // allow safe typing
   icon?: React.ReactNode
   onSelect: (value: string) => void
 }
@@ -35,8 +35,10 @@ export default function FilterDropdown({ title, options, icon, onSelect }: Filte
     }
   }, [])
 
-  // Filter options based on search query
-  const filteredOptions = options?.filter((option) => option.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Filter options safely
+  const filteredOptions = (options ?? [])
+    .map((opt) => (typeof opt === "string" ? opt : String(opt ?? ""))) // normalize all to strings
+    .filter((option) => option.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -67,7 +69,7 @@ export default function FilterDropdown({ title, options, icon, onSelect }: Filte
                 onValueChange={(value) => {
                   setSelected(value)
                   onSelect(value)
-                   setIsOpen(false);
+                  setIsOpen(false)
                 }}
               >
                 {filteredOptions.length > 0 ? (

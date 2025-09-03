@@ -6,7 +6,6 @@ import { Bookmark, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FaStar } from "react-icons/fa";
-// import { useCart, useAddToCart, useUpdateCartItem } from "@/hooks/use-cart-api";
 import { useWishlist } from "@/hooks/use-wishlist";
 import Link from "next/link";
 import { AllProductDataTypeResponse } from "@/types/all-product-dataType";
@@ -22,16 +21,18 @@ import NotFound from "../shared/NotFound/NotFound";
 import { toast } from "sonner";
 import { useCart } from "@/hooks/use-cart";
 
-interface ProductListProps {
-  viewMode?: "grid" | "list";
-  sortBy?: string;
-  practiceArea?: string | null;
-  resourceType?: string | null;
+// ...existing code...
+export interface ProductListProps {
+  viewMode: "grid" | "list";
+  sortBy: string;
+  practiceArea?: string;
+  resourceType?: string;
   price?: string;
   format?: string;
   states?: string;
+  divisions?: string; // <-- Add this line
 }
-
+// ...existing code...
 export default function ProductList({
   viewMode = "list",
   sortBy,
