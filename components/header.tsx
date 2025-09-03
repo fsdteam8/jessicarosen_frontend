@@ -1,6 +1,3 @@
-
-
-
 "use client"
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
@@ -211,8 +208,8 @@ export function Header() {
                   <Image
                     src="/images/nav_logo.png"
                     alt="Lawbie Logo"
-                    width={186}
-                    height={60}
+                    width={300}
+                    height={200}
                     className="lg:w-full h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>

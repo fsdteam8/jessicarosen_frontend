@@ -687,9 +687,9 @@ export default function ProfilePage() {
                         <SelectValue placeholder="Select a state or province" />
                       </SelectTrigger>
                       <SelectContent>
-                        {provinces?.map((state: string) => (
-                          <SelectItem key={state} value={state}>
-                            {state}
+                        {provinces?.map((state: { stateName: string }) => (
+                          <SelectItem key={state.stateName} value={state.stateName}>
+                            {state.stateName}
                           </SelectItem>
                         ))}
                       </SelectContent>
