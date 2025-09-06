@@ -299,10 +299,11 @@ export default function ProductDetails() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-xs text-[#2A2A2A]">Created by</p>
-              <p className="text-base font-bold text-[#23547B]">
-                {product?.createdBy?.firstName} {product?.createdBy?.lastName}
-              </p>
+              <Link href={`/store/${product?.createdBy?._id}`}>
+              <p className="hover:underline text-sm font-normal hover:cursor-pointer">
+  {product?.createdBy?.firstName} {product?.createdBy?.lastName}
+</p>
+              </Link>
             </div>
           </div>
 

@@ -172,9 +172,6 @@ export default function AllProducts() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-base font-medium leading-[120%] whitespace-nowrap">
-              Short By:
-            </span>
             <SortDropdown
               options={sortOptions}
               defaultValue="Sort By"
@@ -216,13 +213,13 @@ export default function AllProducts() {
               />
 
               <FilterDropdown
-                title="Province/State"
+                title="State"
                 options={provinces}
                 onSelect={handleProvinceSelect}
               />
 
               <FilterDropdown
-                title="Province/Division"
+                title="Division"
                 options={divisionOptions}
                 onSelect={(value) => setSelectedDivision(value)}
               />

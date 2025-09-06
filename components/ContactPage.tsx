@@ -294,7 +294,7 @@ const ContactPage = () => {
                 <ContactInfo
                   Icon={Mail}
                   label="Email Address"
-                  value="example@gmail.com"
+                  value="support@lawbie.com"
                 />
                 <ContactInfo
                   Icon={Phone}
