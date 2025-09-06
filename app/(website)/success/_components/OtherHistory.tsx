@@ -199,7 +199,7 @@ const OtherHistory = () => {
                   <a
                     target="_blank"
                     href={item?.resource?.file?.url}
-                    download={item?.resource?.file?.url.split("/").pop()} // filename
+                    download={item?.resource?.file?.url?.split("/").pop()} // filename
                     className="flex items-center gap-2 bg-[#23547B] py-2 px-4 rounded text-white font-bold"
                   >
                     <Download /> Download

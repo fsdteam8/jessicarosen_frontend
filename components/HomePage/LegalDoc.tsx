@@ -114,14 +114,14 @@ const LegalDoc = () => {
                   </span>
                 </Link>
                   <div className=" w-[120px]">
-                  <Link href="/contact">
+                  {/* <Link href="/contact">
                     <p className="font-bold inline-block">Contact Us</p>
-                  </Link>
-                    {/* <span
-                      className="text-xs inline-block"
+                  </Link> */}
+                    <span
+                      className="text-base inline-block"
                     >
                       {documentData?.email || "support@lawbie.com"}
-                    </span> */}
+                    </span>
                   </div>
                 </div>
 

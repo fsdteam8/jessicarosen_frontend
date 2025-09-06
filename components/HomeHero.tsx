@@ -100,14 +100,15 @@ export default function HomeHero() {
   return (
     <div className="w-full my-5 bg-none">
       <section className="relative w-full container mx-auto">
-        <div className="relative h-[400px] w-[90%] mx-auto rounded-lg overflow-hidden">
+        <div className="relative h-[400px] w-full rounded-lg overflow-hidden">
           <div className="h-full">
             <Image
               src={filteredHero?.image || "/images/no-image.jpg"}
               alt="Hero"
-              fill
+              width={1000}
+              height={1000}
               className="object-cover w-full h-full rounded-lg"
-              priority
+              // priority
             />
           </div>
 
@@ -124,12 +125,12 @@ export default function HomeHero() {
 
               <div className="flex md:flex-row flex-col gap-4 mt-6">
                 <Link href="/products" >
-                  <Button className="w-full text-lg font-bold text-white bg-[#E0B15E]">
+                  <Button className="w-full h-[45px] text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
                     Explore Resources
                   </Button>
                 </Link>
                 
-                  <Button onClick={handleClick} className="w-full text-lg font-bold text-white bg-[#E0B15E]">
+                  <Button onClick={handleClick} className="w-full h-[45px] text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
                     Sell Your Work
                   </Button>
                 {/* </Link> */}

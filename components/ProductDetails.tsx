@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Star, Heart, Linkedin, Instagram, Facebook } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
@@ -26,9 +26,7 @@ export default function ProductDetails() {
   // const token = session?.data?.user?.accessToken;
   const resourceId =
     typeof params?.id === "string" ? params.id : params?.id?.[0];
-  const shareUrl = encodeURIComponent(
-    typeof window !== "undefined" ? window.location.href : ""
-  );
+  // Removed unused shareUrl variable
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   // const queryClient = useQueryClient();
@@ -134,26 +132,25 @@ export default function ProductDetails() {
   //   },
   // });
 
-
   const addToCartMutation = (
     product: AllProductDataTypeResponse["data"][number] | undefined
   ) => {
     if (product) {
-        addItem({
-          id: product._id,
-          title: product.title,
-          price: product.price,
-          discountPrice: product.discountPrice,
-          image: Array.isArray(product.thumbnail)
-            ? product.thumbnail[0] || "/placeholder.svg"
-            : product.thumbnail || "/images/no-image.jpg",
-          thumbnail: Array.isArray(product.thumbnail)
-            ? product.thumbnail[0] || "/placeholder.svg"
-            : product.thumbnail || "/images/no-image.jpg",
-          quantity: 1,
-        });
-      }
-  }
+      addItem({
+        id: product._id,
+        title: product.title,
+        price: product.price,
+        discountPrice: product.discountPrice,
+        image: Array.isArray(product.thumbnail)
+          ? product.thumbnail[0] || "/placeholder.svg"
+          : product.thumbnail || "/images/no-image.jpg",
+        thumbnail: Array.isArray(product.thumbnail)
+          ? product.thumbnail[0] || "/placeholder.svg"
+          : product.thumbnail || "/images/no-image.jpg",
+        quantity: 1,
+      });
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     if (!product?.practiceAreas || !categoryData?.data) return [];
@@ -208,85 +205,52 @@ export default function ProductDetails() {
     <div className="container mx-auto p-6 space-y-12">
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-4">
-     
-     
-       <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-  {/* Main Image */}
-  <div className="w-full md:w-[728px] aspect-square relative">
-    <Image
-      src={
-        typeof images[selectedImageIndex] === "string"
-          ? images[selectedImageIndex]
-          : "/placeholder.svg"
-      }
-      alt={product?.title || "Product image"}
-      fill
-      className="object-cover rounded-lg"
-    />
-  </div>
+          <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+            {/* Main Image */}
+            <div className="w-full md:w-[728px] aspect-square relative">
+              <Image
+                src={
+                  typeof images[selectedImageIndex] === "string"
+                    ? images[selectedImageIndex]
+                    : "/placeholder.svg"
+                }
+                alt={product?.title || "Product image"}
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
 
-  {/* Thumbnail Grid */}
-  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-3 w-full">
-    {images.slice(1, 5).map((image, index) => (
-      <div
-        key={index + 1}
-        className={`aspect-square relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
-          selectedImageIndex === index + 1
-            ? "ring-2 ring-blue-500 ring-offset-2"
-            : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
-        }`}
-        onClick={() => setSelectedImageIndex(index + 1)}
-      >
-        <Image
-          src={typeof image === "string" ? image : "/images/no-image.jpg"}
-          alt={product?.title || "Product image"}
-          fill
-          className="object-cover"
-        />
-        <div
-          className={`absolute inset-0 transition-opacity duration-200 ${
-            selectedImageIndex === index + 1
-              ? "bg-blue-500/10"
-              : "hover:bg-black/5"
-          }`}
-        />
-      </div>
-    ))}
-  </div>
-</div> 
-          
-          <div className="flex items-center gap-2 pt-4">
-            <span className="text-base font-medium text-[#616161]">Share:</span>
-            <div className="flex gap-2">
-              {/* LinkedIn Share */}
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Linkedin className="w-6 h-6 text-[#616161] hover:text-blue-700 transition-colors" />
-              </a>
-
-              {/* Facebook Share */}
-              <a
-                href={`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Facebook className="w-6 h-6 text-[#616161] hover:text-blue-600 transition-colors" />
-              </a>
-
-              {/* Instagram (Note: Instagram doesn't support direct link sharing) */}
-              <a
-                href="https://www.instagram.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram className="w-6 h-6 text-[#616161] hover:text-pink-500 transition-colors" />
-              </a>
+            {/* Thumbnail Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-2 gap-3 w-full">
+              {images.slice(1, 5).map((image, index) => (
+                <div
+                  key={index + 1}
+                  className={`aspect-square relative cursor-pointer transition-all duration-200 rounded-lg overflow-hidden ${
+                    selectedImageIndex === index + 1
+                      ? "ring-2 ring-blue-500 ring-offset-2"
+                      : "hover:ring-2 hover:ring-gray-300 hover:ring-offset-1"
+                  }`}
+                  onClick={() => setSelectedImageIndex(index + 1)}
+                >
+                  <Image
+                    src={
+                      typeof image === "string" ? image : "/images/no-image.jpg"
+                    }
+                    alt={product?.title || "Product image"}
+                    fill
+                    className="object-cover"
+                  />
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-200 ${
+                      selectedImageIndex === index + 1
+                        ? "bg-blue-500/10"
+                        : "hover:bg-black/5"
+                    }`}
+                  />
+                </div>
+              ))}
             </div>
           </div>
-
         </div>
 
         <div>
@@ -335,10 +299,11 @@ export default function ProductDetails() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-xs text-[#2A2A2A]">Created by</p>
-              <p className="text-base font-bold text-[#23547B]">
-                {product?.createdBy?.firstName} {product?.createdBy?.lastName}
-              </p>
+              <Link href={`/store/${product?.createdBy?._id}`}>
+              <p className="hover:underline text-sm font-normal hover:cursor-pointer">
+  {product?.createdBy?.firstName} {product?.createdBy?.lastName}
+</p>
+              </Link>
             </div>
           </div>
 
@@ -354,7 +319,7 @@ export default function ProductDetails() {
               // disabled={addToCartMutation.}
               className="bg-[#23547B] w-[142px] h-[48px] text-white font-bold rounded-[8px]"
             >
-             Add To Cart
+              Add To Cart
               {/* {addToCartMutation.isPending ? "Adding..." : "Add To Cart"} */}
             </Button>
 
