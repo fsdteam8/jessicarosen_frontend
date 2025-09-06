@@ -47,8 +47,8 @@ export default function ProductList({
     currentRegion === "canada"
       ? "Canada"
       : currentRegion === "us"
-        ? "USA"
-        : null;
+      ? "USA"
+      : null;
   const [currentPage, setCurrentPage] = useState(1);
   // const { data: cartData } = useCart();
   // const { mutateAsync: addToCart } = useAddToCart();
@@ -139,13 +139,16 @@ export default function ProductList({
       ],
       queryFn: () =>
         fetch(
-          `${process.env.NEXT_PUBLIC_API_URL
-          }/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${practiceArea
-            ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
-            : ""
-          }${resourceType
-            ? `&resourceType=${encodeURIComponent(resourceType)}`
-            : ""
+          `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/resource/get-all-resources?country=${countryName}&status=approved&page=${currentPage}&limit=8&sortedBy=${sortBy}${
+            practiceArea
+              ? `&practiceAreas=${encodeURIComponent(practiceArea)}`
+              : ""
+          }${
+            resourceType
+              ? `&resourceType=${encodeURIComponent(resourceType)}`
+              : ""
           }&format=${encodeURIComponent(
             format ?? ""
           )}&price=${encodeURIComponent(
@@ -227,9 +230,11 @@ export default function ProductList({
                           alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
                           className="rounded-full w-[49px] h-[49px]"
                         />
-                        <AvatarFallback>{`${product?.createdBy?.firstName?.[0] ?? ""
-                          }${product?.createdBy?.lastName?.[0] ?? ""
-                          }`}</AvatarFallback>
+                        <AvatarFallback>{`${
+                          product?.createdBy?.firstName?.[0] ?? ""
+                        }${
+                          product?.createdBy?.lastName?.[0] ?? ""
+                        }`}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-normal text-[#2A2A2A] leading-[150%]">
@@ -305,10 +310,11 @@ export default function ProductList({
                       <Button
                         size="sm"
                         onClick={() => toggleWishlist(product)}
-                        className={`text-sm font-bold leading-[120%] py-2 w-full transition-all duration-200 ${isInWishlist(product._id)
+                        className={`text-sm font-bold leading-[120%] py-2 w-full transition-all duration-200 ${
+                          isInWishlist(product._id)
                             ? "bg-green-50 border-[2px] border-green-600 text-green-600 hover:bg-green-100"
                             : "bg-transparent border-[2px] border-[#23547B] text-[#23547B] hover:bg-blue-50"
-                          }`}
+                        }`}
                       >
                         {isInWishlist(product._id) ? (
                           <>
@@ -360,19 +366,20 @@ export default function ProductList({
                               alt={`${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`}
                               className=" rounded-full w-[49px] h-[49px]"
                             />
-                            <AvatarFallback>{`${product?.createdBy?.firstName?.[0] ?? ""
-                              }${product?.createdBy?.lastName?.[0] ?? ""
-                              }`}</AvatarFallback>
+                            <AvatarFallback>{`${
+                              product?.createdBy?.firstName?.[0] ?? ""
+                            }${
+                              product?.createdBy?.lastName?.[0] ?? ""
+                            }`}</AvatarFallback>
                           </Avatar>
                         </div>
                         <div>
-                          <p className="text-xs font-normal text-[#2A2A2A] leading-[150%] pb-1">
-                            Created by
-                          </p>
-                          <h4 className="text-base text-[#23547B] font-bold leading-[120%] tracking-normal">
-                            {product?.createdBy?.firstName}{" "}
-                            {product?.createdBy?.lastName}
-                          </h4>
+                          <Link href={`/store/${product?.createdBy?._id}`}>
+                            <p className="hover:underline text-sm font-normal hover:cursor-pointer">
+                              {product?.createdBy?.firstName}{" "}
+                              {product?.createdBy?.lastName}
+                            </p>
+                          </Link>
                         </div>
                       </div>
 
@@ -431,11 +438,11 @@ export default function ProductList({
                                 discountPrice: product.discountPrice,
                                 image: Array.isArray(product.thumbnail)
                                   ? product.thumbnail[0] ||
-                                  "/images/no-image.jpg"
+                                    "/images/no-image.jpg"
                                   : product.thumbnail || "/images/no-image.jpg",
                                 thumbnail: Array.isArray(product.thumbnail)
                                   ? product.thumbnail[0] ||
-                                  "/images/no-image.jpg"
+                                    "/images/no-image.jpg"
                                   : product.thumbnail || "/images/no-image.jpg",
                                 // category: product.category || "",
                                 // categoryId: product.categoryId || "",
@@ -452,10 +459,11 @@ export default function ProductList({
                           <Button
                             size="lg"
                             onClick={() => toggleWishlist(product)}
-                            className={`text-base md:text-[17px] lg:text-lg font-bold leading-[120%] tracking-normal py-[13px] w-full md:max-w-[250px] transition-all duration-200 ${isInWishlist(product._id)
+                            className={`text-base md:text-[17px] lg:text-lg font-bold leading-[120%] tracking-normal py-[13px] w-full md:max-w-[250px] transition-all duration-200 ${
+                              isInWishlist(product._id)
                                 ? "bg-green-50 border-[2px] border-green-600 text-green-600 hover:bg-green-100"
                                 : "bg-transparent border-[2px] border-[#23547B] text-[#23547B] hover:bg-blue-50"
-                              }`}
+                            }`}
                           >
                             {isInWishlist(product._id) ? (
                               <>

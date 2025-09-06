@@ -34,17 +34,16 @@ interface User {
   profileImage: string;
 }
 
-
 interface ProductCardProps {
   product?: ProductDataType;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart();
-  console.log(addItem)
+  console.log(addItem);
 
-  const fullName = `${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`
- 
+  const fullName = `${product?.createdBy?.firstName} ${product?.createdBy?.lastName}`;
+
   const {
     addItem: addToWish,
     removeItem: removeFromWish,
@@ -58,41 +57,39 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   // const queryClient = useQueryClient();
 
-// const mutation = useMutation({
-//   mutationFn: () =>
-//     addToCartAPI({
-//       resourceId: product?._id ?? "",
-//       quantity: 1,
-//       token,
-//     }),
-//   onSuccess: (data) => {
-//     toast.success(data.message || "Item added to cart");
+  // const mutation = useMutation({
+  //   mutationFn: () =>
+  //     addToCartAPI({
+  //       resourceId: product?._id ?? "",
+  //       quantity: 1,
+  //       token,
+  //     }),
+  //   onSuccess: (data) => {
+  //     toast.success(data.message || "Item added to cart");
 
-    
-//     queryClient.invalidateQueries({ queryKey: ["cart"] });
+  //     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
-   
-//     if (product) {
-//       addItem({
-//         id: product._id,
-//         title: product.title,
-//         price: product.price,
-//         discountPrice: product.discountPrice,
-//         image: Array.isArray(product.thumbnail)
-//           ? product.thumbnail[0] || "/placeholder.svg"
-//           : product.thumbnail || "/images/no-image.jpg",
-//         thumbnail: Array.isArray(product.thumbnail)
-//           ? product.thumbnail[0] || "/placeholder.svg"
-//           : product.thumbnail || "/images/no-image.jpg",
-//         quantity: 1,
-//       });
-//     }
-//   },
-//   onError: (error) => {
-//     toast.error("Login in to add items to cart");
-//     console.error("Add to cart error:", error);
-//   },
-// });
+  //     if (product) {
+  //       addItem({
+  //         id: product._id,
+  //         title: product.title,
+  //         price: product.price,
+  //         discountPrice: product.discountPrice,
+  //         image: Array.isArray(product.thumbnail)
+  //           ? product.thumbnail[0] || "/placeholder.svg"
+  //           : product.thumbnail || "/images/no-image.jpg",
+  //         thumbnail: Array.isArray(product.thumbnail)
+  //           ? product.thumbnail[0] || "/placeholder.svg"
+  //           : product.thumbnail || "/images/no-image.jpg",
+  //         quantity: 1,
+  //       });
+  //     }
+  //   },
+  //   onError: (error) => {
+  //     toast.error("Login in to add items to cart");
+  //     console.error("Add to cart error:", error);
+  //   },
+  // });
 
   const toggleWishlist = () => {
     if (!product) return;
@@ -118,9 +115,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-
     <div className=" ">
-
       <Card
         className="h-auto w-full bg-[#F8F5F2] border-8 border-[#F8F5F2]/90 overflow-hidden shadow-[0px_0px_60px_0px_#0000003D]"
         style={{ borderRadius: "16px" }}
@@ -147,18 +142,20 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             {/* Product Image */}
             <div className="w-full ">
-              <Image
-                src={
-                  Array.isArray(product?.thumbnail)
-                    ? product?.thumbnail[0] || "/lawImage.jpg"
-                    : product?.thumbnail || "/lawImage.jpg"
-                }
-                alt={product?.title || "Product Image"}
-                width={370}
-                height={200}
-                className="object-cover h-[200px] w-full"
-                priority
-              />
+              <Link href={`/products/${product?._id}`}>
+                <Image
+                  src={
+                    Array.isArray(product?.thumbnail)
+                      ? product?.thumbnail[0] || "/lawImage.jpg"
+                      : product?.thumbnail || "/lawImage.jpg"
+                  }
+                  alt={product?.title || "Product Image"}
+                  width={370}
+                  height={200}
+                  className="object-cover h-[200px] w-full"
+                  priority
+                />
+              </Link>
             </div>
           </div>
 
@@ -168,9 +165,17 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product?.title}
             </h2>
             <div className="flex items-center gap-3 pb-1">
-              <Image src={product?.createdBy?.profileImage || "/assets/no-users.jpeg"} alt="Profile" width={30} height={30} className="w-7 h-7 rounded-full"/> 
+              <Image
+                src={
+                  product?.createdBy?.profileImage || "/assets/no-users.jpeg"
+                }
+                alt="Profile"
+                width={30}
+                height={30}
+                className="w-7 h-7 rounded-full"
+              />
               <Link href={`/store/${product?.createdBy?._id}`}>
-              <p className="hover:underline text-sm font-normal hover:cursor-pointer">{`${fullName}`}</p>
+                <p className="hover:underline text-sm font-normal hover:cursor-pointer">{`${fullName}`}</p>
               </Link>
             </div>
 
@@ -204,39 +209,40 @@ export default function ProductCard({ product }: ProductCardProps) {
             </div>
 
             <div className="flex justify-between items-center gap-2 mt-auto w-full">
-             <div>
-               <Button
-                onClick={() => addItem({
-                  id: product?._id || "",
-                  title: product?.title || "",
-                  price: product?.price || 0,
-                  discountPrice: product?.discountPrice || 0,
-                  image: Array.isArray(product?.thumbnail)
-                    ? product?.thumbnail[0] || "/placeholder.svg"
-                    : product?.thumbnail || "/images/no-image.jpg",
-                  thumbnail: Array.isArray(product?.thumbnail)
-                    ? product?.thumbnail[0] || "/placeholder.svg"
-                    : product?.thumbnail || "/images/no-image.jpg",
-                  quantity: 1,
-                })}
-                // disabled={mutation.isPending}
-                className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-[#133958] text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
-              >
-                Add To Cart
-                {/* {mutation.isPending ? "Adding..." : "Add To Cart"} */}
-              </Button>
-             </div>
+              <div>
+                <Button
+                  onClick={() =>
+                    addItem({
+                      id: product?._id || "",
+                      title: product?.title || "",
+                      price: product?.price || 0,
+                      discountPrice: product?.discountPrice || 0,
+                      image: Array.isArray(product?.thumbnail)
+                        ? product?.thumbnail[0] || "/placeholder.svg"
+                        : product?.thumbnail || "/images/no-image.jpg",
+                      thumbnail: Array.isArray(product?.thumbnail)
+                        ? product?.thumbnail[0] || "/placeholder.svg"
+                        : product?.thumbnail || "/images/no-image.jpg",
+                      quantity: 1,
+                    })
+                  }
+                  // disabled={mutation.isPending}
+                  className="!w-[107px] !h-[33px] flex-1 bg-[#23547B] hover:bg-[#133958] text-white font-bold py-2.5 px-4 rounded-lg text-sm transition-colors duration-200"
+                >
+                  Add To Cart
+                  {/* {mutation.isPending ? "Adding..." : "Add To Cart"} */}
+                </Button>
+              </div>
 
               <div>
                 <Link href={`/products/${product?._id}`} className="">
-                <Button
-
-                  variant="outline"
-                  className="!w-[107px] !h-[33px] border-[#23547B] text-[#23547B] hover:bg-blue-50 font-bold  rounded-lg text-sm transition-colors duration-200"
-                >
-                  View Details
-                </Button>
-              </Link>
+                  <Button
+                    variant="outline"
+                    className="!w-[107px] !h-[33px] border-[#23547B] text-[#23547B] hover:bg-blue-50 font-bold  rounded-lg text-sm transition-colors duration-200"
+                  >
+                    View Details
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
