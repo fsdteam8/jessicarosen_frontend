@@ -64,6 +64,8 @@ export const config = {
     "/account/orders",
     "/account/settings",
     "/account/profile",
+     "/account/privacy",
+       "/ccount/terms",
     "/my-order",
     "/dashboard",
     "/dashboard/:path*",
