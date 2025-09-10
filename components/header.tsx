@@ -208,9 +208,9 @@ export function Header() {
                   <Image
                     src="/images/nav_logo.png"
                     alt="Lawbie Logo"
-                    width={300}
+                    width={500}
                     height={200}
-                    className="lg:w-full h-[40px] lg:h-[60px] bg-cover"
+                    className="lg:min-w-[150px] h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>
               </div>
