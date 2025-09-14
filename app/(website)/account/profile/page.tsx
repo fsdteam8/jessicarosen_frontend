@@ -1299,7 +1299,7 @@ export default function ProfilePage() {
                   },
                   { label: "Phone", name: "phone" },
                   { label: "Region / District", name: "roadArea" },
-                  { label: "Postal Code", name: "postalCode" },
+                  { label: "Year of Call", name: "postalCode" },
                   { label: "TAX ID", name: "taxId" },
                   { label: "About", name: "about" }, // Added about field
                 ].map(({ label, name, type = "text", readOnly }) => (

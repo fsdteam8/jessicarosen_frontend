@@ -161,9 +161,9 @@ export default function ResourcesTable() {
   return (
     <div className=" mx-auto py-8">
       {/* Header */}
-      <div className="flex flex-col mx-[50px] mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold mb-[14px] text-[#131313]">
+          <h1 className="text-2xl font-bold mb-[8px] text-[#131313]">
             Resource List
           </h1>
           <div className="flex items-center space-x-2 text-[16px] font-medium text-[#929292]">

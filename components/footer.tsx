@@ -15,15 +15,18 @@ export function Footer() {
                   <Image
                     src="/images/nav_logo.png"
                     alt="Lawbie Logo"
-                    width={186}
-                    height={60}
-                    className="lg:w-full h-[40px] lg:h-[60px] bg-cover"
+                    width={500}
+                    height={200}
+                    className="lg:min-w-[150px] h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>
               </div>
             </div>
             <p className="text-sm text-[#484848] font-normal tracking-[0%] leading-[120%] mb-4 max-w-[400px]">
-              Lawbie is the go-to marketplace for lawyers to buy and sell high-quality, practitioner-drafted documents. Access proven templates, precedents, and tools—or upload your own and get paid. Built by lawyers, for lawyers.
+              Lawbie is the go-to marketplace for lawyers to buy and sell
+              high-quality, practitioner-drafted documents. Access proven
+              templates, precedents, and tools—or upload your own and get paid.
+              Built by lawyers, for lawyers.
             </p>
             <div className="flex space-x-3">
               <span className="bg-[#9AB0C266] rounded-full p-3">
