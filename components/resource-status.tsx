@@ -257,7 +257,7 @@ export function ResourceStatus() {
     <div className="space-y-6">
       <div className="flex flex-col mt-[56px] mx-auto sm:flex-row sm:items-center sm:justify-between gap-4 px-4 md:px-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Resource List</h1>
+          <h1 className="text-2xl font-bold pb-[8px] text-gray-900">Resource List</h1>
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <span>Dashboard</span>
             <span>›</span>

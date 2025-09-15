@@ -75,11 +75,10 @@ export default function ResourcesTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
- 
-    const session = useSession()
-    console.log("session", session);
+  const session = useSession();
+  console.log("session", session);
 
-    const token = session?.data?.user?.accessToken
+  const token = session?.data?.user?.accessToken;
 
   const queryClient = useQueryClient();
 
@@ -161,9 +160,9 @@ export default function ResourcesTable() {
   return (
     <div className=" mx-auto py-8">
       {/* Header */}
-      <div className="flex flex-col mx-[50px] mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col mb-[32px] sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold mb-[14px] text-[#131313]">
+          <h1 className="text-2xl font-bold mb-[8px] text-[#131313]">
             Resource List
           </h1>
           <div className="flex items-center space-x-2 text-[16px] font-medium text-[#929292]">
@@ -252,70 +251,74 @@ export default function ResourcesTable() {
           {resources.length} results
         </div>
 
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
+        <div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                  }
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => {
+                  // Show first page, current page, last page, and pages around current
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          isActive={page === currentPage}
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  }
+
+                  // Show ellipsis for gaps
+                  if (page === 2 && currentPage > 3) {
+                    return (
+                      <PaginationItem key="ellipsis-start">
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+
+                  if (page === totalPages - 1 && currentPage < totalPages - 2) {
+                    return (
+                      <PaginationItem key="ellipsis-end">
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    );
+                  }
+
+                  return null;
                 }
-              />
-            </PaginationItem>
+              )}
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-              // Show first page, current page, last page, and pages around current
-              if (
-                page === 1 ||
-                page === totalPages ||
-                (page >= currentPage - 1 && page <= currentPage + 1)
-              ) {
-                return (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      isActive={page === currentPage}
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              }
-
-              // Show ellipsis for gaps
-              if (page === 2 && currentPage > 3) {
-                return (
-                  <PaginationItem key="ellipsis-start">
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
-              }
-
-              if (page === totalPages - 1 && currentPage < totalPages - 2) {
-                return (
-                  <PaginationItem key="ellipsis-end">
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                );
-              }
-
-              return null;
-            })}
-
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}
