@@ -1171,7 +1171,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
@@ -1180,6 +1180,7 @@ import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 // Import React Quill dynamically to avoid SSR issues
 const ReactQuill = dynamic(() => import("react-quill"), {
@@ -1257,6 +1258,8 @@ export default function ResourceForm() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
@@ -1450,6 +1453,11 @@ export default function ResourceForm() {
         description: "Resource has been published successfully.",
         variant: "default",
       });
+            if (isPublishing) {
+        setIsPublishing(false);
+        router.push("/dashboard/resources/list");
+        queryClient.invalidateQueries({ queryKey: ["resources"] });
+      }
     },
     onError: (error: Error) => {
       console.error("Error publishing resource:", error);
@@ -2239,7 +2247,7 @@ export default function ResourceForm() {
             <div className="flex gap-4 items-center justify-center">
               <Button
                 onClick={() => handleSubmit("publish")}
-                className="w-full"
+                className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
                 disabled={isPublishing}
               >
                 {isPublishing ? "Publishing..." : "Publish Resources"}
@@ -2247,7 +2255,7 @@ export default function ResourceForm() {
 
               <Button
                 onClick={() => handleSubmit("draft")}
-                className="w-full"
+                className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""}`}
                 disabled={isDrafting}
               >
                 {isDrafting ? "Drafting..." : " Draft"}
