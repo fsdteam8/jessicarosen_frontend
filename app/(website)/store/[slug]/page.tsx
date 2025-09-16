@@ -244,7 +244,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
       <div className="container mx-auto px-4 py-8">
         {/* Profile Section */}
         <div className="">
-          <div className="mb-6">
+          <div className="mb-6 flex justify-center md:justify-start">
             {sellerProfile.profileImage ? (
               <Image
                 src={sellerProfile.profileImage}
@@ -261,15 +261,15 @@ const Page = ({ params }: { params: { slug: string } }) => {
             )}
           </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-center">
             {/* Profile Info */}
-            <div className="w-[45%] min-w-0">
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
+            <div className="w-full md:w-[45%] min-w-0 ">
+              <h1 className="text-3xl font-bold text-gray-900 mb-3  text-center md:text-left">
                 {fullName}
               </h1>
 
               {/* Stats Row */}
-              <div className="flex items-center gap-6 mb-4 text-gray-600">
+              <div className="flex justify-center md:justify-start items-center gap-6 mb-4 text-gray-600">
                 {/* Rating */}
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 text-yellow-400 fill-current" />
@@ -300,7 +300,8 @@ const Page = ({ params }: { params: { slug: string } }) => {
               </div>
 
               {/* Follow/Unfollow Button */}
-              <button
+              <div className="flex justify-center md:justify-start">
+                <button
                 onClick={() => handleFollowToggle(sellerProfile?._id)}
                 disabled={followMutation.isPending || unfollowMutation.isPending}
                 className="inline-flex items-center gap-2 px-6 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
@@ -336,6 +337,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
                   </>
                 )}
               </button>
+              </div>
             </div>
             {/* About Section */}
             <div className="flex-1 pt-6">
@@ -357,7 +359,7 @@ const Page = ({ params }: { params: { slug: string } }) => {
               </div>
 
               {/* Additional Info */}
-              <div className="mt-4 flex items-center gap-6 text-sm text-gray-600">
+              <div className="mt-4 flex flex-col md:flex-row items-start md:items-center gap-6 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
                   <span>Joined {joinDate}</span>
