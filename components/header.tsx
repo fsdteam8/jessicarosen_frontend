@@ -1,161 +1,198 @@
-"use client"
-import type React from "react"
-import { useState, useEffect, useRef } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Search, ShoppingCart, Heart, Menu, UserRound, ChevronDown, ChevronUp } from 'lucide-react'
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useCart } from "@/hooks/use-cart"
-import { CartSheet } from "@/components/cart-sheet"
-import Image from "next/image"
-import { useWishlist } from "@/hooks/use-wishlist"
-import { useSession, signOut } from "next-auth/react"
-import { useAppDispatch, useAppSelector } from "@/redux/hooks"
-import { type Region, setRegion } from "@/redux/features/regionSlice"
-import { SearchModal } from "@/components/search-modal"
-import { usePracticeAreas } from "@/hooks/use-practice-areas"
-import { useRouter } from "next/navigation"
-import { setSelectedArea } from "@/redux/features/practiceAreaSlice"
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { SearchDropdown } from "./search-dropdown"
+"use client";
+import type React from "react";
+import { useState, useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import {
+  Search,
+  ShoppingCart,
+  Heart,
+  Menu,
+  UserRound,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useCart } from "@/hooks/use-cart";
+import { CartSheet } from "@/components/cart-sheet";
+import Image from "next/image";
+import { useWishlist } from "@/hooks/use-wishlist";
+import { useSession, signOut } from "next-auth/react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { type Region, setRegion } from "@/redux/features/regionSlice";
+import { SearchModal } from "@/components/search-modal";
+import { usePracticeAreas } from "@/hooks/use-practice-areas";
+import { useRouter } from "next/navigation";
+import { setSelectedArea } from "@/redux/features/practiceAreaSlice";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { SearchDropdown } from "./search-dropdown";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Define User type for next-auth session
 interface User {
-  name?: string | null
-  email?: string | null
+  name?: string | null;
+  email?: string | null;
 }
 
 type SubPracticeArea = {
-  _id: string
-  name: string
-  category: string
-  createdAt: string
-  updatedAt: string
-  __v: number
-}
+  _id: string;
+  name: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
 
 type PracticeArea = {
-  _id: string
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-  __v: number
-  subPracticeAreas: SubPracticeArea[]
-}
+  _id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  subPracticeAreas: SubPracticeArea[];
+};
 
 interface PracticeAreasResponse {
-  success: boolean
-  message: string
-  data: PracticeArea[]
+  success: boolean;
+  message: string;
+  data: PracticeArea[];
 }
 
 export function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isMounted, setIsMounted] = useState(false)
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
-  const { setOpen, getItemCount } = useCart()
-  const searchParams = useSearchParams()
-  const activePracticeAreaId = searchParams.get("practiceArea")
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const { setOpen, getItemCount } = useCart();
+  const searchParams = useSearchParams();
+  const activePracticeAreaId = searchParams.get("practiceArea");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
       if (direction === "left") {
-        scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+        scrollContainerRef.current.scrollBy({
+          left: -scrollAmount,
+          behavior: "smooth",
+        });
       } else {
-        scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        scrollContainerRef.current.scrollBy({
+          left: scrollAmount,
+          behavior: "smooth",
+        });
       }
     }
-  }
+  };
 
-  const [expandedMobileAreaId, setExpandedMobileAreaId] = useState<string | null>(null)
-  const { items } = useWishlist()
-  const dispatch = useAppDispatch()
-  const currentRegion = useAppSelector((state) => state.region.currentRegion)
-  const { data: practiceAreasData, isLoading: practiceAreasLoading } = usePracticeAreas() as {
-    data: PracticeAreasResponse | undefined
-    isLoading: boolean
-  }
-  const [isSheetOpen, setIsSheetOpen] = useState(false)
+  const [expandedMobileAreaId, setExpandedMobileAreaId] = useState<
+    string | null
+  >(null);
+  const { items } = useWishlist();
+  const dispatch = useAppDispatch();
+  const currentRegion = useAppSelector((state) => state.region.currentRegion);
+  const { data: practiceAreasData, isLoading: practiceAreasLoading } =
+    usePracticeAreas() as {
+      data: PracticeAreasResponse | undefined;
+      isLoading: boolean;
+    };
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const handleRegionChange = (region: Region) => {
-    dispatch(setRegion(region))
-  }
+    dispatch(setRegion(region));
+  };
 
-  const { data: session } = useSession()
-  const user = session?.user as User | undefined
+  const { data: session } = useSession();
+  const user = session?.user as User | undefined;
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
-  const wishlistCount = isMounted ? items.length : 0
+  const wishlistCount = isMounted ? items.length : 0;
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/products/${encodeURIComponent(searchQuery)}`)
-      setDropdownOpen(false)
+      router.push(`/products/${encodeURIComponent(searchQuery)}`);
+      setDropdownOpen(false);
     }
-  }
+  };
 
   const handleMobileSearchClick = () => {
     if (isSearchOpen && searchQuery.trim()) {
-      setIsSearchModalOpen(true)
-      setIsSearchOpen(false)
+      setIsSearchModalOpen(true);
+      setIsSearchOpen(false);
     } else {
-      setIsSearchOpen(!isSearchOpen)
+      setIsSearchOpen(!isSearchOpen);
     }
-  }
+  };
 
-  const handlePracticeAreaClick = (practiceAreaId: string, practiceAreaName: string) => {
-    dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }))
+  const handlePracticeAreaClick = (
+    practiceAreaId: string,
+    practiceAreaName: string
+  ) => {
+    dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
     router.push(
-      `/products?practiceArea=${encodeURIComponent(practiceAreaId)}&subPracticeAreas=${encodeURIComponent(practiceAreaName)}`
-    )
-    setHoveredAreaId(null)
-  }
+      `/products?practiceArea=${encodeURIComponent(
+        practiceAreaId
+      )}&subPracticeAreas=${encodeURIComponent(practiceAreaName)}`
+    );
+    setHoveredAreaId(null);
+  };
 
-  const handleSubPracticeAreaClick = (subArea: SubPracticeArea, parentAreaName: string) => {
-    dispatch(setSelectedArea({ id: subArea._id, name: subArea.name }))
+  const handleSubPracticeAreaClick = (
+    subArea: SubPracticeArea,
+    parentAreaName: string
+  ) => {
+    dispatch(setSelectedArea({ id: subArea._id, name: subArea.name }));
     router.push(
-      `/products?practiceArea=${encodeURIComponent(subArea._id)}&subPracticeAreas=${encodeURIComponent(subArea.name)}&parent=${encodeURIComponent(parentAreaName)}`
-    )
-    setHoveredAreaId(null)
-  }
+      `/products?practiceArea=${encodeURIComponent(
+        subArea._id
+      )}&subPracticeAreas=${encodeURIComponent(
+        subArea.name
+      )}&parent=${encodeURIComponent(parentAreaName)}`
+    );
+    setHoveredAreaId(null);
+  };
 
   const toggleMobileExpansion = (areaId: string) => {
-    setExpandedMobileAreaId(expandedMobileAreaId === areaId ? null : areaId)
-  }
+    setExpandedMobileAreaId(expandedMobileAreaId === areaId ? null : areaId);
+  };
 
   const handleMouseEnter = (areaId: string) => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
+      clearTimeout(timeoutRef.current);
     }
-    setHoveredAreaId(areaId)
-  }
+    setHoveredAreaId(areaId);
+  };
 
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
-      setHoveredAreaId(null)
-    }, 150) // Adjust delay as needed to prevent flicker
-  }
+      setHoveredAreaId(null);
+    }, 150); // Adjust delay as needed to prevent flicker
+  };
 
   return (
     <>
@@ -167,31 +204,43 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base flex items-center justify-center px-1 py-2 rounded-[4px] transition-all duration-200 ${currentRegion === "canada"
-                  ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
-                  : "bg-transparent text-white border-white hover:bg-white/10"
-                  }`}
+                className={`text-base flex items-center justify-center px-1 py-2 rounded-[4px] transition-all duration-200 ${
+                  currentRegion === "canada"
+                    ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
+                    : "bg-transparent text-white border-white hover:bg-white/10"
+                }`}
               >
                 <div className="flex  justify-center items-center gap-[8px] p-[8px]">
                   <span className="w-[40px] h-[18px]">
-                    <Image src="/images/flage.png" alt="Canada Flag" width={48} height={24} />
+                    <Image
+                      src="/images/flage.png"
+                      alt="Canada Flag"
+                      width={48}
+                      height={24}
+                    />
                   </span>
-                  <span className="text-[14px]">   Lawbie CAN</span>
+                  <span className="text-[14px]"> Lawbie CAN</span>
                 </div>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base flex items-center justify-center p-[4px] rounded-[4px] transition-all duration-200 ${currentRegion === "us"
-                  ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
-                  : "bg-transparent text-white border-white hover:bg-white/10"
-                  }`}
+                className={`text-base flex items-center justify-center p-[4px] rounded-[4px] transition-all duration-200 ${
+                  currentRegion === "us"
+                    ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
+                    : "bg-transparent text-white border-white hover:bg-white/10"
+                }`}
               >
                 <div className="flex  justify-center gap-[8px] p-[8px]">
                   <span className="w-[40px] h-[18px]">
-                    <Image src="/images/flage1.png" alt="Canada Flag" width={48} height={24} />
+                    <Image
+                      src="/images/flage1.png"
+                      alt="Canada Flag"
+                      width={48}
+                      height={24}
+                    />
                   </span>
-                  <span className="text-[14px]">  Lawbie US</span>
+                  <span className="text-[14px]"> Lawbie US</span>
                 </div>
               </Button>
             </div>
@@ -234,11 +283,19 @@ export function Header() {
                   <Search className="text-xl text-white" />
                 </button>
               </form>
-              {dropdownOpen && <SearchDropdown query={searchQuery} onClose={() => setDropdownOpen(false)} />}
+              {dropdownOpen && (
+                <SearchDropdown
+                  query={searchQuery}
+                  onClose={() => setDropdownOpen(false)}
+                />
+              )}
             </div>
 
             {/* Mobile Search Button */}
-            <button className="md:hidden text-gray-600 mr-3" onClick={handleMobileSearchClick}>
+            <button
+              className="md:hidden text-gray-600 mr-3"
+              onClick={handleMobileSearchClick}
+            >
               <Search className="text-2xl" />
             </button>
 
@@ -261,35 +318,51 @@ export function Header() {
                 )}
               </button>
 
+              {/* {session && user ? ( */}
+
               {session && user ? (
-                <div className="relative group hidden sm:block">
-                  <button className="text-[#131313]">
-                    <span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="text-[#131313]">
                       <UserRound className="text-2xl" />
-                    </span>
-                  </button>
-                  <div className="absolute right-0 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block min-w-[200px]">
-                    <div className="py-2 text-sm text-[#131313]">
-                      <p className="font-medium text-center">{user?.name ?? "User"}</p>
-                      <p className="text-gray-500 text-xs text-center border-b">{user?.email ?? "No email"}</p>
-                    </div>
-                    <Link href="/account/profile" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
-                      My Account
-                    </Link>
-                    <Link href="/account/orders" className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
-                      My Orders
-                    </Link>
-                    <Link href={session.user.role === "SELLER" ? "/dashboard" : "/account"} className="block px-4 py-2 text-sm text-[#131313] hover:bg-gray-100">
-                      Go to Dashboard
-                    </Link>
-                    <button
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>
+                      <p className="font-medium text-center">
+                        {user?.name ?? "User"}
+                      </p>
+                      <p className="text-gray-500 text-xs text-center border-b">
+                        {user?.email ?? "No email"}
+                      </p>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href="/account/profile">My Account</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link href="/account/orders">My Orders</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link
+                        href={
+                          session.user.role === "SELLER"
+                            ? "/dashboard"
+                            : "/account"
+                        }
+                      >
+                        Go to Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-red-600 cursor-pointer"
                       onClick={() => signOut()}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                     >
                       Logout
-                    </button>
-                  </div>
-                </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <div className="flex items-center gap-4">
                   <Link
@@ -319,15 +392,22 @@ export function Header() {
                     <Link
                       href="/"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${pathname === "/" ? "text-[#23547B]" : "hover:text-[#23547B]"}`}
+                      className={`text-lg font-medium ${
+                        pathname === "/"
+                          ? "text-[#23547B]"
+                          : "hover:text-[#23547B]"
+                      }`}
                     >
                       Home
                     </Link>
                     <Link
                       href="/products"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${pathname === "/products" ? "text-[#23547B]" : "hover:text-[#23547B]"
-                        }`}
+                      className={`text-lg font-medium ${
+                        pathname === "/products"
+                          ? "text-[#23547B]"
+                          : "hover:text-[#23547B]"
+                      }`}
                     >
                       All Resources
                     </Link>
@@ -342,23 +422,34 @@ export function Header() {
 
                     {/* Practice Areas - Mobile */}
                     <div className="border-t pt-4 mt-4">
-                      <h3 className="text-base font-semibold text-gray-500 mb-3">Practice Areas</h3>
+                      <h3 className="text-base font-semibold text-gray-500 mb-3">
+                        Practice Areas
+                      </h3>
                       <div className="h-[300px] w-full overflow-y-scroll">
                         {practiceAreasLoading ? (
                           <div className="space-y-2">
                             {[...Array(3)].map((_, i) => (
-                              <div key={i} className="h-8 bg-gray-200 rounded animate-pulse" />
+                              <div
+                                key={i}
+                                className="h-8 bg-gray-200 rounded animate-pulse"
+                              />
                             ))}
                           </div>
                         ) : (
                           <div className="space-y-2">
                             {practiceAreasData?.data?.map((area) => (
-                              <div key={area._id} className="border-b border-gray-100 pb-2">
+                              <div
+                                key={area._id}
+                                className="border-b border-gray-100 pb-2"
+                              >
                                 <div className="flex items-center justify-between">
                                   <button
                                     onClick={() => {
-                                      handlePracticeAreaClick(area._id, area.name)
-                                      setIsSheetOpen(false)
+                                      handlePracticeAreaClick(
+                                        area._id,
+                                        area.name
+                                      );
+                                      setIsSheetOpen(false);
                                     }}
                                     className="flex-1 text-left text-base font-medium hover:text-[#23547B] py-1"
                                   >
@@ -366,7 +457,9 @@ export function Header() {
                                   </button>
                                   {area.subPracticeAreas?.length > 0 && (
                                     <button
-                                      onClick={() => toggleMobileExpansion(area._id)}
+                                      onClick={() =>
+                                        toggleMobileExpansion(area._id)
+                                      }
                                       className="p-1 hover:bg-gray-100 rounded"
                                     >
                                       {expandedMobileAreaId === area._id ? (
@@ -378,22 +471,26 @@ export function Header() {
                                   )}
                                 </div>
                                 {/* Sub Practice Areas - Mobile */}
-                                {expandedMobileAreaId === area._id && area.subPracticeAreas?.length > 0 && (
-                                  <div className="ml-4 mt-2 space-y-1">
-                                    {area.subPracticeAreas.map((subArea) => (
-                                      <button
-                                        key={subArea._id}
-                                        onClick={() => {
-                                          handleSubPracticeAreaClick(subArea, area.name)
-                                          setIsSheetOpen(false)
-                                        }}
-                                        className="block w-full text-left text-sm text-gray-600 hover:text-[#23547B] py-1 px-2 hover:bg-gray-50 rounded"
-                                      >
-                                        {subArea.name}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
+                                {expandedMobileAreaId === area._id &&
+                                  area.subPracticeAreas?.length > 0 && (
+                                    <div className="ml-4 mt-2 space-y-1">
+                                      {area.subPracticeAreas.map((subArea) => (
+                                        <button
+                                          key={subArea._id}
+                                          onClick={() => {
+                                            handleSubPracticeAreaClick(
+                                              subArea,
+                                              area.name
+                                            );
+                                            setIsSheetOpen(false);
+                                          }}
+                                          className="block w-full text-left text-sm text-gray-600 hover:text-[#23547B] py-1 px-2 hover:bg-gray-50 rounded"
+                                        >
+                                          {subArea.name}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
                               </div>
                             ))}
                           </div>
@@ -414,8 +511,8 @@ export function Header() {
                         </Link>
                         <button
                           onClick={() => {
-                            signOut()
-                            setIsSheetOpen(false)
+                            signOut();
+                            setIsSheetOpen(false);
                           }}
                           className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
                         >
@@ -446,36 +543,62 @@ export function Header() {
                       <Button
                         variant="outline"
                         onClick={() => {
-                          handleRegionChange("canada")
-                          setIsSheetOpen(false)
+                          handleRegionChange("canada");
+                          setIsSheetOpen(false);
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "canada"
-                          ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
-                          : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                          }`}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          currentRegion === "canada"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                        }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
-                          <Image src="/images/flag.png" alt="Canada Flag" fill className="object-contain" />
+                          <Image
+                            src="/images/flag.png"
+                            alt="Canada Flag"
+                            fill
+                            className="object-contain"
+                          />
                         </span>
-                        <span className={`${currentRegion === "canada" ? "text-white" : "text-[#23547b]"}`}>
+                        <span
+                          className={`${
+                            currentRegion === "canada"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
                           Lawbie Canada
                         </span>
                       </Button>
                       <Button
                         variant="outline"
                         onClick={() => {
-                          handleRegionChange("us")
-                          setIsSheetOpen(false)
+                          handleRegionChange("us");
+                          setIsSheetOpen(false);
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "us"
-                          ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
-                          : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                          }`}
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
+                          currentRegion === "us"
+                            ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
+                            : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
+                        }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
-                          <Image src="/images/flag1.png" alt="US Flag" fill className="object-contain" />
+                          <Image
+                            src="/images/flag1.png"
+                            alt="US Flag"
+                            fill
+                            className="object-contain"
+                          />
                         </span>
-                        <span className={`${currentRegion === "us" ? "text-white" : "text-[#23547b]"}`}>Lawbie US</span>
+                        <span
+                          className={`${
+                            currentRegion === "us"
+                              ? "text-white"
+                              : "text-[#23547b]"
+                          }`}
+                        >
+                          Lawbie US
+                        </span>
                       </Button>
                     </div>
                   </nav>
@@ -497,7 +620,11 @@ export function Header() {
                 className="flex-1 text-sm rounded-r-none border border-gray-300 h-10"
                 autoFocus
               />
-              <Button type="submit" size="sm" className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3">
+              <Button
+                type="submit"
+                size="sm"
+                className="rounded-l-none bg-[#23547b] hover:bg-[#153a58] h-10 px-3"
+              >
                 <Search className="h-4 w-4 text-white" />
               </Button>
             </form>
@@ -523,19 +650,21 @@ export function Header() {
                 <div className="flex items-center space-x-8">
                   <Link
                     href="/"
-                    className={`font-medium transition-colors ${pathname === "/"
-                      ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                      : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                      }`}
+                    className={`font-medium transition-colors ${
+                      pathname === "/"
+                        ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                    }`}
                   >
                     Home
                   </Link>
                   <Link
                     href="/products"
-                    className={`font-medium transition-colors ${pathname === "/products"
-                      ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                      : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                      }`}
+                    className={`font-medium transition-colors ${
+                      pathname === "/products"
+                        ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                        : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
+                    }`}
                   >
                     All Resources
                   </Link>
@@ -555,7 +684,10 @@ export function Header() {
                   {practiceAreasLoading ? (
                     <div className="flex space-x-8">
                       {[...Array(3)].map((_, i) => (
-                        <div key={i} className="h-6 w-24 bg-gray-200 rounded animate-pulse" />
+                        <div
+                          key={i}
+                          className="h-6 w-24 bg-gray-200 rounded animate-pulse"
+                        />
                       ))}
                     </div>
                   ) : (
@@ -576,13 +708,19 @@ export function Header() {
                               onMouseEnter={() => handleMouseEnter(area._id)}
                               onMouseLeave={handleMouseLeave}
                             >
-                              <PopoverTrigger asChild className="inline-block border-none outline-none">
+                              <PopoverTrigger
+                                asChild
+                                className="inline-block border-none outline-none"
+                              >
                                 <button
-                                  onClick={() => handlePracticeAreaClick(area._id, area.name)}
-                                  className={`font-medium border-none truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${isActive
-                                    ? "bg-[#8eb5d4] text-white"
-                                    : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
-                                    }`}
+                                  onClick={() =>
+                                    handlePracticeAreaClick(area._id, area.name)
+                                  }
+                                  className={`font-medium border-none truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${
+                                    isActive
+                                      ? "bg-[#8eb5d4] text-white"
+                                      : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
+                                  }`}
                                   title={area.name}
                                 >
                                   {area.name}
@@ -596,19 +734,28 @@ export function Header() {
                                 onMouseLeave={handleMouseLeave}
                               >
                                 <div className="px-4 py-3">
-                                  <p className="text-gray-900 font-semibold text-base mb-3">{area.name}</p>
+                                  <p className="text-gray-900 font-semibold text-base mb-3">
+                                    {area.name}
+                                  </p>
                                   {area?.subPracticeAreas?.length > 0 && (
                                     <div className="mb-3">
                                       <div className="space-y-1 max-h-64 overflow-y-auto ">
-                                        {area.subPracticeAreas.map((subArea: SubPracticeArea) => (
-                                          <button
-                                            key={subArea._id}
-                                            className="block w-full text-left border-none outline-none text-gray-600 text-[13px] px-2 py-1 rounded cursor-pointer hover:bg-gray-100 hover:text-[#23547B] transition-colors "
-                                            onClick={() => handleSubPracticeAreaClick(subArea, area.name)}
-                                          >
-                                            {subArea.name}
-                                          </button>
-                                        ))}
+                                        {area.subPracticeAreas.map(
+                                          (subArea: SubPracticeArea) => (
+                                            <button
+                                              key={subArea._id}
+                                              className="block w-full text-left border-none outline-none text-gray-600 text-[13px] px-2 py-1 rounded cursor-pointer hover:bg-gray-100 hover:text-[#23547B] transition-colors "
+                                              onClick={() =>
+                                                handleSubPracticeAreaClick(
+                                                  subArea,
+                                                  area.name
+                                                )
+                                              }
+                                            >
+                                              {subArea.name}
+                                            </button>
+                                          )
+                                        )}
                                       </div>
                                     </div>
                                   )}
@@ -635,10 +782,14 @@ export function Header() {
       </header>
 
       {/* Search Modal */}
-      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} initialQuery={searchQuery} />
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+        initialQuery={searchQuery}
+      />
 
       {/* Cart Sheet */}
       <CartSheet />
     </>
-  )
+  );
 }

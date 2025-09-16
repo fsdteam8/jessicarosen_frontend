@@ -1,4 +1,3 @@
-
 // "use client";
 // // @typescript-eslint/no-explicit-any
 // import type React from "react";
@@ -327,8 +326,6 @@
 //     }
 //   }, [data]);
 
-
-
 //   const handleChange = (
 //     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
 //   ) => {
@@ -338,7 +335,6 @@
 //       [name]: name === "postalCode" ? Number(value) : value,
 //     }));
 //   };
-
 
 //   const handleUpdate = () => {
 //     updateMutation.mutate(formData);
@@ -376,8 +372,6 @@
 //     fileInputRef.current?.click();
 //   };
 
-
-
 //   const handelSubmitMutation = useMutation({
 //     mutationFn: async (email: string) => {
 //       const response = await fetch(
@@ -412,7 +406,6 @@
 //       })
 
 //       window.location.href = "/dashboard";
-
 
 //     },
 //     onError: (error) => {
@@ -702,7 +695,6 @@
 //                 </div>
 //               </div>
 
-
 //             </div>
 //           </div>
 //         )}
@@ -711,10 +703,6 @@
 //     </div>
 //   );
 // }
-
-
-
-
 
 "use client";
 // @typescript-eslint/no-explicit-any
@@ -799,12 +787,20 @@ const ProfileLoadingSkeleton = () => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {[...Array(10)].map((_, index) => ( // Updated to 10 to account for new about field
-          <div key={index} className={index === 6 || index === 9 ? "md:col-span-2" : ""}>
-            <div className="h-4 bg-gray-200 rounded animate-pulse mb-1 w-24"></div>
-            <div className="h-[49px] bg-gray-200 rounded animate-pulse"></div>
-          </div>
-        ))}
+        {[...Array(10)].map(
+          (
+            _,
+            index // Updated to 10 to account for new about field
+          ) => (
+            <div
+              key={index}
+              className={index === 6 || index === 9 ? "md:col-span-2" : ""}
+            >
+              <div className="h-4 bg-gray-200 rounded animate-pulse mb-1 w-24"></div>
+              <div className="h-[49px] bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          )
+        )}
       </div>
     </div>
   </div>
@@ -1046,7 +1042,9 @@ export default function ProfilePage() {
   }, [data]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -1114,8 +1112,8 @@ export default function ProfilePage() {
       await update({
         User: {
           role: "SELLER",
-        }
-      })
+        },
+      });
 
       window.location.href = "/dashboard";
     },
@@ -1131,8 +1129,7 @@ export default function ProfilePage() {
       } else {
         toast.error("Email is not available.");
       }
-    }
-    else {
+    } else {
       window.location.href = "/dashboard";
     }
   };
@@ -1170,14 +1167,14 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8 bg-[#6459490D] px-6 py-8 rounded-[12px] relative">
               {(uploadImageMutation.isPending ||
                 deleteImageMutation.isPending) && (
-                  <LoadingOverlay
-                    message={
-                      uploadImageMutation.isPending
-                        ? "Uploading image..."
-                        : "Deleting image..."
-                    }
-                  />
-                )}
+                <LoadingOverlay
+                  message={
+                    uploadImageMutation.isPending
+                      ? "Uploading image..."
+                      : "Deleting image..."
+                  }
+                />
+              )}
 
               <div className="relative">
                 <div className="w-32 h-32 rounded-full overflow-hidden border relative">
@@ -1188,8 +1185,9 @@ export default function ProfilePage() {
                   )}
                   <Image
                     key={imageKey} // Force re-render when imageKey changes
-                    src={`${data?.profileImage || "/images/not-imge.png"
-                      }?t=${imageKey}`} // Cache busting
+                    src={`${
+                      data?.profileImage || "/images/not-imge.png"
+                    }?t=${imageKey}`} // Cache busting
                     alt="Profile"
                     width={128}
                     height={128}
@@ -1249,14 +1247,15 @@ export default function ProfilePage() {
                 <h3 className="text-2xl font-bold">
                   {formData.firstName} {formData.lastName}
                 </h3>
-                <p className="text-gray-500 mb-2">
-                  {formData?.email}
-                </p>
+                <p className="text-gray-500 mb-2">{formData?.email}</p>
                 <Button
                   className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
-                  onClick={handleSubmit}>
+                  onClick={handleSubmit}
+                >
                   <SquareArrowOutUpRight className="mr-2" />
-                  {session?.user.role === "SELLER" ? "Go to Dashboard" : "Active a Seller"}
+                  {session?.user.role === "SELLER"
+                    ? "Go to Dashboard"
+                    : "Active a Seller"}
                 </Button>
               </div>
             </div>
@@ -1299,11 +1298,14 @@ export default function ProfilePage() {
                   },
                   { label: "Phone", name: "phone" },
                   { label: "Region / District", name: "roadArea" },
-                  { label: "Year of Call", name: "postalCode" },
+                  // { label: "Year of Call", name: "postalCode" },
                   { label: "TAX ID", name: "taxId" },
                   { label: "About", name: "about" }, // Added about field
                 ].map(({ label, name, type = "text", readOnly }) => (
-                  <div key={name} className={name === "about" ? "md:col-span-2" : ""}>
+                  <div
+                    key={name}
+                    className={name === "about" ? "md:col-span-2" : ""}
+                  >
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {label}
                     </label>
@@ -1332,16 +1334,63 @@ export default function ProfilePage() {
                       )
                     ) : (
                       <div
-                        className={`p-2.5 border rounded-md ${name === "about" ? "h-[100px]" : "h-[49px]"} border-[#645949] ${readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"}`}
+                        className={`p-2.5 border rounded-md ${
+                          name === "about" ? "h-[100px]" : "h-[49px]"
+                        } border-[#645949] ${
+                          readOnly ? "bg-gray-100 text-gray-500" : "bg-gray-50"
+                        } ${isEditing ? "cursor-default" : "cursor-not-allowed"}`}
                       >
                         {formData[name as keyof typeof formData] || "N/A"}
                       </div>
                     )}
                   </div>
                 ))}
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                {/* year of call Select Dropdown */}
+                <div className="md:col-span-1 ">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Year of Call
+                  </label>
+                  {isEditing ? (
+                    <Select
+                      value={formData.postalCode.toString()}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          postalCode: parseInt(value, 10),
+                        }))
+                      }
+                    >
+                      <SelectTrigger
+                        className={`w-full h-[49px] border border-[#645949]`}
+                      >
+                        <SelectValue placeholder="Select a year of call" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 2015 - 1915 + 1 }, (_, i) => {
+                          const year = 1915 + i;
+                          return (
+                            <SelectItem key={year} value={String(year)}>
+                              {year}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div
+                      className={`${
+                        isEditing ? "cursor-default" : "cursor-not-allowed"
+                      } p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50`}
+                    >
+                      {formData.postalCode || "N/A"}
+                    </div>
+                  )}
+                </div>
                 {/* Country Select Dropdown */}
-                <div className="md:col-span-1">
+                <div className="md:col-span-1 ">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Country
                   </label>
@@ -1361,7 +1410,11 @@ export default function ProfilePage() {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50">
+                    <div
+                      className={`${
+                        isEditing ? "cursor-default" : "cursor-not-allowed"
+                      } p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50`}
+                    >
                       {formData.country || "N/A"}
                     </div>
                   )}
@@ -1387,14 +1440,21 @@ export default function ProfilePage() {
                       </SelectTrigger>
                       <SelectContent>
                         {provinces?.map((state: { stateName: string }) => (
-                          <SelectItem key={state.stateName} value={state.stateName}>
+                          <SelectItem
+                            key={state.stateName}
+                            value={state.stateName}
+                          >
                             {state.stateName}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   ) : (
-                    <div className="p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50">
+                    <div
+                      className={`${
+                        isEditing ? "cursor-default" : "cursor-not-allowed"
+                      } p-2.5 border rounded-md h-[49px] border-[#645949] bg-gray-50`}
+                    >
                       {formData.cityState || "N/A"}
                     </div>
                   )}
