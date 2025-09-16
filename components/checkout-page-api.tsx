@@ -186,12 +186,12 @@ export default function CheckoutPageAPI() {
                         <h4 className="font-medium truncate">{item.title}</h4>
                         <div className="flex justify-between  justify-off items-center mt-1">
                           <div className="text-sm text-gray-500">
-                            Price: ${item.discountPrice || item.price}
-                            {item.discountPrice && (
+                            Price: ${item.discountPrice }
+                            {/* {item.discountPrice && (
                               <span className="line-through ml-1 text-red-500">
                                 ${item.price}
                               </span>
-                            )}
+                            )} */}
                           </div>
                           <div className=" -mt-7">
                             <div className="text-sm  flex items-center">

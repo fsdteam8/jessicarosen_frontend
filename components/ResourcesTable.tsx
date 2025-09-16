@@ -193,7 +193,7 @@ export default function ResourcesTable() {
             <TableRow>
               <TableHead className=" ">Resource Name</TableHead>
               <TableHead className=" ">ID</TableHead>
-              <TableHead className=" ">Price</TableHead>
+              {/* <TableHead className=" ">Price</TableHead> */}
               <TableHead className=" ">Discount Price</TableHead>
               <TableHead className=" ">Quantity</TableHead>
               <TableHead className=" ">Format</TableHead>
@@ -222,9 +222,9 @@ export default function ResourcesTable() {
                   <span className=" ">{resource.title}</span>
                 </TableCell>
                 <TableCell className=" ">{resource.productId}</TableCell>
-                <TableCell className=" ">
+                {/* <TableCell className=" ">
                   ${resource?.price?.toFixed(2)}
-                </TableCell>
+                </TableCell> */}
                 <TableCell className=" ">
                   ${resource.discountPrice.toFixed(2)}
                 </TableCell>

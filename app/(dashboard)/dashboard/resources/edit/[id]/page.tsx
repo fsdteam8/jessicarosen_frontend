@@ -91,7 +91,7 @@ interface ResourceData {
   divisions: string[];
   resourceType: string[];
   description: string;
-  price: number;
+  // price: number;
   discountPrice: number;
   quantity: number;
   format: string;
@@ -107,7 +107,7 @@ interface ResourceData {
 
 interface FormDataState {
   title: string;
-  price: string;
+  // price: string;
   discountPrice: string;
   quantity: string;
   format: string;
@@ -156,7 +156,7 @@ export default function EditPage() {
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
-    price: "",
+    // price: "",
     discountPrice: "",
     quantity: "",
     format: "",
@@ -310,7 +310,7 @@ export default function EditPage() {
 
       setFormData({
         title: resourceData.title || "",
-        price: resourceData.price?.toString() || "",
+        // price: resourceData.price?.toString() || "",
         discountPrice: resourceData.discountPrice?.toString() || "",
         quantity: resourceData.quantity?.toString() || "",
         format: resourceData.format || "",
@@ -351,7 +351,7 @@ export default function EditPage() {
       const submitData = new FormData();
       submitData.append("title", currentFormData.title);
       submitData.append("description", currentFormData.description);
-      submitData.append("price", currentFormData.price || "0");
+      // submitData.append("price", currentFormData.price || "0");
       submitData.append("discountPrice", currentFormData.discountPrice || "0");
       submitData.append("format", currentFormData.format || "");
       submitData.append("quantity", currentFormData.quantity || "0");
@@ -447,7 +447,7 @@ export default function EditPage() {
         const optimisticResource = {
           ...resourceData,
           title: currentFormData.title,
-          price: Number(currentFormData.price) || 0,
+          // price: Number(currentFormData.price) || 0,
           discountPrice: Number(currentFormData.discountPrice) || 0,
           quantity: Number(currentFormData.quantity) || 0,
           format: currentFormData.format,
@@ -803,8 +803,8 @@ export default function EditPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* <div className="space-y-2">
                     <Label htmlFor="price" className="text-base font-semibold">
                       Price
                     </Label>
@@ -818,7 +818,7 @@ export default function EditPage() {
                         handleInputChange("price", e.target.value)
                       }
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <Label
                       className="text-base font-semibold"
@@ -1424,9 +1424,9 @@ export default function EditPage() {
               <p>
                 <strong>Title:</strong> {formData.title}
               </p>
-              <p>
+              {/* <p>
                 <strong>Price:</strong> {formData.price}
-              </p>
+              </p> */}
               <p>
                 <strong>Discount Price:</strong> {formData.discountPrice}
               </p>

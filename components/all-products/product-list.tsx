@@ -262,9 +262,9 @@ export default function ProductList({
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm text-[#FF0000] font-medium leading-[120%] line-through">
+                        {/* <div className="text-sm text-[#FF0000] font-medium leading-[120%] line-through">
                           ${product?.price}
-                        </div>
+                        </div> */}
                         <div className="text-base font-medium text-[#424242] leading-[120%]">
                           Price: ${product?.discountPrice}
                         </div>
@@ -403,9 +403,9 @@ export default function ProductList({
 
                     <div className="flex-shrink-0 lg:w-[250px]">
                       <div className="h-full flex flex-col justify-center">
-                        <div className="text-sm text-[#FF0000] font-medium leading-[120%] tracking-normal line-through pb-2">
+                        {/* <div className="text-sm text-[#FF0000] font-medium leading-[120%] tracking-normal line-through pb-2">
                           ${product?.price}
-                        </div>
+                        </div> */}
                         <div className="text-base font-medium text-[#424242] leading-[120%] tracking-normal mb-4 md:mb-6 lg:mb-8">
                           Price: ${product?.discountPrice}
                         </div>

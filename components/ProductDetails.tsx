@@ -280,9 +280,9 @@ export default function ProductDetails() {
           </div>
 
           <div className="flex flex-col items-start gap-1 mb-2">
-            <span className="text-sm text-[#FF0000] line-through">
+            {/* <span className="text-sm text-[#FF0000] line-through">
               ${product?.price}
-            </span>
+            </span> */}
             <span className="text-xl text-[#424242]">
               Price: ${product?.discountPrice}
             </span>
@@ -307,11 +307,11 @@ export default function ProductDetails() {
             </div>
           </div>
 
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <span className="text-[#FF0000] text-base font-medium">
               SAVE ${(product?.price ?? 0) - (product?.discountPrice ?? 0)}.00
             </span>
-          </div>
+          </div> */}
 
           <div className="flex gap-4 mb-6 flex-wrap">
             <Button

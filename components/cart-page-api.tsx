@@ -156,9 +156,9 @@ export default function CartPageAPI() {
                                   <h4 className="font-medium">{item.title}</h4>
                                   <div className="text-sm text-gray-500">
                                     Price: {item?.discountPrice}{" "}
-                                    <span className="text-red-500 line-through">
+                                    {/* <span className="text-red-500 line-through">
                                       ${item?.price}
-                                    </span>
+                                    </span> */}
                                   </div>
                                 </div>
                               </div>
@@ -194,11 +194,11 @@ export default function CartPageAPI() {
                             </td>
                             <td className="py-4 px-6 font-medium">
                               ${formatPrice(itemPrice)}
-                              {item.discountPrice && (
+                              {/* {item.discountPrice && (
                                 <span className="line-through text-gray-500 ml-2 text-sm">
                                   ${formatPrice(item.price)}
                                 </span>
-                              )}
+                              )} */}
                             </td>
                             <td className="py-4 px-6 font-medium">
                               ${formatPrice(itemTotal)}
@@ -225,7 +225,7 @@ export default function CartPageAPI() {
                   <Button
                     asChild
                     variant="outline"
-                    className="mr-4 bg-[#23547B] text-white font-bold w-[220px] h-[48px] hover:bg-[#1e4258]"
+                    className="mr-4 bg-[#23547B] text-white hover:text-white font-bold w-[220px] h-[48px] hover:bg-[#1e4258]"
                   >
                     <Link href="/products">Continue Shopping</Link>
                   </Button>
