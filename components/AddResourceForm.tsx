@@ -1223,7 +1223,7 @@ interface ResourceType {
 
 interface FormDataState {
   title: string;
-  price: string;
+  // price: string;
   discountPrice: string;
   quantity: string;
   format: string;
@@ -1263,7 +1263,7 @@ export default function ResourceForm() {
 
   const [formData, setFormData] = useState<FormDataState>({
     title: "",
-    price: "",
+    // price: "",
     discountPrice: "",
     quantity: "",
     format: "",
@@ -1388,7 +1388,7 @@ export default function ResourceForm() {
       const submitData = new FormData();
       submitData.append("title", currentFormData.title);
       submitData.append("description", currentFormData.description);
-      submitData.append("price", currentFormData.price);
+      // submitData.append("price", currentFormData.price);
       submitData.append("discountPrice", currentFormData.discountPrice);
       submitData.append("format", currentFormData.format);
       submitData.append("quantity", currentFormData.quantity);
@@ -1650,7 +1650,7 @@ export default function ResourceForm() {
     const dataToLog = {
       title: formDataToSubmit.title,
       description: formDataToSubmit.description,
-      price: formDataToSubmit.price,
+      // price: formDataToSubmit.price,
       discountPrice: formDataToSubmit.discountPrice,
       format: formDataToSubmit.format,
       quantity: formDataToSubmit.quantity,
@@ -1737,8 +1737,8 @@ export default function ResourceForm() {
                     onChange={(e) => handleInputChange("title", e.target.value)}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* <div className="space-y-2">
                     <Label htmlFor="price" className="text-base font-semibold">
                       Price
                     </Label>
@@ -1751,7 +1751,7 @@ export default function ResourceForm() {
                         handleInputChange("price", e.target.value)
                       }
                     />
-                  </div>
+                  </div> */}
                   <div className="space-y-2">
                     <Label
                       className="text-base font-semibold"
@@ -2250,7 +2250,7 @@ export default function ResourceForm() {
                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
                 disabled={isPublishing}
               >
-                {isPublishing ? "Publishing..." : "Publish Resources"}
+                {isPublishing ? "Requesting..." : "Request Resources"}
               </Button>
 
               <Button
@@ -2272,9 +2272,9 @@ export default function ResourceForm() {
               <p>
                 <strong>Title:</strong> {formData.title}
               </p>
-              <p>
+              {/* <p>
                 <strong>Price:</strong> {formData.price}
-              </p>
+              </p> */}
               <p>
                 <strong>Discount Price:</strong> {formData.discountPrice}
               </p>

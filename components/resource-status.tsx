@@ -283,9 +283,9 @@ export function ResourceStatus() {
                 <th className="text-left px-4 py-4 font-medium text-gray-900">
                   ID
                 </th>
-                <th className="text-left px-4 py-4 font-medium text-gray-900">
+                {/* <th className="text-left px-4 py-4 font-medium text-gray-900">
                   Price
-                </th>
+                </th> */}
                 <th className="text-left px-4 py-4 font-medium text-gray-900">
                   Discount
                 </th>
@@ -345,9 +345,9 @@ export function ResourceStatus() {
                     >
                       {resource._id}
                     </td>
-                    <td className="font-medium text-[#424242] text-sm px-4 py-3">
+                    {/* <td className="font-medium text-[#424242] text-sm px-4 py-3">
                       ${resource.price?.toFixed(2)}
-                    </td>
+                    </td> */}
                     <td className="font-medium text-[#424242] text-sm px-4 py-3">
                       ${resource.discountPrice?.toFixed(2)}
                     </td>

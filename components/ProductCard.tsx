@@ -189,9 +189,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 text-base">Price :</span>
-                <span className="text-gray-400 text-base line-through">
+                {/* <span className="text-gray-400 text-base line-through">
                   ${product?.price}
-                </span>
+                </span> */}
                 <span className="text-red-600 font-bold text-xl">
                   ${product?.discountPrice}
                 </span>

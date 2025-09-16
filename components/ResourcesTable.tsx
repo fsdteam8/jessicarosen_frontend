@@ -30,10 +30,11 @@ import {
 } from "@/components/ui/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Plus, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // Types
@@ -74,6 +75,7 @@ export default function ResourcesTable() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const router = useRouter();
 
   const session = useSession();
   console.log("session", session);
@@ -83,6 +85,10 @@ export default function ResourcesTable() {
   const queryClient = useQueryClient();
 
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+
+  const handleEdit = (id: string) => {
+  router.push(`/dashboard/resources/edit/${id}`);
+};
 
   // Fetch resources
   const { data, isLoading, error } = useQuery({
@@ -187,7 +193,7 @@ export default function ResourcesTable() {
             <TableRow>
               <TableHead className=" ">Resource Name</TableHead>
               <TableHead className=" ">ID</TableHead>
-              <TableHead className=" ">Price</TableHead>
+              {/* <TableHead className=" ">Price</TableHead> */}
               <TableHead className=" ">Discount Price</TableHead>
               <TableHead className=" ">Quantity</TableHead>
               <TableHead className=" ">Format</TableHead>
@@ -216,9 +222,9 @@ export default function ResourcesTable() {
                   <span className=" ">{resource.title}</span>
                 </TableCell>
                 <TableCell className=" ">{resource.productId}</TableCell>
-                <TableCell className=" ">
-                  ${resource.price.toFixed(2)}
-                </TableCell>
+                {/* <TableCell className=" ">
+                  ${resource?.price?.toFixed(2)}
+                </TableCell> */}
                 <TableCell className=" ">
                   ${resource.discountPrice.toFixed(2)}
                 </TableCell>
@@ -228,6 +234,14 @@ export default function ResourcesTable() {
                   {format(new Date(resource.createdAt), "MM/dd/yyyy hh:mma")}
                 </TableCell>
                 <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(resource._id)}
+                    title="Edit"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="icon"
