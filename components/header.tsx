@@ -73,6 +73,8 @@ export function Header() {
   const [hoveredAreaId, setHoveredAreaId] = useState<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  
+
   const handleScroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
       const scrollAmount = scrollContainerRef.current.offsetWidth * 0.8;
@@ -100,6 +102,7 @@ export function Header() {
 
   const { data: session } = useSession()
   const user = session?.user as User | undefined
+
 
   useEffect(() => {
     setIsMounted(true)
