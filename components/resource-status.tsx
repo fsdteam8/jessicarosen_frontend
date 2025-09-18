@@ -257,7 +257,9 @@ export function ResourceStatus() {
     <div className="space-y-6">
       <div className="flex flex-col mt-[56px] mx-auto sm:flex-row sm:items-center sm:justify-between gap-4 px-4 md:px-0">
         <div>
-          <h1 className="text-2xl font-bold pb-[8px] text-gray-900">Resource List</h1>
+          <h1 className="text-2xl font-bold pb-[8px] text-gray-900">
+            Resource List
+          </h1>
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <span>Dashboard</span>
             <span>›</span>
@@ -287,7 +289,7 @@ export function ResourceStatus() {
                   Price
                 </th> */}
                 <th className="text-left px-4 py-4 font-medium text-gray-900">
-                  Discount
+                  Price
                 </th>
                 <th className="text-left px-4 py-4 font-medium text-gray-900">
                   Quantity
@@ -362,13 +364,13 @@ export function ResourceStatus() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center space-x-1">
-                        <Link href={`/dashboard/resources/status/${resource?._id}`}>
+                        <Link
+                          href={`/dashboard/resources/status/${resource?._id}`}
+                        >
                           <Button
                             variant="ghost"
                             size="icon"
-                          
                             className="text-[#424242] hover:text-blue-600"
-                            
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -466,75 +468,80 @@ export function ResourceStatus() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between p-4 border-t bg-white">
-            <span className="text-sm text-gray-600">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}{" "}
-              results
-            </span>
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(currentPage - 1);
-                    }}
-                    className={
-                      currentPage === 1
-                        ? "pointer-events-none opacity-50"
-                        : undefined
+            <div>
+              <span className="text-sm text-gray-600">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                {totalItems} results
+              </span>
+            </div>
+            <div>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage - 1);
+                      }}
+                      className={
+                        currentPage === 1
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => {
+                      if (
+                        totalPages <= 5 || // Show all pages if 5 or less
+                        page === 1 || // Always show first page
+                        page === totalPages || // Always show last page
+                        (page >= currentPage - 1 && page <= currentPage + 1) // Show current and adjacent pages
+                      ) {
+                        return (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handlePageChange(page);
+                              }}
+                              isActive={currentPage === page}
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      } else if (
+                        (page === currentPage - 2 && currentPage > 3) ||
+                        (page === currentPage + 2 &&
+                          currentPage < totalPages - 2)
+                      ) {
+                        // Show ellipsis
+                        return <PaginationEllipsis key={`ellipsis-${page}`} />;
+                      }
+                      return null;
                     }
-                  />
-                </PaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => {
-                    if (
-                      totalPages <= 5 || // Show all pages if 5 or less
-                      page === 1 || // Always show first page
-                      page === totalPages || // Always show last page
-                      (page >= currentPage - 1 && page <= currentPage + 1) // Show current and adjacent pages
-                    ) {
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(page);
-                            }}
-                            isActive={currentPage === page}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    } else if (
-                      (page === currentPage - 2 && currentPage > 3) ||
-                      (page === currentPage + 2 && currentPage < totalPages - 2)
-                    ) {
-                      // Show ellipsis
-                      return <PaginationEllipsis key={`ellipsis-${page}`} />;
-                    }
-                    return null;
-                  }
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handlePageChange(currentPage + 1);
-                    }}
-                    className={
-                      currentPage === totalPages
-                        ? "pointer-events-none opacity-50"
-                        : undefined
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(currentPage + 1);
+                      }}
+                      className={
+                        currentPage === totalPages
+                          ? "pointer-events-none opacity-50"
+                          : undefined
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
           </div>
         )}
       </Card>
