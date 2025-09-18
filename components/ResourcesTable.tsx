@@ -194,7 +194,7 @@ export default function ResourcesTable() {
               <TableHead className=" ">Resource Name</TableHead>
               <TableHead className=" ">ID</TableHead>
               {/* <TableHead className=" ">Price</TableHead> */}
-              <TableHead className=" ">Discount Price</TableHead>
+              <TableHead className=" ">Price</TableHead>
               <TableHead className=" ">Quantity</TableHead>
               <TableHead className=" ">Format</TableHead>
               <TableHead className=" ">Date</TableHead>

@@ -506,8 +506,15 @@ export default function EditPage() {
         description: "Resource has been updated successfully.",
         variant: "default",
       });
-      queryClient.invalidateQueries({ queryKey: ["resources"] });
-      router.push("/dashboard/resources/list");
+
+      if (isDrafting) {
+        setIsDrafting(false);
+        router.push("/dashboard/resources/list");
+        queryClient.invalidateQueries({ queryKey: ["resources"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["resources"] });
+        router.push("/dashboard/resources/list");
+      }
     },
   });
 
@@ -678,7 +685,7 @@ export default function EditPage() {
     (action: "publish" | "draft") => {
       const formDataToSubmit: FormDataState = {
         ...formData,
-        productStatus: action === "publish" ? "approved" : "draft",
+        productStatus: action === "publish" ? "pending" : "draft",
       };
 
       // Enhanced validation
@@ -1428,7 +1435,7 @@ export default function EditPage() {
                 <strong>Price:</strong> {formData.price}
               </p> */}
               <p>
-                <strong>Discount Price:</strong> {formData.discountPrice}
+                <strong>Price:</strong> {formData.discountPrice}
               </p>
               <p>
                 <strong>Quantity:</strong> {formData.quantity}

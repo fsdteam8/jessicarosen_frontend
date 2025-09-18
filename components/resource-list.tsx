@@ -145,7 +145,7 @@ export function ResourceList() {
       </div>
 
       {/* Table */}
-      <Card className="shadow-none border-none">
+      <Card className="shadow-none border-none ">
         <div className="overflow-x-auto bg-[#EDEEF1]">
           <table className="w-full">
             <thead className="border-b ">
@@ -169,7 +169,7 @@ export function ResourceList() {
                   Price
                 </th>
                 <th className="text-left p-4 py-[15px] font-medium text-gray-900">
-                  Discount Price
+                  Price
                 </th>
                 <th
                   className="text-left p-4 py-[15px] font-medium text-gray-900 cursor-pointer "
