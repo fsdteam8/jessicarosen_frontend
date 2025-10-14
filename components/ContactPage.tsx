@@ -4,19 +4,32 @@ import type React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import {
-  Mail,
-  Phone,
-  MapPin,
-  Clock,
-  type LucideIcon,
-} from "lucide-react";
+import { Mail, Phone, MapPin, Clock, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
+
+export interface Contact {
+  _id: string;
+  heading: string;
+  description: string;
+  email: string;
+  phone: string;
+  location: string;
+  businessHour: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface ApiResponse {
+  status: boolean;
+  message: string;
+  data: Contact[];
+}
 
 // Form validation schema
 const contactSchema = z.object({
@@ -69,7 +82,7 @@ const ContactInfo: React.FC<ContactInfoProps> = ({ Icon, label, value }) => {
       </div>
       <div>
         <h4 className="font-medium text-[#2A2A2A] mb-1">{label}</h4>
-        <p className="text-gray-600 text-sm">{value}</p>
+        <p className="text-gray-600 text-sm ">{value}</p>
       </div>
     </div>
   );
@@ -84,6 +97,17 @@ const ContactPage = () => {
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
   });
+
+  //   contact us get api logic
+  const { data } = useQuery<ApiResponse>({
+    queryKey: ["contact"],
+    queryFn: async () =>
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/custom/contact`
+      ).then((res) => res.json()),
+  });
+
+  console.log(data);
 
   const contactMutation = useMutation({
     mutationFn: postContactData,
@@ -157,15 +181,18 @@ const ContactPage = () => {
 
       <div className="my-[80px]">
         <h1 className="text-[40px] font-medium leading-[120%] text-[#131313] text-center mb-4">
-          How Can We Help You?
+          {data?.data[0]?.heading || ""}
         </h1>
-        <p className="max-w-4xl text-center mx-auto text-[16px] leading-[150%] text-[#424242] ">
-          Our team is always ready to assist you with any questions or concerns
-          you might have. Fill out the form below and we&apos;ll get back to you
-          as soon as possible
-        </p>
-      </div>
 
+        <p
+          className="max-w-4xl text-center mx-auto text-[16px] leading-[150%] text-[#424242] "
+          dangerouslySetInnerHTML={{
+            __html:
+              data?.data[0]?.description ||
+              "",
+          }}
+        />
+      </div>
       <div className="max-w-7xl mx-auto px-4">
         <div className="p-8">
           <div className="flex flex-col lg:flex-row justify-between gap-16 mb-10">
@@ -294,22 +321,22 @@ const ContactPage = () => {
                 <ContactInfo
                   Icon={Mail}
                   label="Email Address"
-                  value="support@lawbie.com"
+                  value={data?.data[0]?.email || "N/A"}
                 />
                 <ContactInfo
                   Icon={Phone}
                   label="Phone Number"
-                  value="(406) 555-0120"
+                  value={data?.data[0]?.phone || "N/A"}
                 />
                 <ContactInfo
                   Icon={MapPin}
                   label="Location"
-                  value="440 Collins Street, Melbourne VIC 3000"
+                  value={data?.data[0]?.location || "N/A"}
                 />
                 <ContactInfo
                   Icon={Clock}
                   label="Business Hours"
-                  value="Monday – Saturday, 8:00 AM – 6:00 PM"
+                  value={data?.data[0]?.businessHour || "N/A"}
                 />
               </div>
             </div>
