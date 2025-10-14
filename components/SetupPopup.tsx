@@ -11,11 +11,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const emailSchema = z.object({
+
+const setupSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
+  country: z.string().nonempty({ message: "Please select a country" }),
 });
 
-type EmailFormData = z.infer<typeof emailSchema>;
+type SetupFormData = z.infer<typeof setupSchema>;
 
 interface SetupPopupProps {
   open: boolean;
@@ -28,20 +30,17 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema),
+  } = useForm<SetupFormData>({
+    resolver: zodResolver(setupSchema),
   });
 
   const mutation = useMutation({
-    mutationFn: async (data: EmailFormData) => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/stripe/onboard`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+    mutationFn: async (data: SetupFormData) => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/stripe/onboard`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
       if (!res.ok) {
         const err = await res.json();
@@ -65,7 +64,8 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
     },
   });
 
-  const onSubmit = (data: EmailFormData) => {
+  const onSubmit = (data: SetupFormData) => {
+    console.log("Form Data:", data);
     mutation.mutate(data);
   };
 
@@ -73,9 +73,11 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogTitle className="text-lg font-semibold mb-2">
-          Enter your email to setup stripe
+          Enter your details to setup Stripe
         </DialogTitle>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Email Field */}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -90,7 +92,28 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
               </p>
             )}
           </div>
-          <Button type="submit" disabled={mutation.isPending}>
+
+          {/* Country Select Field */}
+          <div>
+            <Label htmlFor="country">Country</Label>
+            <select
+              id="country"
+              className="w-full rounded-md border border-gray-300 bg-white p-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              {...register("country")}
+            >
+              <option value="">Select your country</option>
+              <option value="US">USA</option>
+              <option value="CA">Canada</option>
+            </select>
+            {errors.country && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.country.message}
+              </p>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <Button type="submit" disabled={mutation.isPending} className="w-full">
             {mutation.isPending ? "Submitting..." : "Submit"}
           </Button>
         </form>
