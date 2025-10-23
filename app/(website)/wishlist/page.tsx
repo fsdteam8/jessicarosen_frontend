@@ -150,7 +150,7 @@ export default function WishlistPage() {
                         </div>
 
                         <div className="text-right mt-2 sm:mt-0">
-                          <div className="text-red-500 font-bold text-lg">
+                          <div className="text-black font-bold text-lg">
                             ${item.discountPrice || item.price}
                           </div>
                           {item.discountPrice && (

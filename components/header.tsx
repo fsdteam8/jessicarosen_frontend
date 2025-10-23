@@ -119,6 +119,8 @@ export function Header() {
     };
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
+  console.log(practiceAreasData, "dffdf")
+
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
   };
@@ -156,8 +158,8 @@ export function Header() {
     dispatch(setSelectedArea({ id: practiceAreaId, name: practiceAreaName }));
     router.push(
       `/products?practiceArea=${encodeURIComponent(
-        practiceAreaId
-      )}&subPracticeAreas=${encodeURIComponent(practiceAreaName)}`
+        practiceAreaName
+      )}`
     );
     setHoveredAreaId(null);
   };
@@ -169,7 +171,7 @@ export function Header() {
     dispatch(setSelectedArea({ id: subArea._id, name: subArea.name }));
     router.push(
       `/products?practiceArea=${encodeURIComponent(
-        subArea._id
+        parentAreaName
       )}&subPracticeAreas=${encodeURIComponent(
         subArea.name
       )}&parent=${encodeURIComponent(parentAreaName)}`
@@ -259,7 +261,7 @@ export function Header() {
                     alt="Lawbie Logo"
                     width={500}
                     height={200}
-                    className="lg:min-w-[150px] h-[40px] lg:h-[60px] bg-cover"
+                    className="lg:min-w-[160px] h-[40px] lg:h-[60px] bg-cover"
                   />
                 </Link>
               </div>
