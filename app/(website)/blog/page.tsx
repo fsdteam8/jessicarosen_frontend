@@ -117,11 +117,11 @@ export default function BlogPage() {
             <h2 className="text-[26px] md:text-3xl font-semibold leading-[120%] mb-4">
               All Blogs Post
             </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            {/* <p className="text-gray-600 max-w-2xl mx-auto">
               Our team is always ready to assist you with any questions or
               concerns you might have. Fill out the form below and we&apos;ll
               get back to you as soon as possible.
-            </p>
+            </p> */}
           </div>
 
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

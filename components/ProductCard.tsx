@@ -192,7 +192,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 {/* <span className="text-gray-400 text-base line-through">
                   ${product?.price}
                 </span> */}
-                <span className="text-red-600 font-bold text-xl">
+                <span className="text-black font-bold text-xl">
                   ${product?.discountPrice}
                 </span>
               </div>
