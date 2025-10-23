@@ -151,11 +151,11 @@ const ContactPage = () => {
                 <br />
                 To Know More Information
               </h1>
-              <p className="text-white/90 text-lg mb-8 leading-relaxed max-w-xl">
+              {/* <p className="text-white/90 text-lg mb-8 leading-relaxed max-w-xl">
                 From everyday essentials to the latest trends, we bring you a
                 seamless shopping experience with unbeatable deals, delivery,
                 discover convenience, quality, and style all in one place.
-              </p>
+              </p> */}
               <div className="flex flex-col sm:flex-row gap-4">
                 {/* <Button
                   size="lg"

@@ -10,9 +10,8 @@ const Map = () => {
       </div>
       <div>
         <iframe
-        className="w-full h-[500px]"
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8465615702353!2d144.95715047671018!3d-37.81706283422803!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4c9600e1b3%3A0x2bd898c38895af9f!2s440%20Collins%20St%2C%20Melbourne%20VIC%203000%2C%20Australia!5e0!3m2!1sen!2sbd!4v1746267684130!5m2!1sen!2sbd"
-          width="600"
+          className="w-full h-[500px]"
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d149670.67062988237!2d-79.50283986788675!3d43.700181393729444!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89d4cb90d7c63ba5%3A0x323555502ab4c477!2sToronto%2C%20ON%2C%20Canada!5e0!3m2!1sen!2sbd!4v1761189707488!5m2!1sen!2sbd" width="600"
           height="450"
           loading="lazy"
         ></iframe>

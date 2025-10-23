@@ -31,6 +31,8 @@ export default function AllProducts() {
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
   const [selectedFormat, setSelectedFormat] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
+  
+  console.log(selectedPracticeArea , "select practice area 1121111")
 
   // New state for divisions
   const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
@@ -130,6 +132,7 @@ export default function AllProducts() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
   const selectedArea = useSelector((state: RootState) => state.practiceArea.selectedArea);
+  console.log(selectedArea, "selected area")
 
   // Fetch all products
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
