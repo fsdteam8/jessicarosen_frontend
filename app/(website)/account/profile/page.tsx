@@ -1255,7 +1255,7 @@ export default function ProfilePage() {
                   <SquareArrowOutUpRight className="mr-2" />
                   {session?.user.role === "SELLER"
                     ? "Go to Dashboard"
-                    : "Active a Seller"}
+                    : "ACTIVATE SELLER PROFILE"}
                 </Button>
               </div>
             </div>
