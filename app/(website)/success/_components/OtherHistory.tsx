@@ -169,11 +169,11 @@ const OtherHistory = () => {
         <h2 className="text-3xl md:text-[39px] lg:text-[48px] font-semibold text-[#131313] text-center font-manrope">
           Download Page
         </h2>
-        <p className="text-base text-[#616161] text-center font-manrope pt-4">
+        {/* <p className="text-base text-[#616161] text-center font-manrope pt-4">
           From everyday essentials to the latest trends, we bring you a seamless
           shopping experience <br /> with unbeatable deals. Discover
           convenience, quality, and style all in one place.
-        </p>
+        </p> */}
       </div>
 
       <div className="pt-10 md:pt-14 lg:pt-[88px]">

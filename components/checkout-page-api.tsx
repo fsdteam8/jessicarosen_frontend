@@ -141,11 +141,11 @@ export default function CheckoutPageAPI() {
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
             Checkout Page
           </h2>
-          <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
+          {/* <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
             From everyday essentials to the latest trends, we bring you a
             seamless shopping experience with unbeatable deals, delivery.
             Discover convenience, quality, and style all in one place.
-          </p>
+          </p> */}
         </div>
 
         <div className="container mx-auto px-4">

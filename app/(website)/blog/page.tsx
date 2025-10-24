@@ -55,11 +55,11 @@ export default function BlogPage() {
             <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
               Latest Blogs
             </h2>
-            <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
+            {/* <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
               Our team is always ready to assist you with any questions or
               concerns you might have. Fill out the form below and we&apos;ll
               get back to you as soon as possible
-            </p>
+            </p> */}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[500px]">
