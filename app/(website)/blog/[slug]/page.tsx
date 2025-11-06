@@ -42,11 +42,11 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
             Blog Page
           </h2>
-          <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
+          {/* <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
             Need assistance? We are here to help. To inquire about the products
             and services found on our website, please contact us by phone or
             e-mail, and we&apos;ll gladly assist you.
-          </p>
+          </p> */}
         </div>
 
 
