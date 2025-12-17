@@ -206,11 +206,10 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("canada")}
-                className={`text-base flex items-center justify-center px-1 py-2 rounded-[4px] transition-all duration-200 ${
-                  currentRegion === "canada"
+                className={`text-base flex items-center justify-center px-1 py-2 rounded-[4px] transition-all duration-200 ${currentRegion === "canada"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <div className="flex  justify-center items-center gap-[8px] p-[8px]">
                   <span className="w-[40px] h-[18px]">
@@ -227,11 +226,10 @@ export function Header() {
               <Button
                 variant="outline"
                 onClick={() => handleRegionChange("us")}
-                className={`text-base flex items-center justify-center p-[4px] rounded-[4px] transition-all duration-200 ${
-                  currentRegion === "us"
+                className={`text-base flex items-center justify-center p-[4px] rounded-[4px] transition-all duration-200 ${currentRegion === "us"
                     ? "bg-white text-[#23547B] border-white hover:bg-gray-100"
                     : "bg-transparent text-white border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <div className="flex  justify-center gap-[8px] p-[8px]">
                   <span className="w-[40px] h-[18px]">
@@ -394,22 +392,20 @@ export function Header() {
                     <Link
                       href="/"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${
-                        pathname === "/"
+                      className={`text-lg font-medium ${pathname === "/"
                           ? "text-[#23547B]"
                           : "hover:text-[#23547B]"
-                      }`}
+                        }`}
                     >
                       Home
                     </Link>
                     <Link
                       href="/products"
                       onClick={() => setIsSheetOpen(false)}
-                      className={`text-lg font-medium ${
-                        pathname === "/products"
+                      className={`text-lg font-medium ${pathname === "/products"
                           ? "text-[#23547B]"
                           : "hover:text-[#23547B]"
-                      }`}
+                        }`}
                     >
                       All Resources
                     </Link>
@@ -548,11 +544,10 @@ export function Header() {
                           handleRegionChange("canada");
                           setIsSheetOpen(false);
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-                          currentRegion === "canada"
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "canada"
                             ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
                             : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image
@@ -563,11 +558,10 @@ export function Header() {
                           />
                         </span>
                         <span
-                          className={`${
-                            currentRegion === "canada"
+                          className={`${currentRegion === "canada"
                               ? "text-white"
                               : "text-[#23547b]"
-                          }`}
+                            }`}
                         >
                           Lawbie Canada
                         </span>
@@ -578,11 +572,10 @@ export function Header() {
                           handleRegionChange("us");
                           setIsSheetOpen(false);
                         }}
-                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${
-                          currentRegion === "us"
+                        className={`w-full text-sm px-3 py-3 rounded-[8px] flex items-center space-x-2 transition-all duration-200 ${currentRegion === "us"
                             ? "bg-[#23547b] text-white border-white hover:bg-[#112a3f]"
                             : "bg-white text-[#23547b] border-[#23547b] hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         <span className="w-[32px] h-[20px] relative">
                           <Image
@@ -593,11 +586,10 @@ export function Header() {
                           />
                         </span>
                         <span
-                          className={`${
-                            currentRegion === "us"
+                          className={`${currentRegion === "us"
                               ? "text-white"
                               : "text-[#23547b]"
-                          }`}
+                            }`}
                         >
                           Lawbie US
                         </span>
@@ -652,21 +644,23 @@ export function Header() {
                 <div className="flex items-center space-x-8">
                   <Link
                     href="/"
-                    className={`font-medium transition-colors ${
-                      pathname === "/"
+                    className={`font-medium transition-colors ${pathname === "/"
                         ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                         : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                    }`}
+                      }`}
                   >
                     Home
                   </Link>
                   <Link
                     href="/products"
-                    className={`font-medium transition-colors ${
-                      pathname === "/products"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      window.location.href = "/products"
+                    }}
+                    className={`font-medium transition-colors ${pathname === "/products"
                         ? "bg-[#23547B] text-white font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
                         : "text-[#131313] hover:text-[#23547b] hover:bg-[#e6f0fa] font-medium truncate max-w-[150px] transition-colors px-3 py-1 rounded-md"
-                    }`}
+                      }`}
                   >
                     All Resources
                   </Link>
@@ -718,11 +712,10 @@ export function Header() {
                                   onClick={() =>
                                     handlePracticeAreaClick(area._id, area.name)
                                   }
-                                  className={`font-medium border-none truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${
-                                    isActive
+                                  className={`font-medium border-none truncate max-w-[150px] transition-colors px-3 py-1 rounded-md ${isActive
                                       ? "bg-[#8eb5d4] text-white"
                                       : "text-[#131313] hover:text-[#23547B] hover:bg-[#e6f0fa]"
-                                  }`}
+                                    }`}
                                   title={area.name}
                                 >
                                   {area.name}
