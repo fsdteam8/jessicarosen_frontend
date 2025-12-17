@@ -71,11 +71,11 @@ const ExplorePopular = () => {
           <h1 className="text-3xl md:text-4xl lg:text-[40px] font-semibold text-gray-900 mb-2 md:mb-3 lg:mb-4">
             Explore Most Popular Resources
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          {/* <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             From everyday essentials to the latest trends, we bring you a
             seamless shopping experience with unbeatable deals,
             delivery.discover
-          </p>
+          </p> */}
         </div>
 
         {/* Products Grid */}
