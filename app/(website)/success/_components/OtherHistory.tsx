@@ -123,6 +123,8 @@ const OtherHistory = () => {
     enabled: !!token && !!orderId,
   });
 
+  console.log("download", singleOrderData)
+
   // Loading state
   if (!token || isOrderListLoading || (orderId && isSingleOrderLoading)) {
     return (
@@ -196,14 +198,14 @@ const OtherHistory = () => {
                   </td>
                 </div>
                 <td className="px-4 py-2">
-                  <a
+                  <Link
                     target="_blank"
-                    href={item?.resource?.file?.url}
+                    href={item?.resource?.file?.url || "#"}
                     download={item?.resource?.file?.url?.split("/").pop()} // filename
                     className="flex items-center gap-2 bg-[#23547B] py-2 px-4 rounded text-white font-bold"
                   >
                     <Download /> Download
-                  </a>
+                  </Link>
                 </td>
               </tr>
             ))}
