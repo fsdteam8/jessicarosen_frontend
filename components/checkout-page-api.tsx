@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Lock, CircleX, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/utils";
 import { useCoupon, usePayment } from "@/hooks/use-payment";
@@ -31,7 +31,8 @@ export default function CheckoutPageAPI() {
   } | null>(null);
 
   const [promoCode, setPromoCode] = useState("");
-  const [agreeTerms, setAgreeTerms] = useState(false);
+  // const [agreeTerms, setAgreeTerms] = useState(false);
+  const agreeTerms = true;
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
     discount: number;
@@ -296,7 +297,7 @@ export default function CheckoutPageAPI() {
           )}
 
           <div className="max-w-6xl mx-auto space-y-5 my-8">
-            <div className="flex items-center space-x-2 pt-4">
+            {/* <div className="flex items-center space-x-2 pt-4">
               <Checkbox
                 id="terms"
                 checked={agreeTerms}
@@ -305,7 +306,7 @@ export default function CheckoutPageAPI() {
               <label htmlFor="terms" className="text-sm text-gray-600">
                 Agree with shipping & billing address
               </label>
-            </div>
+            </div> */}
 
             <Button
               onClick={handlePayment}
