@@ -4,6 +4,7 @@ import HappyCustomer from "./_components/HappyCustomer";
 import LegalDoc from "@/components/HomePage/LegalDoc";
 
 export default function page() {
+  
   return (
     <div className="">
       <OtherHistory />

@@ -6,7 +6,7 @@ import { Download } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 
 // Types
 export type OrderFile = {
@@ -86,6 +86,9 @@ export type OrderItem = {
 const OtherHistory = () => {
   const { data: session } = useSession();
   const token = session?.user?.accessToken;
+  useEffect(() => {
+    localStorage.removeItem("cart-storage");
+  }, []);
 
   const {
     data: orderListData,
