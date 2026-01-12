@@ -108,7 +108,7 @@ export default function HomeHero() {
               width={1000}
               height={1000}
               className="object-cover w-full h-full rounded-lg"
-              // priority
+            // priority
             />
           </div>
 
@@ -120,21 +120,38 @@ export default function HomeHero() {
             <div className="text-white flex flex-col justify-center items-start">
 
               <p className="lg:text-3xl my-6 text-xl font-normal leading-[150%] text-[#E7E7E7] max-w-xl text-start">
+
                 {filteredHero?.text || "No hero content available"}
               </p>
 
-              <div className="flex md:flex-row flex-col gap-4 mt-6">
+              <div className="grid grid-cols-2 gap-4 mt-6">
+
                 <Link href="/products" >
-                  <Button className="w-full h-[45px] text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
+                  <Button className="w-full h-[45px]  text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
                     Explore Resources
                   </Button>
                 </Link>
-                
-                  <Button onClick={handleClick} className="w-full h-[45px] text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
-                    Sell Your Work
+
+
+                <Button onClick={handleClick} className="w-full h-[45px] text-lg font-bold text-white bg-[#E0B15E] hover:bg-[#a37627]">
+                  Sell Your Work
+                </Button>
+
+                <Link href="/how-to-buy" >
+                  <Button className="w-full h-[45px] text-lg font-bold text-[#E0B15E] bg-white hover:bg-gray-200">
+                    How to Buy
                   </Button>
+                </Link>
+
+                <Link href="/how-to-sell" >
+                  <Button className="w-full h-[45px] text-lg font-bold text-[#E0B15E] bg-white hover:bg-gray-200">
+                    How to Sell
+                  </Button>
+                </Link>
+
                 {/* </Link> */}
               </div>
+
             </div>
           </div>
         </div>
