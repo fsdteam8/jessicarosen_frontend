@@ -1,12 +1,11 @@
 // import { AddResource } from '@/components/add-resource'
-import ResourceForm from '@/components/AddResourceForm'
 import React from 'react'
+import AddResourceComponent from './_components/addResource'
 
 const page = () => {
   return (
     <div>
-      {/* <AddResource/> */}
-      <ResourceForm/>
+      <AddResourceComponent/>
     </div>
   )
 }

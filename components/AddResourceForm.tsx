@@ -569,7 +569,7 @@
 //   };
 
 //   const handleSubmit = (action: "publish" | "draft") => {
-    
+
 //     const requiredFields = [
 //     { field: formData.practiceArea, name: "Practice Area" },
 //     { field: formData.resourceType, name: "Resource Type" },
@@ -1591,6 +1591,31 @@ export default function ResourceForm() {
     );
   };
 
+
+  const { data: me } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${session?.user?.id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      return await response.json();
+    },
+
+  });
+
+
   useEffect(() => {
     if (singelPracticeArea) {
       setPracticeArea(singelPracticeArea.name);
@@ -1971,19 +1996,19 @@ export default function ResourceForm() {
       practiceAreas: practiceAreaObj
         ? [practiceAreaObj.name]
         : formData.practiceArea
-        ? [formData.practiceArea]
-        : [],
+          ? [formData.practiceArea]
+          : [],
       resourceType: resourceTypeObj
         ? [resourceTypeObj.resourceTypeName]
         : formData.resourceType
-        ? [formData.resourceType]
-        : [],
+          ? [formData.resourceType]
+          : [],
       thumbnail: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formDataToSubmit.thumbnail.name}`,
       file: formData.file
         ? {
-            url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
-            type: formData.file.type,
-          }
+          url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
+          type: formData.file.type,
+        }
         : null,
       images: formData.images.map(
         (img) =>
@@ -2572,7 +2597,7 @@ export default function ResourceForm() {
               <Button
                 onClick={() => handleSubmit("publish")}
                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={isPublishing || !isFormValid}
+                disabled={isPublishing || !isFormValid || !me?.data?.stripeAccountId}
               >
                 {isPublishing ? "Requesting..." : "Request Resources"}
               </Button>
