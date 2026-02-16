@@ -365,7 +365,7 @@ export function ResourceStatus() {
                     <td className="px-4 py-3">
                       <div className="flex items-center space-x-1">
                         <Link
-                          href={`/dashboard/resources/status/${resource?._id}`}
+                          href={`/dashboard/resources/edit/${resource?._id}`}
                         >
                           <Button
                             variant="ghost"

@@ -1,4 +1,3 @@
-
 // "use client";
 
 // import type React from "react";
@@ -37,7 +36,7 @@
 // import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
 // import dynamic from "next/dynamic";
-// import { useState, useEffect, useRef } from "react";
+// import { useState, useEffect, useRef, useMemo } from "react";
 // import "react-quill/dist/quill.snow.css";
 // import Image from "next/image";
 // import { useSession } from "next-auth/react";
@@ -119,7 +118,7 @@
 //   const [isClient, setIsClient] = useState(false);
 //   const [practiceArea, setPracticeArea] = useState("");
 //   const thumbnailInputRef = useRef<HTMLInputElement>(null);
-//   const updateThumbnailInputRef = useRef<HTMLInputElement>(null); // New ref for update input
+//   const updateThumbnailInputRef = useRef<HTMLInputElement>(null);
 //   const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
 //   const [isPublishing, setIsPublishing] = useState(false);
 //   const [isDrafting, setIsDrafting] = useState(false);
@@ -176,7 +175,7 @@
 //     description: "",
 //     practiceArea: "",
 //     resourceType: "",
-//     thumbnail: new File([], "bs1.png"), // Placeholder
+//     thumbnail: new File([], "bs1.png"),
 //     file: null,
 //     images: [],
 //   });
@@ -256,6 +255,31 @@
 //     );
 //   };
 
+
+//   const { data: me } = useQuery({
+//     queryKey: ["me"],
+//     queryFn: async () => {
+
+//       const response = await fetch(
+//         `${process.env.NEXT_PUBLIC_API_URL}/user/${session?.user?.id}`,
+//         {
+//           method: "GET",
+//           headers: {
+//             Authorization: `Bearer ${API_TOKEN}`,
+//           },
+//         }
+//       );
+
+//       if (!response.ok) {
+//         throw new Error("Failed to fetch user data");
+//       }
+
+//       return await response.json();
+//     },
+
+//   });
+
+
 //   useEffect(() => {
 //     if (singelPracticeArea) {
 //       setPracticeArea(singelPracticeArea.name);
@@ -278,8 +302,28 @@
 //       },
 //     });
 
-//   const { mutate: submitResource } = useMutation({
+//   // Validate form to enable/disable submit buttons
+//   const isFormValid = useMemo(() => {
+//     return (
+//       formData.practiceArea !== "" &&
+//       formData.resourceType !== "" &&
+//       formData.discountPrice !== "" &&
+//       formData.format !== "" &&
+//       formData.country !== "" && // Added country as it's required for states
+//       formData.states.length > 0 &&
+//       formData.divisions.length > 0
+//     );
+//   }, [
+//     formData.practiceArea,
+//     formData.resourceType,
+//     formData.discountPrice,
+//     formData.format,
+//     formData.country,
+//     formData.states,
+//     formData.divisions,
+//   ]);
 
+//   const { mutate: submitResource } = useMutation({
 //     mutationFn: async (currentFormData: FormDataState) => {
 //       if (currentFormData.productStatus === "pending") setIsPublishing(true);
 //       if (currentFormData.productStatus === "draft") setIsDrafting(true);
@@ -338,8 +382,7 @@
 //       if (!response.ok) {
 //         const errorData = await response.json().catch(() => ({}));
 //         throw new Error(
-//           `Failed to publish resource: ${errorData.message || response.statusText
-//           }`
+//           `Failed to publish resource: ${errorData.message || response.statusText}`
 //         );
 //       }
 //       return response.json();
@@ -569,26 +612,27 @@
 //   };
 
 //   const handleSubmit = (action: "publish" | "draft") => {
-
+//     // Validate required fields
 //     const requiredFields = [
-//     { field: formData.practiceArea, name: "Practice Area" },
-//     { field: formData.resourceType, name: "Resource Type" },
-//     { field: formData.discountPrice, name: "Discount Price" },
-//     { field: formData.format, name: "Format" },
-//     { field: formData.states.length, name: "States" },
-//     { field: formData.divisions.length, name: "Divisions" },
-//   ];
+//       { field: formData.practiceArea, name: "Practice Area" },
+//       { field: formData.resourceType, name: "Resource Type" },
+//       { field: formData.discountPrice, name: "Discount Price" },
+//       { field: formData.format, name: "Format" },
+//       { field: formData.country, name: "Country" },
+//       { field: formData.states.length, name: "States" },
+//       { field: formData.divisions.length, name: "Divisions" },
+//     ];
 
-//   for (const { field, name } of requiredFields) {
-//     if (!field) {
-//       toast({
-//         title: "Missing Required Field",
-//         description: `Please select or enter a ${name}.`,
-//         variant: "destructive",
-//       });
-//       return;
+//     for (const { field, name } of requiredFields) {
+//       if (!field) {
+//         toast({
+//           title: "Missing Required Field",
+//           description: `Please select or enter a ${name}.`,
+//           variant: "destructive",
+//         });
+//         return;
+//       }
 //     }
-//   }
 
 //     const practiceAreaObj = practiceAreasData?.find(
 //       (p) => p._id === formData.practiceArea
@@ -695,12 +739,12 @@
 //                       className="text-base font-semibold"
 //                       htmlFor="discountPrice"
 //                     >
-//                       Discount Price
+//                       Discount Price *
 //                     </Label>
 //                     <Input
 //                       id="discountPrice"
 //                       className="h-[49px] border border-gray-500"
-//                       placeholder="Add Discount Price.."
+//                       placeholder="Add Discount Price..."
 //                       value={formData.discountPrice}
 //                       onChange={(e) =>
 //                         handleInputChange("discountPrice", e.target.value)
@@ -717,7 +761,7 @@
 //                     <Input
 //                       id="quantity"
 //                       className="h-[49px] border border-gray-500"
-//                       placeholder="Add Quantity.."
+//                       placeholder="Add Quantity..."
 //                       value={formData.quantity}
 //                       onChange={(e) =>
 //                         handleInputChange("quantity", e.target.value)
@@ -726,7 +770,7 @@
 //                   </div>
 //                   <div className="space-y-2">
 //                     <Label className="text-base font-semibold" htmlFor="format">
-//                       Format
+//                       Format *
 //                     </Label>
 //                     <Select
 //                       value={formData.format}
@@ -735,7 +779,7 @@
 //                       }
 //                     >
 //                       <SelectTrigger className="h-[49px] border border-gray-500">
-//                         <SelectValue placeholder="Add format.." />
+//                         <SelectValue placeholder="Select format..." />
 //                       </SelectTrigger>
 //                       <SelectContent>
 //                         <SelectItem value="PDF">PDF</SelectItem>
@@ -746,7 +790,7 @@
 //                 </div>
 //                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 //                   <div className="space-y-2">
-//                     <Label>Country</Label>
+//                     <Label>Country *</Label>
 //                     <Popover open={countryOpen} onOpenChange={setCountryOpen}>
 //                       <PopoverTrigger asChild>
 //                         <Button
@@ -792,7 +836,7 @@
 //                     </Popover>
 //                   </div>
 //                   <div className="space-y-2">
-//                     <Label>States</Label>
+//                     <Label>States *</Label>
 //                     <Popover open={stateOpen} onOpenChange={setStateOpen}>
 //                       <PopoverTrigger asChild>
 //                         <Button
@@ -844,7 +888,7 @@
 //                     </Popover>
 //                   </div>
 //                   <div className="space-y-2">
-//                     <Label>Divisions</Label>
+//                     <Label>Divisions *</Label>
 //                     <Popover open={divisionOpen} onOpenChange={setDivisionOpen}>
 //                       <PopoverTrigger asChild>
 //                         <Button
@@ -925,7 +969,7 @@
 //               <CardContent className="pt-6">
 //                 <div className="space-y-2">
 //                   <Label className="text-base font-semibold">
-//                     Practice Area
+//                     Practice Area *
 //                   </Label>
 //                   <Select
 //                     value={formData.practiceArea}
@@ -981,7 +1025,7 @@
 
 //                 <div className="space-y-2 mt-4">
 //                   <Label className="text-base font-semibold">
-//                     Resource Type
+//                     Resource Type *
 //                   </Label>
 //                   <Select
 //                     value={formData.resourceType}
@@ -1046,36 +1090,6 @@
 //                   ))}
 //                 </div>
 //                 <div className="space-y-4">
-//                   {/* <div className="space-y-2">
-//                     <Label
-//                       htmlFor="thumbnail-upload"
-//                       className="text-base font-semibold"
-//                     >
-//                       Or Upload Custom Thumbnail
-//                     </Label>
-//                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 hover:bg-gray-100 transition-colors">
-//                       <input
-//                         type="file"
-//                         accept="image/*"
-//                         onChange={handleThumbnailUpload}
-//                         className="hidden"
-//                         id="thumbnail-upload"
-//                         ref={thumbnailInputRef}
-//                       />
-//                       <label
-//                         htmlFor="thumbnail-upload"
-//                         className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
-//                       >
-//                         <ImageIcon className="h-10 w-10 text-gray-400" />
-//                         <p className="text-sm font-medium text-gray-700">
-//                           Upload Custom Image
-//                         </p>
-//                         <p className="text-xs text-gray-500">
-//                           PNG, JPG, GIF up to 5MB
-//                         </p>
-//                       </label>
-//                     </div>
-//                   </div> */}
 //                   <div className="space-y-2">
 //                     <Label
 //                       htmlFor="update-thumbnail-upload"
@@ -1246,17 +1260,15 @@
 //             <div className="flex gap-4 items-center justify-center">
 //               <Button
 //                 onClick={() => handleSubmit("publish")}
-//                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""
-//                   }`}
-//                 disabled={isPublishing}
+//                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
+//                 disabled={isPublishing || !isFormValid || !me?.data?.stripeAccountId}
 //               >
 //                 {isPublishing ? "Requesting..." : "Request Resources"}
 //               </Button>
 //               <Button
 //                 onClick={() => handleSubmit("draft")}
-//                 className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""
-//                   }`}
-//                 disabled={isDrafting}
+//                 className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""}`}
+//                 disabled={isDrafting || !isFormValid}
 //               >
 //                 {isDrafting ? "Drafting..." : "Draft"}
 //               </Button>
@@ -1334,6 +1346,7 @@
 // }
 
 
+
 "use client";
 
 import type React from "react";
@@ -1372,7 +1385,7 @@ import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, } from "react";
 import "react-quill/dist/quill.snow.css";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -1461,6 +1474,10 @@ export default function ResourceForm() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // ── Added for validation ────────────────────────────────────────
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Helper function to fetch an image and convert it to a File object
   const fetchImageAsFile = async (url: string, fileName: string): Promise<File> => {
@@ -1638,26 +1655,26 @@ export default function ResourceForm() {
       },
     });
 
-  // Validate form to enable/disable submit buttons
-  const isFormValid = useMemo(() => {
-    return (
-      formData.practiceArea !== "" &&
-      formData.resourceType !== "" &&
-      formData.discountPrice !== "" &&
-      formData.format !== "" &&
-      formData.country !== "" && // Added country as it's required for states
-      formData.states.length > 0 &&
-      formData.divisions.length > 0
-    );
-  }, [
-    formData.practiceArea,
-    formData.resourceType,
-    formData.discountPrice,
-    formData.format,
-    formData.country,
-    formData.states,
-    formData.divisions,
-  ]);
+  // ── Added validation function ───────────────────────────────────
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.practiceArea) errors.practiceArea = "This field is required";
+    if (!formData.title.trim()) errors.title = "This field is required";
+    if (!formData.quantity || Number.parseInt(formData.quantity) <= 0) errors.quantity = "Quantity must be a positive integer";
+    if (!formData.resourceType) errors.resourceType = "This field is required";
+    if (!formData.discountPrice.trim()) errors.discountPrice = "This field is required";
+    if (!formData.format) errors.format = "This field is required";
+    if (!formData.country) errors.country = "This field is required";
+    if (formData.states.length === 0) errors.states = "This field is required";
+    if (formData.divisions.length === 0) errors.divisions = "This field is required";
+    if (!formData.description.trim()) errors.description = "This field is required";
+    if (!formData.file) errors.file = "This field is required";
+    if (formData.images.length === 0) errors.images = "This field is required";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const { mutate: submitResource } = useMutation({
     mutationFn: async (currentFormData: FormDataState) => {
@@ -1948,26 +1965,17 @@ export default function ResourceForm() {
   };
 
   const handleSubmit = (action: "publish" | "draft") => {
-    // Validate required fields
-    const requiredFields = [
-      { field: formData.practiceArea, name: "Practice Area" },
-      { field: formData.resourceType, name: "Resource Type" },
-      { field: formData.discountPrice, name: "Discount Price" },
-      { field: formData.format, name: "Format" },
-      { field: formData.country, name: "Country" },
-      { field: formData.states.length, name: "States" },
-      { field: formData.divisions.length, name: "Divisions" },
-    ];
+    setFormSubmitted(true);
 
-    for (const { field, name } of requiredFields) {
-      if (!field) {
-        toast({
-          title: "Missing Required Field",
-          description: `Please select or enter a ${name}.`,
-          variant: "destructive",
-        });
-        return;
-      }
+    const isValid = validateForm();
+
+    if (!isValid) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill all required fields before publishing.",
+        variant: "destructive",
+      });
+      return;
     }
 
     const practiceAreaObj = practiceAreasData?.find(
@@ -2063,11 +2071,18 @@ export default function ResourceForm() {
                   </Label>
                   <Input
                     id="title"
-                    className="h-[49px] border border-gray-500"
+                    className={cn(
+                      "h-[49px] border border-gray-500",
+                      formSubmitted && fieldErrors.title && "border-red-500"
+                    )}
                     placeholder="Add your title..."
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
                   />
+                  {formSubmitted && fieldErrors.title && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
+                  )}
+                    
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
@@ -2079,13 +2094,19 @@ export default function ResourceForm() {
                     </Label>
                     <Input
                       id="discountPrice"
-                      className="h-[49px] border border-gray-500"
+                      className={cn(
+                        "h-[49px] border border-gray-500",
+                        formSubmitted && fieldErrors.discountPrice && "border-red-500"
+                      )}
                       placeholder="Add Discount Price..."
                       value={formData.discountPrice}
                       onChange={(e) =>
                         handleInputChange("discountPrice", e.target.value)
                       }
                     />
+                    {formSubmitted && fieldErrors.discountPrice && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.discountPrice}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label
@@ -2096,13 +2117,19 @@ export default function ResourceForm() {
                     </Label>
                     <Input
                       id="quantity"
-                      className="h-[49px] border border-gray-500"
+                      className={cn(
+                        "h-[49px] border border-gray-500",
+                        formSubmitted && fieldErrors.quantity && "border-red-500"
+                      )}
                       placeholder="Add Quantity..."
                       value={formData.quantity}
                       onChange={(e) =>
                         handleInputChange("quantity", e.target.value)
                       }
                     />
+                      {formSubmitted && fieldErrors.quantity && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.quantity}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label className="text-base font-semibold" htmlFor="format">
@@ -2114,7 +2141,10 @@ export default function ResourceForm() {
                         handleInputChange("format", value)
                       }
                     >
-                      <SelectTrigger className="h-[49px] border border-gray-500">
+                      <SelectTrigger className={cn(
+                        "h-[49px] border border-gray-500",
+                        formSubmitted && fieldErrors.format && "border-red-500"
+                      )}>
                         <SelectValue placeholder="Select format..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -2122,6 +2152,9 @@ export default function ResourceForm() {
                         <SelectItem value="Document">Doc</SelectItem>
                       </SelectContent>
                     </Select>
+                    {formSubmitted && fieldErrors.format && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.format}</p>
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2133,7 +2166,10 @@ export default function ResourceForm() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={countryOpen}
-                          className="w-full justify-between h-[49px] border"
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.country && "border-red-500"
+                          )}
                           disabled={isLoadingCountries}
                         >
                           {selectedCountry
@@ -2170,6 +2206,9 @@ export default function ResourceForm() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {formSubmitted && fieldErrors.country && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.country}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label>States *</Label>
@@ -2179,7 +2218,10 @@ export default function ResourceForm() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={stateOpen}
-                          className="w-full justify-between h-[49px] border"
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.states && "border-red-500"
+                          )}
                           disabled={!selectedCountry}
                         >
                           {selectedStates.length > 0
@@ -2222,6 +2264,9 @@ export default function ResourceForm() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {formSubmitted && fieldErrors.states && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.states}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label>Divisions *</Label>
@@ -2231,7 +2276,10 @@ export default function ResourceForm() {
                           variant="outline"
                           role="combobox"
                           aria-expanded={divisionOpen}
-                          className="w-full justify-between h-[49px] border"
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.divisions && "border-red-500"
+                          )}
                           disabled={selectedStates.length === 0}
                         >
                           {selectedDivisions.length > 0
@@ -2276,11 +2324,17 @@ export default function ResourceForm() {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                    {formSubmitted && fieldErrors.divisions && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.divisions}</p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <div className="rounded-md border border-gray-300 h-[300px] overflow-hidden">
+                  <Label htmlFor="description">Description *</Label>
+                  <div className={cn(
+                    "rounded-md border border-gray-300 h-[300px] overflow-hidden",
+                    formSubmitted && fieldErrors.description && "border-red-500"
+                  )}>
                     {isClient && (
                       <ReactQuill
                         theme="snow"
@@ -2295,6 +2349,9 @@ export default function ResourceForm() {
                       />
                     )}
                   </div>
+                  {formSubmitted && fieldErrors.description && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -2317,7 +2374,10 @@ export default function ResourceForm() {
                       setPracticeArea(selectedArea ? selectedArea.name : value);
                     }}
                   >
-                    <SelectTrigger className="h-[49px] border border-gray-400">
+                    <SelectTrigger className={cn(
+                      "h-[49px] border border-gray-400",
+                      formSubmitted && fieldErrors.practiceArea && "border-red-500"
+                    )}>
                       <SelectValue placeholder="Select a practice area" />
                     </SelectTrigger>
                     <SelectContent>
@@ -2334,6 +2394,9 @@ export default function ResourceForm() {
                       )}
                     </SelectContent>
                   </Select>
+                  {formSubmitted && fieldErrors.practiceArea && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.practiceArea}</p>
+                  )}
                 </div>
 
                 <div>
@@ -2369,7 +2432,10 @@ export default function ResourceForm() {
                       handleInputChange("resourceType", value);
                     }}
                   >
-                    <SelectTrigger className="h-[49px] border border-gray-400">
+                    <SelectTrigger className={cn(
+                      "h-[49px] border border-gray-400",
+                      formSubmitted && fieldErrors.resourceType && "border-red-500"
+                    )}>
                       <SelectValue placeholder="Select a resource type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -2386,6 +2452,9 @@ export default function ResourceForm() {
                       )}
                     </SelectContent>
                   </Select>
+                  {formSubmitted && fieldErrors.resourceType && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.resourceType}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -2488,8 +2557,11 @@ export default function ResourceForm() {
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label>File (PDF, Word, etc.)</Label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <Label>File (PDF, Word, etc.) *</Label>
+                  <div className={cn(
+                    "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center",
+                    formSubmitted && fieldErrors.file && "border-red-500 bg-red-50"
+                  )}>
                     <input
                       type="file"
                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
@@ -2502,26 +2574,30 @@ export default function ResourceForm() {
                       <p className="mt-2 text-sm text-gray-600">
                         {formData.file
                           ? formData.file.name
-                          : "Click to upload file"}
+                          : "Click to upload file *"}
                       </p>
                     </label>
                   </div>
+                  {formSubmitted && fieldErrors.file && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.file}</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Upload Images</CardTitle>
+                <CardTitle>Upload Images *</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="images-upload">
-                    Additional Images ({formData.images.length}/4 maximum)
+                    Additional Images ({formData.images.length}/4 maximum) *
                   </Label>
                   <div
                     className={cn(
                       "border-2 border-dashed rounded-lg p-6 text-center",
+                      formSubmitted && fieldErrors.images && "border-red-500 bg-red-50",
                       formData.images.length >= 4
                         ? "border-gray-200 bg-gray-50"
                         : "border-gray-300"
@@ -2549,7 +2625,7 @@ export default function ResourceForm() {
                       <p className="text-sm text-gray-600">
                         {formData.images.length >= 4
                           ? "Maximum 4 images reached"
-                          : "Click or drag to upload images"}
+                          : "Click or drag to upload images *"}
                       </p>
                       <p className="text-xs text-gray-500">
                         {formData.images.length >= 4
@@ -2558,6 +2634,9 @@ export default function ResourceForm() {
                       </p>
                     </label>
                   </div>
+                  {formSubmitted && fieldErrors.images && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.images}</p>
+                  )}
                   {imagePreviews.length > 0 && (
                     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {imagePreviews.map((previewUrl, index) => (
@@ -2597,14 +2676,14 @@ export default function ResourceForm() {
               <Button
                 onClick={() => handleSubmit("publish")}
                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={isPublishing || !isFormValid || !me?.data?.stripeAccountId}
+                disabled={isPublishing || !me?.data?.stripeAccountId}
               >
                 {isPublishing ? "Requesting..." : "Request Resources"}
               </Button>
               <Button
                 onClick={() => handleSubmit("draft")}
                 className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={isDrafting || !isFormValid}
+                disabled={isDrafting}
               >
                 {isDrafting ? "Drafting..." : "Draft"}
               </Button>
