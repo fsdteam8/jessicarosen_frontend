@@ -732,6 +732,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CountriesApiResponse } from "@/types/countery-data-type";
+import Link from "next/link";
 
 interface Address {
   country: string;
@@ -1249,14 +1250,26 @@ export default function ProfilePage() {
                 </h3>
                 <p className="text-gray-500 mb-2">{formData?.email}</p>
                 <Button
-                  className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
+                  className="mt-4 mr-5 bg-[#2c5d7c] hover:bg-[#1e4258]"
                   onClick={handleSubmit}
                 >
                   <SquareArrowOutUpRight className="mr-2" />
                   {session?.user.role === "SELLER"
-                    ? "Go to Dashboard"
+                    ? "Go to Dashboard " 
                     : "ACTIVATE SELLER PROFILE"}
                 </Button>
+                
+                 {session?.user.role === "SELLER" &&
+                  <Link href={"/dashboard/resources/add"}>
+                   <Button
+                  className="mt-4 bg-[#2c5d7c] hover:bg-[#1e4258]"
+                >
+                  <SquareArrowOutUpRight className="mr-2" />
+                  Add Resource
+                </Button>
+                  </Link>
+                }
+               
               </div>
             </div>
 

@@ -2678,7 +2678,7 @@ export default function ResourceForm() {
                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
                 disabled={isPublishing || !me?.data?.stripeAccountId}
               >
-                {isPublishing ? "Requesting..." : "Request Resources"}
+                {isPublishing ? "Requesting..." : "Add Resources"}
               </Button>
               <Button
                 onClick={() => handleSubmit("draft")}

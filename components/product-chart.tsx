@@ -160,7 +160,7 @@ export function ProductChart({
                     {getCurrentValue()}
                   </div>
                   <div className="text-sm text-gray-600">
-                    This {selectedPeriod}
+                    This  {selectedPeriod}
                   </div>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export function ProductChart({
           )}
 
           {/* The legend below remains unchanged */}
-          <div className="flex flex-col space-y-2">
+          <div className="flex  gap-4 space-y-2">
             <div className="flex items-center space-x-2">
               <div
                 className="w-3 h-3 rounded-full"

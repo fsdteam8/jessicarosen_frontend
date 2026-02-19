@@ -343,6 +343,18 @@ export function Header() {
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link href="/account/orders">My Orders</Link>
                     </DropdownMenuItem>
+                     <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link
+                        href={
+                          session.user.role === "SELLER"
+                            ? "/dashboard/resources/add"
+                            : "/account"
+                        }
+                      >
+                        Add Resource
+                      </Link>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link
                         href={

@@ -47,6 +47,11 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           current: pathname === "/dashboard/resources/list",
         },
         {
+          name: "Add Resource",
+          href: "/dashboard/resources/add",
+          current: pathname === "/dashboard/resources/add",
+        },
+        {
           name: "Status",
           href: "/dashboard/resources/status",
           current: pathname === "/dashboard/resources/status",
