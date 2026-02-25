@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -23,7 +23,8 @@ import { useState } from "react";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function CartSheet() {
-  const { getSubtotal, items, isOpen, setOpen, removeItem } = useCart();
+  const { getSubtotal, items, isOpen, setOpen, removeItem, updateQuantity } =
+    useCart();
   const session = useSession();
   const token = session?.data?.user?.accessToken;
   const router = useRouter();
@@ -62,8 +63,6 @@ export function CartSheet() {
       router.push("/checkout");
     }
   };
-
-  console.log("Cart Items", items);
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -113,11 +112,28 @@ export function CartSheet() {
                     <span>Price: ${item.discountPrice || item.price}</span>
                   </div>
                 </div>
-                <div>
-                  <div className="text-sm flex items-center">
-                    Qty: {item.quantity}
+
+                {/* Quantity controls */}
+                <div className="flex items-center border rounded-md overflow-hidden">
+                  <button
+                    className="h-8 w-8 flex items-center justify-center hover:bg-gray-50"
+                    onClick={() =>
+                      updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                    }
+                  >
+                    <Minus className="h-3 w-3" />
+                  </button>
+                  <div className="h-8 w-12 text-center flex items-center justify-center">
+                    {item.quantity}
                   </div>
+                  <button
+                    className="h-8 w-8 flex items-center justify-center hover:bg-gray-50"
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  >
+                    <Plus className="h-3 w-3" />
+                  </button>
                 </div>
+
                 <Button
                   variant="ghost"
                   size="icon"
@@ -129,8 +145,8 @@ export function CartSheet() {
               </div>
             ))}
 
-            <div className="space-y-2 text-sm pt-4">
-              <div className="flex justify-between">
+            <div className="space-y-2 text-sm pt-4 ">
+              <div className="flex justify-between border-t py-2">
                 <span className="text-muted-foreground">
                   Subtotal ({items.length} items):
                 </span>
@@ -148,6 +164,7 @@ export function CartSheet() {
               >
                 Checkout
               </Button>
+
               <Button
                 onClick={() => {
                   setOpen(false); // Close the cart sheet
@@ -159,7 +176,7 @@ export function CartSheet() {
                 <Link href="/cart">View Cart</Link>
               </Button>
             </div>
-            {!session?.data?.user &&
+            {!session?.data?.user && (
               <div>
                 <hr className="border mb-5 " />
                 <Button
@@ -171,10 +188,12 @@ export function CartSheet() {
                   variant="outline"
                   className="w-full cursor-pointer bg-[#2c5d7c] hover:bg-[#1e4258]"
                 >
-                  <span className="text-white hover:text-white">Check out as a guest</span>
+                  <span className="text-white hover:text-white">
+                    Check out as a guest
+                  </span>
                 </Button>
               </div>
-            }
+            )}
           </div>
         )}
       </SheetContent>

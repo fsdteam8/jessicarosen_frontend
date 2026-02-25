@@ -42,6 +42,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LogoutConfirmationModal from "./LogoutConfirmationModal";
 
 // Define User type for next-auth session
 interface User {
@@ -118,8 +119,7 @@ export function Header() {
       isLoading: boolean;
     };
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-
-  console.log(practiceAreasData, "dffdf")
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleRegionChange = (region: Region) => {
     dispatch(setRegion(region));
@@ -194,6 +194,19 @@ export function Header() {
     timeoutRef.current = setTimeout(() => {
       setHoveredAreaId(null);
     }, 150); // Adjust delay as needed to prevent flicker
+  };
+
+    const confirmLogout = () => {
+  
+      signOut({callbackUrl:'/sign-in'});
+      setIsLogoutModalOpen(false);
+       localStorage.removeItem('cart-storage');
+    };
+  
+
+   const handleLogout = () => {
+    console.log("hello shishir")
+    setIsLogoutModalOpen(true);
   };
 
   return (
@@ -369,7 +382,7 @@ export function Header() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       className="text-red-600 cursor-pointer"
-                      onClick={() => signOut()}
+                     onClick={handleLogout}
                     >
                       Logout
                     </DropdownMenuItem>
@@ -520,10 +533,7 @@ export function Header() {
                           My Profile
                         </Link>
                         <button
-                          onClick={() => {
-                            signOut();
-                            setIsSheetOpen(false);
-                          }}
+                          onClick={() => handleLogout}
                           className="mt-3 text-base font-medium text-red-600 hover:text-red-700"
                         >
                           Logout
@@ -797,6 +807,10 @@ export function Header() {
 
       {/* Cart Sheet */}
       <CartSheet />
+
+      <LogoutConfirmationModal   isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout} />
     </>
   );
 }

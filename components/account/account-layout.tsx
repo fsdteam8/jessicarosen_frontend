@@ -21,9 +21,10 @@ export function AccountLayout({
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
  
   const confirmLogout = () => {
-    console.log('hello')
+
     signOut({callbackUrl:'/sign-in'});
     setIsLogoutModalOpen(false);
+     localStorage.removeItem('cart-storage');
   };
 
 

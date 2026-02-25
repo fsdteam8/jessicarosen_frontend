@@ -1,3 +1,338 @@
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// "use client";
+
+// import type React from "react";
+// import { useState } from "react";
+// import Link from "next/link";
+// import Image from "next/image";
+// import { useRouter } from "next/navigation";
+// import { Lock, CircleX, Loader2 } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// // import { Checkbox } from "@/components/ui/checkbox";
+// import { useCart } from "@/hooks/use-cart";
+// import { formatPrice } from "@/lib/utils";
+// import { useCoupon, usePayment } from "@/hooks/use-payment";
+// import { useSession } from "next-auth/react";
+// import { toast } from "sonner";
+
+// export default function CheckoutPageAPI() {
+//   const { status } = useSession();
+//   const router = useRouter();
+//   const { items, getSubtotal, getTotal } = useCart();
+//   const couponMutation = useCoupon();
+//   const [discountedData, setDiscountedData] = useState<{
+//     code: string;
+//     discount: number;
+//     type: "percentage" | "fixed";
+//     isValid: boolean;
+//     finalPrice: string | number;
+//     discountAmount: string | number;
+//   } | null>(null);
+
+//   const [promoCode, setPromoCode] = useState("");
+//   // const [agreeTerms, setAgreeTerms] = useState(false);
+//   const agreeTerms = true;
+//   const [appliedCoupon, setAppliedCoupon] = useState<{
+//     code: string;
+//     discount: number;
+//     type: "percentage" | "fixed";
+//   } | null>(null);
+
+//   const [paymentData] = useState<any>({
+//     items: items.map((item) => ({
+//       resource: item.id,
+//       quantity: item.quantity,
+//     })),
+//     couponCode: appliedCoupon?.code,
+//   });
+
+//   const paymentMutation = usePayment(paymentData);
+
+//   const handleApplyCoupon = async (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     if (!promoCode.trim()) {
+//       toast.error("Error", {
+//         description: "Please enter a promo code",
+//       });
+//       return;
+//     }
+
+//     if (appliedCoupon?.code === promoCode) {
+//       toast.info("Info", {
+//         description: "This coupon is already applied",
+//       });
+//       return;
+//     }
+
+//     try {
+//       const result = await couponMutation.mutateAsync({
+//         code: promoCode,
+//         price: String(getSubtotal()),
+//       });
+
+//       if (result.status) {
+//         setAppliedCoupon({
+//           code: result.data.code,
+//           discount: result.data.discount,
+//           type: result.data.type,
+//         });
+//         setPromoCode("");
+
+//         toast.success("Coupon applied", {
+//           description: `${result.data.code} has been applied to your order.`,
+//         });
+
+//         setDiscountedData({
+//           ...result.data,
+//           isValid: true,
+//         });
+//       } else {
+//         toast.error("Invalid Coupon", {
+//           description: "The coupon code is not valid or has expired",
+//         });
+//       }
+//     } catch {
+//       toast.error("Error", {
+//         description: "There was an error applying the coupon. Please try again.",
+//       });
+//     }
+//   };
+
+//   const handleRemoveCoupon = () => {
+//     setAppliedCoupon(null);
+//     toast.success("Coupon removed", {
+//       description: "The coupon has been removed from your order.",
+//     });
+//   };
+
+//   const handlePayment = async () => {
+//     if (status === "unauthenticated") {
+//       toast.error("Authentication Required", {
+//         description: "Please log in to proceed with payment.",
+//       });
+//       router.push("/sign-in");
+//       return;
+//     }
+
+//     if (!agreeTerms) {
+//       toast.error("Error", {
+//         description: "Please agree to the shipping & billing address terms",
+//       });
+//       return;
+//     }
+
+//     try {
+//       await paymentMutation.mutateAsync();
+//       toast.success("Payment Initiated", {
+//         description: "Processing your payment...",
+//       });
+//     } catch {
+//       toast.error("Payment Error", {
+//         description: "There was an error processing your payment. Please try again.",
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex flex-col">
+//       <main className="flex-1">
+//         <div className="text-center my-[88px]">
+//           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
+//             Checkout Page
+//           </h2>
+//           {/* <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
+//             From everyday essentials to the latest trends, we bring you a
+//             seamless shopping experience with unbeatable deals, delivery.
+//             Discover convenience, quality, and style all in one place.
+//           </p> */}
+//         </div>
+
+//         <div className="container mx-auto px-4">
+//           {!items || items.length === 0 ? (
+//             <div className="text-center py-12 bg-gray-50 rounded-lg">
+//               <h3 className="text-xl font-medium mb-2">Your cart is empty</h3>
+//               <p className="text-gray-500 mb-6">
+//                 Add items to your cart to proceed to checkout
+//               </p>
+//               <Button asChild className="bg-[#2c5d7c] hover:bg-[#1e4258]">
+//                 <Link href="/products">Browse Products</Link>
+//               </Button>
+//             </div>
+//           ) : (
+//             <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 max-w-6xl mx-auto">
+//               <div className="lg:col-span-2">
+//                 <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+//                   <div className="p-4 border-b">
+//                     <h3 className="text-lg font-semibold">Order items: </h3>
+//                   </div>
+//                   {items.map((item) => (
+//                     <div
+//                       key={item.id}
+//                       className="flex items-center gap-4 p-4 border-b"
+//                     >
+//                       <div className="relative h-16 w-16 rounded overflow-hidden flex-shrink-0">
+//                         <Image
+//                           src={
+//                             item.thumbnail ||
+//                             "/placeholder.svg?height=64&width=64"
+//                           }
+//                           alt={item.title}
+//                           fill
+//                           className="object-cover"
+//                         />
+//                       </div>
+//                       <div className="flex-1 min-w-0">
+//                         <h4 className="font-medium truncate">{item.title}</h4>
+//                         <div className="flex justify-between  justify-off items-center mt-1">
+//                           <div className="text-sm text-gray-500">
+//                             Price: ${item.discountPrice }
+//                             {/* {item.discountPrice && (
+//                               <span className="line-through ml-1 text-red-500">
+//                                 ${item.price}
+//                               </span>
+//                             )} */}
+//                           </div>
+//                           <div className=" -mt-7">
+//                             <div className="text-sm  flex items-center">
+//                               Qty: {item.quantity}
+//                             </div>
+//                           </div>
+//                         </div>
+//                       </div>
+//                       <div className="text-right">
+//                         <div className="font-medium">
+//                           $
+//                           {formatPrice(
+//                             (item.discountPrice || item.price) * item.quantity
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+//                   ))}
+//                 </div>
+
+//                 <div className="mb-8">
+//                   {appliedCoupon ? (
+//                     <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
+//                       <div className="flex items-center">
+//                         <span className="text-green-700 font-medium">
+//                           Coupon Applied: {appliedCoupon.code} and Got discount
+//                           $
+//                           {formatPrice(
+//                             Number(discountedData?.discountAmount ?? 0)
+//                           )}
+//                         </span>
+//                       </div>
+//                       <Button
+//                         variant="ghost"
+//                         size="sm"
+//                         onClick={handleRemoveCoupon}
+//                         className="text-red-500 hover:text-red-700"
+//                       >
+//                         <CircleX className="h-4 w-4" />
+//                       </Button>
+//                     </div>
+//                   ) : (
+//                     <form onSubmit={handleApplyCoupon} className="flex">
+//                       <Input
+//                         type="text"
+//                         placeholder="Enter coupon code"
+//                         value={promoCode}
+//                         onChange={(e) => setPromoCode(e.target.value)}
+//                         className="rounded-r-none"
+//                         disabled={couponMutation.isPending}
+//                       />
+//                       <Button
+//                         type="submit"
+//                         className="rounded-l-none bg-[#2c5d7c] hover:bg-[#1e4258]"
+//                         disabled={couponMutation.isPending}
+//                       >
+//                         {couponMutation.isPending ? (
+//                           <Loader2 className="h-4 w-4 animate-spin" />
+//                         ) : (
+//                           "Apply"
+//                         )}
+//                       </Button>
+//                     </form>
+//                   )}
+//                 </div>
+
+//                 <div className="lg:col-span-1">
+//                   <div className="rounded-lg overflow-hidden sticky top-24">
+//                     <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+//                     <div className="space-y-2 mb-6">
+//                       <div className="flex justify-between">
+//                         <span>
+//                           $
+//                           {formatPrice(
+//                             Number(
+//                               discountedData?.finalPrice === 0
+//                                 ? getSubtotal()
+//                                 : discountedData?.finalPrice ?? getSubtotal()
+//                             )
+//                           )}
+//                         </span>
+//                       </div>
+
+//                       <div className="pt-2 border-t flex justify-between font-bold">
+//                         <span>Total:</span>
+//                         <span>
+//                           $
+//                           {formatPrice(
+//                             Number(
+//                               discountedData?.finalPrice === 0
+//                                 ? getSubtotal()
+//                                 : discountedData?.finalPrice ?? getSubtotal()
+//                             )
+//                           )}
+//                         </span>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="max-w-6xl mx-auto space-y-5 my-8">
+//             {/* <div className="flex items-center space-x-2 pt-4">
+//               <Checkbox
+//                 id="terms"
+//                 checked={agreeTerms}
+//                 onCheckedChange={(checked) => setAgreeTerms(checked === true)}
+//               />
+//               <label htmlFor="terms" className="text-sm text-gray-600">
+//                 Agree with shipping & billing address
+//               </label>
+//             </div> */}
+
+//             <Button
+//               onClick={handlePayment}
+//               className="w-full bg-[#2c5d7c] hover:bg-[#1e4258] h-12"
+//               disabled={paymentMutation.isPending || !agreeTerms}
+//             >
+//               {paymentMutation.isPending ? (
+//                 <>
+//                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+//                   Processing Payment...
+//                 </>
+//               ) : (
+//                 <>
+//                   <Lock className="mr-2 h-4 w-4" />
+//                   Make Your Payment (${formatPrice(getTotal())})
+//                 </>
+//               )}
+//             </Button>
+//           </div>
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
+
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -6,7 +341,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Lock, CircleX, Loader2 } from "lucide-react";
+import { Lock, CircleX, Loader2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 // import { Checkbox } from "@/components/ui/checkbox";
@@ -19,7 +354,8 @@ import { toast } from "sonner";
 export default function CheckoutPageAPI() {
   const { status } = useSession();
   const router = useRouter();
-  const { items, getSubtotal, getTotal } = useCart();
+  const { items, getSubtotal, getTotal, updateQuantity } = useCart(); // Added updateQuantity
+
   const couponMutation = useCoupon();
   const [discountedData, setDiscountedData] = useState<{
     code: string;
@@ -142,11 +478,6 @@ export default function CheckoutPageAPI() {
           <h2 className="text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
             Checkout Page
           </h2>
-          {/* <p className="text-[#424242] text-base max-w-2xl mx-auto leading-relaxed">
-            From everyday essentials to the latest trends, we bring you a
-            seamless shopping experience with unbeatable deals, delivery.
-            Discover convenience, quality, and style all in one place.
-          </p> */}
         </div>
 
         <div className="container mx-auto px-4">
@@ -185,19 +516,35 @@ export default function CheckoutPageAPI() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium truncate">{item.title}</h4>
-                        <div className="flex justify-between  justify-off items-center mt-1">
+                        <div className="flex justify-between items-center mt-2">
                           <div className="text-sm text-gray-500">
-                            Price: ${item.discountPrice }
-                            {/* {item.discountPrice && (
-                              <span className="line-through ml-1 text-red-500">
-                                ${item.price}
-                              </span>
-                            )} */}
+                            Price: ${item.discountPrice || item.price}
                           </div>
-                          <div className=" -mt-7">
-                            <div className="text-sm  flex items-center">
-                              Qty: {item.quantity}
+
+                          {/* Quantity controls */}
+                          <div className="flex items-center border rounded-md overflow-hidden">
+                            <button
+                              className="h-8 w-8 flex items-center justify-center hover:bg-gray-50"
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  Math.max(1, item.quantity - 1)
+                                )
+                              }
+                            >
+                              <Minus className="h-3 w-3" />
+                            </button>
+                            <div className="h-8 w-12 text-center flex items-center justify-center">
+                              {item.quantity}
                             </div>
+                            <button
+                              className="h-8 w-8 flex items-center justify-center hover:bg-gray-50"
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                            >
+                              <Plus className="h-3 w-3" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -213,13 +560,13 @@ export default function CheckoutPageAPI() {
                   ))}
                 </div>
 
+                {/* Coupon section */}
                 <div className="mb-8">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
                       <div className="flex items-center">
                         <span className="text-green-700 font-medium">
-                          Coupon Applied: {appliedCoupon.code} and Got discount
-                          $
+                          Coupon Applied: {appliedCoupon.code} and Got discount $
                           {formatPrice(
                             Number(discountedData?.discountAmount ?? 0)
                           )}
@@ -259,6 +606,7 @@ export default function CheckoutPageAPI() {
                   )}
                 </div>
 
+                {/* Order Summary */}
                 <div className="lg:col-span-1">
                   <div className="rounded-lg overflow-hidden sticky top-24">
                     <h2 className="text-xl font-bold mb-4">Order Summary</h2>
@@ -297,17 +645,6 @@ export default function CheckoutPageAPI() {
           )}
 
           <div className="max-w-6xl mx-auto space-y-5 my-8">
-            {/* <div className="flex items-center space-x-2 pt-4">
-              <Checkbox
-                id="terms"
-                checked={agreeTerms}
-                onCheckedChange={(checked) => setAgreeTerms(checked === true)}
-              />
-              <label htmlFor="terms" className="text-sm text-gray-600">
-                Agree with shipping & billing address
-              </label>
-            </div> */}
-
             <Button
               onClick={handlePayment}
               className="w-full bg-[#2c5d7c] hover:bg-[#1e4258] h-12"
