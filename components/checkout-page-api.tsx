@@ -444,6 +444,7 @@ export default function CheckoutPageAPI() {
   };
 
   const handlePayment = async () => {
+ 
     if (status === "unauthenticated") {
       toast.error("Authentication Required", {
         description: "Please log in to proceed with payment.",
@@ -459,16 +460,8 @@ export default function CheckoutPageAPI() {
       return;
     }
 
-    try {
       await paymentMutation.mutateAsync();
-      toast.success("Payment Initiated", {
-        description: "Processing your payment...",
-      });
-    } catch {
-      toast.error("Payment Error", {
-        description: "There was an error processing your payment. Please try again.",
-      });
-    }
+    
   };
 
   return (

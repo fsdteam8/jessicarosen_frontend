@@ -2,9 +2,9 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { toast } from "@/hooks/use-toast";
 // import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface CouponRequest {
   code: string;
@@ -48,7 +48,7 @@ interface PaymentResponse {
 
 const applyCoupon = async (
   couponData: CouponRequest,
-  token: string
+  token: string,
 ): Promise<CouponResponse> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/promo-codes/apply`,
@@ -59,7 +59,7 @@ const applyCoupon = async (
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(couponData),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -75,7 +75,7 @@ const applyCoupon = async (
 
 const createPaymentSession = async (
   paymentData: PaymentRequest,
-  token: string
+  token: string,
 ): Promise<PaymentResponse> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/payment/create-session`,
@@ -86,7 +86,7 @@ const createPaymentSession = async (
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(paymentData),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -112,17 +112,10 @@ export function useCoupon() {
     },
     onError: (error: Error) => {
       if (error.message.includes("Unauthorized")) {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to apply coupon",
-          variant: "destructive",
-        });
+        toast.error("Authentication Required, Please login to apply coupon")
+        
       } else {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to apply coupon",
-          variant: "destructive",
-        });
+        toast.error(error.message || "Failed to apply coupon");
       }
     },
   });
@@ -163,18 +156,12 @@ export function usePayment(paymentData: PaymentRequest) {
       }
     },
     onError: (error: Error) => {
+    
       if (error.message.includes("Unauthorized")) {
-        toast({
-          title: "Authentication Required",
-          description: "Please login to make payment",
-          variant: "destructive",
-        });
+        toast.error("Authentication Required, Please login to make payment")
       } else {
-        toast({
-          title: "Payment Error",
-          description: error.message || "Failed to process payment",
-          variant: "destructive",
-        });
+        toast.error(error.message || "Payment Error")
+       
       }
     },
   });
