@@ -46,6 +46,7 @@ const AddResourceComponent = () => {
         retry: false,
     });
 
+
     if (status === "loading" || isLoading) {
         return <SkeletonLoader />;
     }
