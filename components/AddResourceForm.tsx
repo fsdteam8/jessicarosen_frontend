@@ -1,3 +1,1231 @@
+"use client";
+
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+import "react-quill/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[300px] border border-gray-300 rounded-md flex items-center justify-center">
+      Loading editor...
+    </div>
+  ),
+});
+
+interface Division {
+  divisionName: string;
+}
+
+interface StateItem {
+  stateName: string;
+  divisions: Division[];
+}
+
+interface Country {
+  _id: string;
+  countryName: string;
+  states: StateItem[];
+}
+
+interface PracticeArea {
+  _id: string;
+  name: string;
+  description: string;
+  subPracticeAreas?: { _id: string; name: string }[];
+}
+
+interface ResourceType {
+  _id: string;
+  resourceTypeName: string;
+  description: string;
+}
+
+interface FormDataState {
+  title: string;
+  discountPrice: string;
+  quantity: string;
+  format: string;
+  country: string;
+  states: string[];
+  divisions: string[];
+  description: string;
+  practiceArea: string; // stores _id
+  resourceType: string; // stores _id
+  thumbnail: File | null; // ✅ only upload, no default
+  file: File | null;
+  images: File[];
+  productStatus: "pending" | "draft";
+}
+
+type MeResponse = {
+  data?: {
+    stripeAccountId?: string | null;
+  };
+};
+
+export default function ResourceForm() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { data: session } = useSession();
+
+  // ✅ safest way to read token (avoids TS error)
+  const API_TOKEN = useMemo(() => {
+    const s = session as unknown as {
+      user?: { accessToken?: string; id?: string };
+      accessToken?: string;
+    } | null;
+
+    return s?.user?.accessToken || s?.accessToken || "";
+  }, [session]);
+
+  const userId = useMemo(() => {
+    const s = session as unknown as { user?: { id?: string } } | null;
+    return s?.user?.id || "";
+  }, [session]);
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
+
+  const [isClient, setIsClient] = useState(false);
+
+  // location selection
+  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
+  const [selectedStates, setSelectedStates] = useState<string[]>([]);
+  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [stateOpen, setStateOpen] = useState(false);
+  const [divisionOpen, setDivisionOpen] = useState(false);
+  const [stateSearch, setStateSearch] = useState("");
+  const [divisionSearch, setDivisionSearch] = useState("");
+
+  // preview states
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+
+  // practice/resource
+  const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
+  const [practiceAreaName, setPracticeAreaName] = useState("");
+
+  // submit UI
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isDrafting, setIsDrafting] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  // validation
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState<FormDataState>({
+    title: "",
+    discountPrice: "",
+    quantity: "",
+    format: "",
+    country: "",
+    productStatus: "pending",
+    states: [],
+    divisions: [],
+    description: "",
+    practiceArea: "",
+    resourceType: "",
+    thumbnail: null,
+    file: null,
+    images: [],
+  });
+
+  useEffect(() => setIsClient(true), []);
+
+  const modules = useMemo(
+    () => ({
+      toolbar: [
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ align: [] }],
+        ["clean"],
+      ],
+    }),
+    []
+  );
+
+  const formats = useMemo(
+    () => [
+      "header",
+      "bold",
+      "italic",
+      "underline",
+      "strike",
+      "list",
+      "bullet",
+      "align",
+    ],
+    []
+  );
+
+  // -------------------- Queries --------------------
+  const countriesQuery = useQuery<Country[]>({
+    queryKey: ["countries-all"],
+    enabled: Boolean(API_BASE_URL && API_TOKEN),
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/country-state/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = (await res.json()) as { success?: boolean; data?: Country[] };
+      return data.success ? data.data || [] : [];
+    },
+  });
+
+  const practiceAreasQuery = useQuery<PracticeArea[]>({
+    queryKey: ["practiceAreas-all"],
+    enabled: Boolean(API_BASE_URL && API_TOKEN),
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/practice-area/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch practice areas");
+      const data = (await res.json()) as {
+        success?: boolean;
+        data?: PracticeArea[];
+      };
+      return data.success ? data.data || [] : [];
+    },
+  });
+
+  const resourceTypesQuery = useQuery<ResourceType[]>({
+    queryKey: ["resourceTypes-all"],
+    enabled: Boolean(API_BASE_URL && API_TOKEN),
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/resource-type/all`, {
+        headers: {
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!res.ok) throw new Error("Failed to fetch resource types");
+      const data = (await res.json()) as {
+        success?: boolean;
+        data?: ResourceType[];
+      };
+      return data.success ? data.data || [] : [];
+    },
+  });
+
+  const meQuery = useQuery<MeResponse>({
+    queryKey: ["me", userId],
+    enabled: Boolean(API_BASE_URL && API_TOKEN && userId),
+    queryFn: async () => {
+      const res = await fetch(`${API_BASE_URL}/user/${userId}`, {
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch user data");
+      return (await res.json()) as MeResponse;
+    },
+  });
+
+  const selectedPracticeAreaObj = useMemo(() => {
+    return practiceAreasQuery.data?.find((p) => p._id === formData.practiceArea);
+  }, [practiceAreasQuery.data, formData.practiceArea]);
+
+  // -------------------- Helpers --------------------
+  const handleInputChange = (field: keyof FormDataState, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleCheckboxChange = (id: string, checked: boolean) => {
+    setSelectedSubAreas((prev) =>
+      checked ? [...prev, id] : prev.filter((x) => x !== id)
+    );
+  };
+
+  const handleCountrySelect = (country: Country) => {
+    setSelectedCountry(country);
+    setSelectedStates([]);
+    setSelectedDivisions([]);
+    setFormData((prev) => ({
+      ...prev,
+      country: country.countryName,
+      states: [],
+      divisions: [],
+    }));
+    setCountryOpen(false);
+  };
+
+  const handleStateToggle = (stateName: string) => {
+    const newStates = selectedStates.includes(stateName)
+      ? selectedStates.filter((s) => s !== stateName)
+      : [...selectedStates, stateName];
+
+    setSelectedStates(newStates);
+    setSelectedDivisions([]);
+    setFormData((prev) => ({
+      ...prev,
+      states: newStates,
+      divisions: [],
+    }));
+  };
+
+  const handleDivisionToggle = (divisionName: string) => {
+    const newDivisions = selectedDivisions.includes(divisionName)
+      ? selectedDivisions.filter((d) => d !== divisionName)
+      : [...selectedDivisions, divisionName];
+
+    setSelectedDivisions(newDivisions);
+    setFormData((prev) => ({ ...prev, divisions: newDivisions }));
+  };
+
+  // ✅ ONLY thumbnail upload
+  const handleThumbnailUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+
+    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+
+    if (!file) {
+      setFormData((prev) => ({ ...prev, thumbnail: null }));
+      setThumbnailPreview("");
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload only image files for thumbnail.",
+        variant: "destructive",
+      });
+      setFormData((prev) => ({ ...prev, thumbnail: null }));
+      setThumbnailPreview("");
+      event.target.value = "";
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, thumbnail: file }));
+    setThumbnailPreview(URL.createObjectURL(file));
+    event.target.value = "";
+  };
+
+  const handleRemoveThumbnail = () => {
+    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+    setThumbnailPreview("");
+    setFormData((prev) => ({ ...prev, thumbnail: null }));
+    if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = event.target.files?.[0] || null;
+    setFormData((prev) => ({ ...prev, file: uploadedFile }));
+  };
+
+  const handleImagesUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles = Array.from(files);
+    const maxImages = 4;
+    const remainingSlots = maxImages - formData.images.length;
+
+    if (remainingSlots <= 0) {
+      toast({
+        title: "Image limit reached",
+        description: "You can only upload a maximum of 4 images.",
+        variant: "destructive",
+      });
+      event.target.value = "";
+      return;
+    }
+
+    const imageFiles = newFiles.filter((f) => f.type.startsWith("image/"));
+    const filesToAdd = imageFiles.slice(0, remainingSlots);
+
+    if (filesToAdd.length === 0) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload image files only.",
+        variant: "destructive",
+      });
+      event.target.value = "";
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, images: [...prev.images, ...filesToAdd] }));
+    setImagePreviews((prev) => [
+      ...prev,
+      ...filesToAdd.map((f) => URL.createObjectURL(f)),
+    ]);
+
+    event.target.value = "";
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    const url = imagePreviews[indexToRemove];
+    if (url) URL.revokeObjectURL(url);
+
+    setImagePreviews((prev) => prev.filter((_, i) => i !== indexToRemove));
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== indexToRemove),
+    }));
+  };
+
+  // -------------------- Validation --------------------
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.practiceArea) errors.practiceArea = "This field is required";
+    if (!formData.title.trim()) errors.title = "This field is required";
+    if (!formData.quantity || Number.parseInt(formData.quantity) <= 0)
+      errors.quantity = "Quantity must be a positive integer";
+    if (!formData.resourceType) errors.resourceType = "This field is required";
+    if (!formData.discountPrice.trim())
+      errors.discountPrice = "This field is required";
+    if (!formData.format) errors.format = "This field is required";
+    if (!formData.country) errors.country = "This field is required";
+    if (formData.states.length === 0) errors.states = "This field is required";
+    if (formData.divisions.length === 0)
+      errors.divisions = "This field is required";
+    if (!formData.description.trim())
+      errors.description = "This field is required";
+    if (!formData.thumbnail) errors.thumbnail = "Thumbnail is required";
+    if (!formData.file) errors.file = "This field is required";
+    if (formData.images.length === 0) errors.images = "This field is required";
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // -------------------- Mutation --------------------
+  const submitMutation = useMutation({
+    mutationFn: async (current: FormDataState) => {
+      const submitData = new FormData();
+      submitData.append("title", current.title);
+      submitData.append("description", current.description);
+      submitData.append("discountPrice", current.discountPrice);
+      submitData.append("format", current.format);
+      submitData.append("quantity", current.quantity);
+      submitData.append("country", current.country);
+      submitData.append("productStatus", current.productStatus);
+
+      current.states.forEach((s) => submitData.append("states[]", s));
+      current.divisions.forEach((d) => submitData.append("divisions[]", d));
+      selectedSubAreas.forEach((id) => submitData.append("subPracticeAreas[]", id));
+
+      const paObj = practiceAreasQuery.data?.find((p) => p._id === current.practiceArea);
+      if (paObj) submitData.append("practiceAreas[]", paObj.name);
+
+      const rtObj = resourceTypesQuery.data?.find((rt) => rt._id === current.resourceType);
+      if (rtObj) submitData.append("resourceType[]", rtObj.resourceTypeName);
+
+      if (current.thumbnail) submitData.append("thumbnail", current.thumbnail);
+      if (current.file) submitData.append("file", current.file);
+      current.images.forEach((img) => submitData.append("images", img));
+
+      const res = await fetch(`${API_BASE_URL}/resource`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+        body: submitData,
+      });
+
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { message?: string };
+        throw new Error(err.message || "Failed to submit resource");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success!",
+        description: "Resource has been submitted successfully.",
+      });
+
+      setIsPublishing(false);
+      setIsDrafting(false);
+
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
+      router.push("/dashboard/resources/list");
+    },
+    onError: (error: Error) => {
+      setIsPublishing(false);
+      setIsDrafting(false);
+
+      toast({
+        title: "Error",
+        description: error.message || "Something went wrong.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (action: "publish" | "draft") => {
+    setFormSubmitted(true);
+
+    if (!validateForm()) {
+      toast({
+        title: "Missing required fields",
+        description: "Please fill all required fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (action === "publish") setIsPublishing(true);
+    if (action === "draft") setIsDrafting(true);
+
+    submitMutation.mutate({
+      ...formData,
+      productStatus: action === "publish" ? "pending" : "draft",
+    });
+  };
+
+  // derive practice area name for preview
+  useEffect(() => {
+    const obj = practiceAreasQuery.data?.find((p) => p._id === formData.practiceArea);
+    setPracticeAreaName(obj?.name || "");
+    // reset subareas when practice area changes
+    setSelectedSubAreas([]);
+  }, [formData.practiceArea, practiceAreasQuery.data]);
+
+  const filteredStates =
+    selectedCountry?.states.filter((state) =>
+      state.stateName.toLowerCase().includes(stateSearch.toLowerCase())
+    ) || [];
+
+  const availableDivisions =
+    selectedCountry?.states
+      .filter((state) => selectedStates.includes(state.stateName))
+      .flatMap((state) => state.divisions)
+      .filter((division) =>
+        division.divisionName.toLowerCase().includes(divisionSearch.toLowerCase())
+      ) || [];
+
+  // cleanup blob urls
+  useEffect(() => {
+    return () => {
+      if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+      imagePreviews.forEach((u) => URL.revokeObjectURL(u));
+    };
+  }, [thumbnailPreview, imagePreviews]);
+
+  const stripeOk = Boolean(meQuery.data?.data?.stripeAccountId);
+
+  return (
+    <div>
+      <div className="max-w-9xl mx-auto p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* LEFT */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-semibold">Add Resources</CardTitle>
+              </CardHeader>
+
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-base">
+                    Add Title *
+                  </Label>
+                  <Input
+                    id="title"
+                    className={cn(
+                      "h-[49px] border border-gray-500",
+                      formSubmitted && fieldErrors.title && "border-red-500"
+                    )}
+                    placeholder="Add your title..."
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                  />
+                  {formSubmitted && fieldErrors.title && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="discountPrice">
+                      Discount Price *
+                    </Label>
+                    <Input
+                      id="discountPrice"
+                      className={cn(
+                        "h-[49px] border border-gray-500",
+                        formSubmitted && fieldErrors.discountPrice && "border-red-500"
+                      )}
+                      placeholder="Add Discount Price..."
+                      value={formData.discountPrice}
+                      onChange={(e) => handleInputChange("discountPrice", e.target.value)}
+                    />
+                    {formSubmitted && fieldErrors.discountPrice && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.discountPrice}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="quantity">
+                      Quantity *
+                    </Label>
+                    <Input
+                      id="quantity"
+                      className={cn(
+                        "h-[49px] border border-gray-500",
+                        formSubmitted && fieldErrors.quantity && "border-red-500"
+                      )}
+                      placeholder="Add Quantity..."
+                      value={formData.quantity}
+                      onChange={(e) => handleInputChange("quantity", e.target.value)}
+                    />
+                    {formSubmitted && fieldErrors.quantity && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.quantity}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-base font-semibold" htmlFor="format">
+                      Format *
+                    </Label>
+                    <Select
+                      value={formData.format}
+                      onValueChange={(value) => handleInputChange("format", value)}
+                    >
+                      <SelectTrigger
+                        className={cn(
+                          "h-[49px] border border-gray-500",
+                          formSubmitted && fieldErrors.format && "border-red-500"
+                        )}
+                      >
+                        <SelectValue placeholder="Select format..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PDF">PDF</SelectItem>
+                        <SelectItem value="Document">Doc</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {formSubmitted && fieldErrors.format && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.format}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Country *</Label>
+                    <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={countryOpen}
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.country && "border-red-500"
+                          )}
+                          disabled={countriesQuery.isLoading}
+                        >
+                          {selectedCountry ? selectedCountry.countryName : "Select country..."}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search country..." />
+                          <CommandList>
+                            <CommandEmpty>No country found.</CommandEmpty>
+                            <CommandGroup>
+                              {countriesQuery.data?.map((country) => (
+                                <CommandItem
+                                  key={country._id}
+                                  value={country.countryName}
+                                  onSelect={() => handleCountrySelect(country)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedCountry?._id === country._id ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {country.countryName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {formSubmitted && fieldErrors.country && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.country}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>States *</Label>
+                    <Popover open={stateOpen} onOpenChange={setStateOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={stateOpen}
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.states && "border-red-500"
+                          )}
+                          disabled={!selectedCountry}
+                        >
+                          {selectedStates.length > 0
+                            ? `${selectedStates.length} state(s) selected`
+                            : "Select states..."}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search states..."
+                            value={stateSearch}
+                            onValueChange={setStateSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No state found.</CommandEmpty>
+                            <CommandGroup>
+                              {filteredStates.map((state) => (
+                                <CommandItem
+                                  key={state.stateName}
+                                  value={state.stateName}
+                                  onSelect={() => handleStateToggle(state.stateName)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedStates.includes(state.stateName) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {state.stateName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {formSubmitted && fieldErrors.states && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.states}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Divisions *</Label>
+                    <Popover open={divisionOpen} onOpenChange={setDivisionOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={divisionOpen}
+                          className={cn(
+                            "w-full justify-between h-[49px] border",
+                            formSubmitted && fieldErrors.divisions && "border-red-500"
+                          )}
+                          disabled={selectedStates.length === 0}
+                        >
+                          {selectedDivisions.length > 0
+                            ? `${selectedDivisions.length} division(s) selected`
+                            : "Select divisions..."}
+                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search divisions..."
+                            value={divisionSearch}
+                            onValueChange={setDivisionSearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No division found.</CommandEmpty>
+                            <CommandGroup>
+                              {availableDivisions.map((division) => (
+                                <CommandItem
+                                  key={division.divisionName}
+                                  value={division.divisionName}
+                                  onSelect={() => handleDivisionToggle(division.divisionName)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      selectedDivisions.includes(division.divisionName)
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {division.divisionName}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    {formSubmitted && fieldErrors.divisions && (
+                      <p className="text-red-600 text-sm mt-1">{fieldErrors.divisions}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description *</Label>
+                  <div
+                    className={cn(
+                      "rounded-md border border-gray-300 h-[300px] overflow-hidden",
+                      formSubmitted && fieldErrors.description && "border-red-500"
+                    )}
+                  >
+                    {isClient && (
+                      <ReactQuill
+                        theme="snow"
+                        value={formData.description}
+                        onChange={(content) => handleInputChange("description", content)}
+                        modules={modules}
+                        formats={formats}
+                        className="h-[300px] rounded-md"
+                        style={{ height: "300px" }}
+                      />
+                    )}
+                  </div>
+                  {formSubmitted && fieldErrors.description && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* RIGHT */}
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">Practice Area *</Label>
+                  <Select
+                    value={formData.practiceArea}
+                    onValueChange={(value) => handleInputChange("practiceArea", value)}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        "h-[49px] border border-gray-400",
+                        formSubmitted && fieldErrors.practiceArea && "border-red-500"
+                      )}
+                    >
+                      <SelectValue placeholder="Select a practice area" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {practiceAreasQuery.isLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        practiceAreasQuery.data?.map((area) => (
+                          <SelectItem key={area._id} value={area._id}>
+                            {area.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {formSubmitted && fieldErrors.practiceArea && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.practiceArea}</p>
+                  )}
+                </div>
+
+                {/* ✅ subPracticeAreas uses _id (no type bug) */}
+                <div>
+                  {selectedPracticeAreaObj?.subPracticeAreas?.map((subArea) => (
+                    <div key={subArea._id} className="flex items-center space-x-2 mt-2">
+                      <Checkbox
+                        id={subArea._id}
+                        checked={selectedSubAreas.includes(subArea._id)}
+                        onCheckedChange={(checked) =>
+                          handleCheckboxChange(subArea._id, Boolean(checked))
+                        }
+                      />
+                      <Label htmlFor={subArea._id} className="text-sm font-medium">
+                        {subArea.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-2 mt-4">
+                  <Label className="text-base font-semibold">Resource Type *</Label>
+                  <Select
+                    value={formData.resourceType}
+                    onValueChange={(value) => handleInputChange("resourceType", value)}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        "h-[49px] border border-gray-400",
+                        formSubmitted && fieldErrors.resourceType && "border-red-500"
+                      )}
+                    >
+                      <SelectValue placeholder="Select a resource type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {resourceTypesQuery.isLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading...
+                        </SelectItem>
+                      ) : (
+                        resourceTypesQuery.data?.map((type) => (
+                          <SelectItem key={type._id} value={type._id}>
+                            {type.resourceTypeName}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {formSubmitted && fieldErrors.resourceType && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.resourceType}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* ✅ Thumbnail (no default images) */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Thumbnail *</CardTitle>
+                <CardDescription>Upload a thumbnail image</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail-upload" className="text-base font-semibold">
+                    Upload Thumbnail
+                  </Label>
+
+                  <div
+                    className={cn(
+                      "border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 hover:bg-gray-100 transition-colors",
+                      formSubmitted && fieldErrors.thumbnail && "border-red-500 bg-red-50"
+                    )}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                      id="thumbnail-upload"
+                      ref={thumbnailInputRef}
+                    />
+                    <label
+                      htmlFor="thumbnail-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
+                    >
+                      <ImageIcon className="h-10 w-10 text-gray-400" />
+                      <p className="text-sm font-medium text-gray-700">Upload from Device</p>
+                      <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                    </label>
+                  </div>
+
+                  {formSubmitted && fieldErrors.thumbnail && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.thumbnail}</p>
+                  )}
+                </div>
+
+                {/* ✅ preview uses <img> so blob works always */}
+                {thumbnailPreview ? (
+                  <div className="space-y-3">
+                    <img
+                      src={thumbnailPreview}
+                      alt="Thumbnail preview"
+                      className="max-h-40 w-auto mx-auto rounded-md object-contain border"
+                    />
+                    <p className="text-sm text-gray-600 truncate" title={formData.thumbnail?.name}>
+                      {formData.thumbnail?.name}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRemoveThumbnail}
+                      className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <X className="mr-2 h-4 w-4" /> Remove Thumbnail
+                    </Button>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <div className="space-y-2">
+                  <Label>File (PDF, Word, etc.) *</Label>
+                  <div
+                    className={cn(
+                      "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center",
+                      formSubmitted && fieldErrors.file && "border-red-500 bg-red-50"
+                    )}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer">
+                      <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                      <p className="mt-2 text-sm text-gray-600">
+                        {formData.file ? formData.file.name : "Click to upload file *"}
+                      </p>
+                    </label>
+                  </div>
+                  {formSubmitted && fieldErrors.file && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.file}</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Images *</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-2">
+                  <Label htmlFor="images-upload">
+                    Additional Images ({formData.images.length}/4 maximum) *
+                  </Label>
+                  <div
+                    className={cn(
+                      "border-2 border-dashed rounded-lg p-6 text-center",
+                      formSubmitted && fieldErrors.images && "border-red-500 bg-red-50",
+                      formData.images.length >= 4 ? "border-gray-200 bg-gray-50" : "border-gray-300"
+                    )}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImagesUpload}
+                      className="hidden"
+                      id="images-upload"
+                      disabled={formData.images.length >= 4}
+                    />
+                    <label
+                      htmlFor="images-upload"
+                      className={cn(
+                        "flex flex-col items-center justify-center space-y-2 py-4",
+                        formData.images.length >= 4 ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                      )}
+                    >
+                      <ImageIcon className="h-12 w-12 text-gray-400" />
+                      <p className="text-sm text-gray-600">
+                        {formData.images.length >= 4
+                          ? "Maximum 4 images reached"
+                          : "Click or drag to upload images *"}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formData.images.length >= 4
+                          ? "Remove an image to add more"
+                          : "PNG, JPG, GIF up to 5MB each (Max 4 images)"}
+                      </p>
+                    </label>
+                  </div>
+
+                  {formSubmitted && fieldErrors.images && (
+                    <p className="text-red-600 text-sm mt-1">{fieldErrors.images}</p>
+                  )}
+
+                  {imagePreviews.length > 0 && (
+                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {imagePreviews.map((previewUrl, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={previewUrl}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-md"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleRemoveImage(index)}
+                            type="button"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <p className="text-xs text-gray-500 truncate mt-1" title={formData.images[index]?.name}>
+                            {formData.images[index]?.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button className="w-full" onClick={() => setPreviewOpen(true)} type="button">
+              Preview
+            </Button>
+
+            <div className="flex gap-4 items-center justify-center">
+              <Button
+                onClick={() => handleSubmit("publish")}
+                className={cn("w-full", isPublishing && "opacity-70 cursor-not-allowed")}
+                disabled={isPublishing || !stripeOk}
+                type="button"
+              >
+                {isPublishing ? "Requesting..." : "Add Resources"}
+              </Button>
+
+              <Button
+                onClick={() => handleSubmit("draft")}
+                className={cn("w-full", isDrafting && "opacity-70 cursor-not-allowed")}
+                disabled={isDrafting}
+                type="button"
+              >
+                {isDrafting ? "Drafting..." : "Draft"}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* PREVIEW MODAL */}
+        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Preview Data</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <p>
+                <strong>Title:</strong> {formData.title}
+              </p>
+              <p>
+                <strong>Discount Price:</strong> {formData.discountPrice}
+              </p>
+              <p>
+                <strong>Quantity:</strong> {formData.quantity}
+              </p>
+              <p>
+                <strong>Format:</strong> {formData.format}
+              </p>
+              <p>
+                <strong>Country:</strong> {formData.country}
+              </p>
+              <p>
+                <strong>States:</strong> {formData.states.join(", ")}
+              </p>
+              <p>
+                <strong>Divisions:</strong> {formData.divisions.join(", ")}
+              </p>
+              <p>
+                <strong>Practice Area:</strong> {practiceAreaName}
+              </p>
+
+              <div>
+                <strong>Thumbnail:</strong>
+                {thumbnailPreview ? (
+                  <img
+                    src={thumbnailPreview}
+                    alt="Thumbnail Preview"
+                    className="w-32 h-32 object-cover border mt-2"
+                  />
+                ) : (
+                  <p className="text-sm text-gray-500 mt-1">No thumbnail selected</p>
+                )}
+              </div>
+
+              {formData.file && (
+                <p>
+                  <strong>File:</strong> {formData.file.name}
+                </p>
+              )}
+
+              {imagePreviews.length > 0 && (
+                <div>
+                  <strong>Images:</strong>
+                  <div className="flex gap-2 flex-wrap mt-2">
+                    {imagePreviews.map((src, idx) => (
+                      <img
+                        key={idx}
+                        src={src}
+                        alt={`Image ${idx + 1}`}
+                        className="w-24 h-24 object-cover border"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
 // "use client";
 
 // import type React from "react";
@@ -36,7 +1264,7 @@
 // import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 // import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
 // import dynamic from "next/dynamic";
-// import { useState, useEffect, useRef, useMemo } from "react";
+// import { useState, useEffect, useRef, } from "react";
 // import "react-quill/dist/quill.snow.css";
 // import Image from "next/image";
 // import { useSession } from "next-auth/react";
@@ -125,6 +1353,10 @@
 //   const [previewOpen, setPreviewOpen] = useState(false);
 //   const router = useRouter();
 //   const queryClient = useQueryClient();
+
+//   // ── Added for validation ────────────────────────────────────────
+//   const [formSubmitted, setFormSubmitted] = useState(false);
+//   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
 //   // Helper function to fetch an image and convert it to a File object
 //   const fetchImageAsFile = async (url: string, fileName: string): Promise<File> => {
@@ -302,26 +1534,26 @@
 //       },
 //     });
 
-//   // Validate form to enable/disable submit buttons
-//   const isFormValid = useMemo(() => {
-//     return (
-//       formData.practiceArea !== "" &&
-//       formData.resourceType !== "" &&
-//       formData.discountPrice !== "" &&
-//       formData.format !== "" &&
-//       formData.country !== "" && // Added country as it's required for states
-//       formData.states.length > 0 &&
-//       formData.divisions.length > 0
-//     );
-//   }, [
-//     formData.practiceArea,
-//     formData.resourceType,
-//     formData.discountPrice,
-//     formData.format,
-//     formData.country,
-//     formData.states,
-//     formData.divisions,
-//   ]);
+//   // ── Added validation function ───────────────────────────────────
+//   const validateForm = () => {
+//     const errors: Record<string, string> = {};
+
+//     if (!formData.practiceArea) errors.practiceArea = "This field is required";
+//     if (!formData.title.trim()) errors.title = "This field is required";
+//     if (!formData.quantity || Number.parseInt(formData.quantity) <= 0) errors.quantity = "Quantity must be a positive integer";
+//     if (!formData.resourceType) errors.resourceType = "This field is required";
+//     if (!formData.discountPrice.trim()) errors.discountPrice = "This field is required";
+//     if (!formData.format) errors.format = "This field is required";
+//     if (!formData.country) errors.country = "This field is required";
+//     if (formData.states.length === 0) errors.states = "This field is required";
+//     if (formData.divisions.length === 0) errors.divisions = "This field is required";
+//     if (!formData.description.trim()) errors.description = "This field is required";
+//     if (!formData.file) errors.file = "This field is required";
+//     if (formData.images.length === 0) errors.images = "This field is required";
+
+//     setFieldErrors(errors);
+//     return Object.keys(errors).length === 0;
+//   };
 
 //   const { mutate: submitResource } = useMutation({
 //     mutationFn: async (currentFormData: FormDataState) => {
@@ -612,26 +1844,17 @@
 //   };
 
 //   const handleSubmit = (action: "publish" | "draft") => {
-//     // Validate required fields
-//     const requiredFields = [
-//       { field: formData.practiceArea, name: "Practice Area" },
-//       { field: formData.resourceType, name: "Resource Type" },
-//       { field: formData.discountPrice, name: "Discount Price" },
-//       { field: formData.format, name: "Format" },
-//       { field: formData.country, name: "Country" },
-//       { field: formData.states.length, name: "States" },
-//       { field: formData.divisions.length, name: "Divisions" },
-//     ];
+//     setFormSubmitted(true);
 
-//     for (const { field, name } of requiredFields) {
-//       if (!field) {
-//         toast({
-//           title: "Missing Required Field",
-//           description: `Please select or enter a ${name}.`,
-//           variant: "destructive",
-//         });
-//         return;
-//       }
+//     const isValid = validateForm();
+
+//     if (!isValid) {
+//       toast({
+//         title: "Missing required fields",
+//         description: "Please fill all required fields before publishing.",
+//         variant: "destructive",
+//       });
+//       return;
 //     }
 
 //     const practiceAreaObj = practiceAreasData?.find(
@@ -727,11 +1950,18 @@
 //                   </Label>
 //                   <Input
 //                     id="title"
-//                     className="h-[49px] border border-gray-500"
+//                     className={cn(
+//                       "h-[49px] border border-gray-500",
+//                       formSubmitted && fieldErrors.title && "border-red-500"
+//                     )}
 //                     placeholder="Add your title..."
 //                     value={formData.title}
 //                     onChange={(e) => handleInputChange("title", e.target.value)}
 //                   />
+//                   {formSubmitted && fieldErrors.title && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
+//                   )}
+                    
 //                 </div>
 //                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 //                   <div className="space-y-2">
@@ -743,13 +1973,19 @@
 //                     </Label>
 //                     <Input
 //                       id="discountPrice"
-//                       className="h-[49px] border border-gray-500"
+//                       className={cn(
+//                         "h-[49px] border border-gray-500",
+//                         formSubmitted && fieldErrors.discountPrice && "border-red-500"
+//                       )}
 //                       placeholder="Add Discount Price..."
 //                       value={formData.discountPrice}
 //                       onChange={(e) =>
 //                         handleInputChange("discountPrice", e.target.value)
 //                       }
 //                     />
+//                     {formSubmitted && fieldErrors.discountPrice && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.discountPrice}</p>
+//                     )}
 //                   </div>
 //                   <div className="space-y-2">
 //                     <Label
@@ -760,13 +1996,19 @@
 //                     </Label>
 //                     <Input
 //                       id="quantity"
-//                       className="h-[49px] border border-gray-500"
+//                       className={cn(
+//                         "h-[49px] border border-gray-500",
+//                         formSubmitted && fieldErrors.quantity && "border-red-500"
+//                       )}
 //                       placeholder="Add Quantity..."
 //                       value={formData.quantity}
 //                       onChange={(e) =>
 //                         handleInputChange("quantity", e.target.value)
 //                       }
 //                     />
+//                       {formSubmitted && fieldErrors.quantity && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.quantity}</p>
+//                     )}
 //                   </div>
 //                   <div className="space-y-2">
 //                     <Label className="text-base font-semibold" htmlFor="format">
@@ -778,7 +2020,10 @@
 //                         handleInputChange("format", value)
 //                       }
 //                     >
-//                       <SelectTrigger className="h-[49px] border border-gray-500">
+//                       <SelectTrigger className={cn(
+//                         "h-[49px] border border-gray-500",
+//                         formSubmitted && fieldErrors.format && "border-red-500"
+//                       )}>
 //                         <SelectValue placeholder="Select format..." />
 //                       </SelectTrigger>
 //                       <SelectContent>
@@ -786,6 +2031,9 @@
 //                         <SelectItem value="Document">Doc</SelectItem>
 //                       </SelectContent>
 //                     </Select>
+//                     {formSubmitted && fieldErrors.format && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.format}</p>
+//                     )}
 //                   </div>
 //                 </div>
 //                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -797,7 +2045,10 @@
 //                           variant="outline"
 //                           role="combobox"
 //                           aria-expanded={countryOpen}
-//                           className="w-full justify-between h-[49px] border"
+//                           className={cn(
+//                             "w-full justify-between h-[49px] border",
+//                             formSubmitted && fieldErrors.country && "border-red-500"
+//                           )}
 //                           disabled={isLoadingCountries}
 //                         >
 //                           {selectedCountry
@@ -834,6 +2085,9 @@
 //                         </Command>
 //                       </PopoverContent>
 //                     </Popover>
+//                     {formSubmitted && fieldErrors.country && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.country}</p>
+//                     )}
 //                   </div>
 //                   <div className="space-y-2">
 //                     <Label>States *</Label>
@@ -843,7 +2097,10 @@
 //                           variant="outline"
 //                           role="combobox"
 //                           aria-expanded={stateOpen}
-//                           className="w-full justify-between h-[49px] border"
+//                           className={cn(
+//                             "w-full justify-between h-[49px] border",
+//                             formSubmitted && fieldErrors.states && "border-red-500"
+//                           )}
 //                           disabled={!selectedCountry}
 //                         >
 //                           {selectedStates.length > 0
@@ -886,6 +2143,9 @@
 //                         </Command>
 //                       </PopoverContent>
 //                     </Popover>
+//                     {formSubmitted && fieldErrors.states && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.states}</p>
+//                     )}
 //                   </div>
 //                   <div className="space-y-2">
 //                     <Label>Divisions *</Label>
@@ -895,7 +2155,10 @@
 //                           variant="outline"
 //                           role="combobox"
 //                           aria-expanded={divisionOpen}
-//                           className="w-full justify-between h-[49px] border"
+//                           className={cn(
+//                             "w-full justify-between h-[49px] border",
+//                             formSubmitted && fieldErrors.divisions && "border-red-500"
+//                           )}
 //                           disabled={selectedStates.length === 0}
 //                         >
 //                           {selectedDivisions.length > 0
@@ -940,11 +2203,17 @@
 //                         </Command>
 //                       </PopoverContent>
 //                     </Popover>
+//                     {formSubmitted && fieldErrors.divisions && (
+//                       <p className="text-red-600 text-sm mt-1">{fieldErrors.divisions}</p>
+//                     )}
 //                   </div>
 //                 </div>
 //                 <div className="space-y-2">
-//                   <Label htmlFor="description">Description</Label>
-//                   <div className="rounded-md border border-gray-300 h-[300px] overflow-hidden">
+//                   <Label htmlFor="description">Description *</Label>
+//                   <div className={cn(
+//                     "rounded-md border border-gray-300 h-[300px] overflow-hidden",
+//                     formSubmitted && fieldErrors.description && "border-red-500"
+//                   )}>
 //                     {isClient && (
 //                       <ReactQuill
 //                         theme="snow"
@@ -959,6 +2228,9 @@
 //                       />
 //                     )}
 //                   </div>
+//                   {formSubmitted && fieldErrors.description && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>
+//                   )}
 //                 </div>
 //               </CardContent>
 //             </Card>
@@ -981,7 +2253,10 @@
 //                       setPracticeArea(selectedArea ? selectedArea.name : value);
 //                     }}
 //                   >
-//                     <SelectTrigger className="h-[49px] border border-gray-400">
+//                     <SelectTrigger className={cn(
+//                       "h-[49px] border border-gray-400",
+//                       formSubmitted && fieldErrors.practiceArea && "border-red-500"
+//                     )}>
 //                       <SelectValue placeholder="Select a practice area" />
 //                     </SelectTrigger>
 //                     <SelectContent>
@@ -998,6 +2273,9 @@
 //                       )}
 //                     </SelectContent>
 //                   </Select>
+//                   {formSubmitted && fieldErrors.practiceArea && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.practiceArea}</p>
+//                   )}
 //                 </div>
 
 //                 <div>
@@ -1033,7 +2311,10 @@
 //                       handleInputChange("resourceType", value);
 //                     }}
 //                   >
-//                     <SelectTrigger className="h-[49px] border border-gray-400">
+//                     <SelectTrigger className={cn(
+//                       "h-[49px] border border-gray-400",
+//                       formSubmitted && fieldErrors.resourceType && "border-red-500"
+//                     )}>
 //                       <SelectValue placeholder="Select a resource type" />
 //                     </SelectTrigger>
 //                     <SelectContent>
@@ -1050,6 +2331,9 @@
 //                       )}
 //                     </SelectContent>
 //                   </Select>
+//                   {formSubmitted && fieldErrors.resourceType && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.resourceType}</p>
+//                   )}
 //                 </div>
 //               </CardContent>
 //             </Card>
@@ -1152,8 +2436,11 @@
 //             <Card>
 //               <CardContent className="pt-6">
 //                 <div className="space-y-2">
-//                   <Label>File (PDF, Word, etc.)</Label>
-//                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+//                   <Label>File (PDF, Word, etc.) *</Label>
+//                   <div className={cn(
+//                     "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center",
+//                     formSubmitted && fieldErrors.file && "border-red-500 bg-red-50"
+//                   )}>
 //                     <input
 //                       type="file"
 //                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
@@ -1166,26 +2453,30 @@
 //                       <p className="mt-2 text-sm text-gray-600">
 //                         {formData.file
 //                           ? formData.file.name
-//                           : "Click to upload file"}
+//                           : "Click to upload file *"}
 //                       </p>
 //                     </label>
 //                   </div>
+//                   {formSubmitted && fieldErrors.file && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.file}</p>
+//                   )}
 //                 </div>
 //               </CardContent>
 //             </Card>
 
 //             <Card>
 //               <CardHeader>
-//                 <CardTitle>Upload Images</CardTitle>
+//                 <CardTitle>Upload Images *</CardTitle>
 //               </CardHeader>
 //               <CardContent className="pt-6">
 //                 <div className="space-y-2">
 //                   <Label htmlFor="images-upload">
-//                     Additional Images ({formData.images.length}/4 maximum)
+//                     Additional Images ({formData.images.length}/4 maximum) *
 //                   </Label>
 //                   <div
 //                     className={cn(
 //                       "border-2 border-dashed rounded-lg p-6 text-center",
+//                       formSubmitted && fieldErrors.images && "border-red-500 bg-red-50",
 //                       formData.images.length >= 4
 //                         ? "border-gray-200 bg-gray-50"
 //                         : "border-gray-300"
@@ -1213,7 +2504,7 @@
 //                       <p className="text-sm text-gray-600">
 //                         {formData.images.length >= 4
 //                           ? "Maximum 4 images reached"
-//                           : "Click or drag to upload images"}
+//                           : "Click or drag to upload images *"}
 //                       </p>
 //                       <p className="text-xs text-gray-500">
 //                         {formData.images.length >= 4
@@ -1222,6 +2513,9 @@
 //                       </p>
 //                     </label>
 //                   </div>
+//                   {formSubmitted && fieldErrors.images && (
+//                     <p className="text-red-600 text-sm mt-1">{fieldErrors.images}</p>
+//                   )}
 //                   {imagePreviews.length > 0 && (
 //                     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
 //                       {imagePreviews.map((previewUrl, index) => (
@@ -1261,14 +2555,14 @@
 //               <Button
 //                 onClick={() => handleSubmit("publish")}
 //                 className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
-//                 disabled={isPublishing || !isFormValid || !me?.data?.stripeAccountId}
+//                 disabled={isPublishing || !me?.data?.stripeAccountId}
 //               >
-//                 {isPublishing ? "Requesting..." : "Request Resources"}
+//                 {isPublishing ? "Requesting..." : "Add Resources"}
 //               </Button>
 //               <Button
 //                 onClick={() => handleSubmit("draft")}
 //                 className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""}`}
-//                 disabled={isDrafting || !isFormValid}
+//                 disabled={isDrafting}
 //               >
 //                 {isDrafting ? "Drafting..." : "Draft"}
 //               </Button>
@@ -1344,1418 +2638,3 @@
 //     </div>
 //   );
 // }
-
-
-
-"use client";
-
-import type React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ChevronDown, FileText, ImageIcon, X } from "lucide-react";
-import dynamic from "next/dynamic";
-import { useState, useEffect, useRef, } from "react";
-import "react-quill/dist/quill.snow.css";
-import Image from "next/image";
-import { useSession } from "next-auth/react";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useRouter } from "next/navigation";
-
-const ReactQuill = dynamic(() => import("react-quill"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[300px] border border-gray-300 rounded-md flex items-center justify-center">
-      Loading editor...
-    </div>
-  ),
-});
-
-interface Division {
-  divisionName: string;
-}
-
-interface State {
-  stateName: string;
-  divisions: Division[];
-}
-
-interface Country {
-  _id: string;
-  countryName: string;
-  states: State[];
-}
-
-interface PracticeArea {
-  _id: string;
-  name: string;
-  description: string;
-  subPracticeAreas?: { _id: string; name: string }[];
-}
-
-interface ResourceType {
-  _id: string;
-  resourceTypeName: string;
-  description: string;
-}
-
-interface FormDataState {
-  title: string;
-  discountPrice: string;
-  quantity: string;
-  format: string;
-  country: string;
-  states: string[];
-  divisions: string[];
-  description: string;
-  practiceArea: string;
-  resourceType: string;
-  thumbnail: File;
-  file: File | null;
-  images: File[];
-  productStatus: string;
-}
-
-export default function ResourceForm() {
-  const { toast } = useToast();
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [selectedStates, setSelectedStates] = useState<string[]>([]);
-  const [selectedDivisions, setSelectedDivisions] = useState<string[]>([]);
-  const [countryOpen, setCountryOpen] = useState(false);
-  const [stateOpen, setStateOpen] = useState(false);
-  const [divisionOpen, setDivisionOpen] = useState(false);
-  const [stateSearch, setStateSearch] = useState("");
-  const [divisionSearch, setDivisionSearch] = useState("");
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>("");
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [isClient, setIsClient] = useState(false);
-  const [practiceArea, setPracticeArea] = useState("");
-  const thumbnailInputRef = useRef<HTMLInputElement>(null);
-  const updateThumbnailInputRef = useRef<HTMLInputElement>(null);
-  const [selectedSubAreas, setSelectedSubAreas] = useState<string[]>([]);
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [isDrafting, setIsDrafting] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const router = useRouter();
-  const queryClient = useQueryClient();
-
-  // ── Added for validation ────────────────────────────────────────
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-  // Helper function to fetch an image and convert it to a File object
-  const fetchImageAsFile = async (url: string, fileName: string): Promise<File> => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new File([blob], fileName, { type: blob.type });
-  };
-
-  // State to store File objects for thumbnails
-  const [thumbnailFiles, setThumbnailFiles] = useState<File[]>([]);
-
-  // Fetch default images as File objects
-  useEffect(() => {
-    const loadImages = async () => {
-      const imagePaths = [
-        { path: "/assets/bs1.png", name: "bs1.png" },
-        { path: "/assets/bs2.png", name: "bs2.png" },
-        { path: "/assets/hh.png", name: "hh.png" },
-      ];
-      try {
-        const files = await Promise.all(
-          imagePaths.map(async ({ path, name }) => fetchImageAsFile(path, name))
-        );
-        setThumbnailFiles(files);
-        setFormData((prev) => ({ ...prev, thumbnail: files[0] }));
-        setThumbnailPreview(URL.createObjectURL(files[0]));
-      } catch (error) {
-        console.error("Failed to load default images:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load default images.",
-          variant: "destructive",
-        });
-      }
-    };
-    loadImages();
-  }, [toast]);
-
-  const [formData, setFormData] = useState<FormDataState>({
-    title: "",
-    discountPrice: "",
-    quantity: "",
-    format: "",
-    country: "",
-    productStatus: "pending",
-    states: [],
-    divisions: [],
-    description: "",
-    practiceArea: "",
-    resourceType: "",
-    thumbnail: new File([], "bs1.png"),
-    file: null,
-    images: [],
-  });
-
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-  const { data: session } = useSession();
-  const API_TOKEN = session?.user?.accessToken || "";
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    console.log("Practice Area updated:", practiceArea);
-  }, [practiceArea]);
-
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      [{ align: [] }],
-      ["clean"],
-    ],
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "list",
-    "bullet",
-    "align",
-  ];
-
-  const { data: countriesData, isLoading: isLoadingCountries } = useQuery<
-    Country[]
-  >({
-    queryKey: ["countries-all"],
-    queryFn: async () => {
-      const response = await fetch(`${API_BASE_URL}/country-state/all`, {
-        headers: {
-          Authorization: `Bearer ${API_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-      return data.success ? data.data : [];
-    },
-  });
-
-  const { data: practiceAreasData, isLoading: isLoadingPracticeAreas } =
-    useQuery<PracticeArea[]>({
-      queryKey: ["practiceAreas-all"],
-      queryFn: async () => {
-        const response = await fetch(`${API_BASE_URL}/practice-area/all`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) throw new Error("Failed to fetch practice areas");
-        const data = await response.json();
-        return data.success ? data.data : [];
-      },
-    });
-
-  const singelPracticeArea = practiceAreasData?.find(
-    (p) => p.name.toLowerCase() === practiceArea.toLowerCase()
-  );
-
-  const handleCheckboxChange = (id: string, checked: boolean) => {
-    setSelectedSubAreas((prev) =>
-      checked ? [...prev, id] : prev.filter((item) => item !== id)
-    );
-  };
-
-
-  const { data: me } = useQuery({
-    queryKey: ["me"],
-    queryFn: async () => {
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/${session?.user?.id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch user data");
-      }
-
-      return await response.json();
-    },
-
-  });
-
-
-  useEffect(() => {
-    if (singelPracticeArea) {
-      setPracticeArea(singelPracticeArea.name);
-    }
-  }, [singelPracticeArea]);
-
-  const { data: resourceTypesData, isLoading: isLoadingResourceTypes } =
-    useQuery<ResourceType[]>({
-      queryKey: ["resourceTypes-all"],
-      queryFn: async () => {
-        const response = await fetch(`${API_BASE_URL}/resource-type/all`, {
-          headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) throw new Error("Failed to fetch resource types");
-        const data = await response.json();
-        return data.success ? data.data : [];
-      },
-    });
-
-  // ── Added validation function ───────────────────────────────────
-  const validateForm = () => {
-    const errors: Record<string, string> = {};
-
-    if (!formData.practiceArea) errors.practiceArea = "This field is required";
-    if (!formData.title.trim()) errors.title = "This field is required";
-    if (!formData.quantity || Number.parseInt(formData.quantity) <= 0) errors.quantity = "Quantity must be a positive integer";
-    if (!formData.resourceType) errors.resourceType = "This field is required";
-    if (!formData.discountPrice.trim()) errors.discountPrice = "This field is required";
-    if (!formData.format) errors.format = "This field is required";
-    if (!formData.country) errors.country = "This field is required";
-    if (formData.states.length === 0) errors.states = "This field is required";
-    if (formData.divisions.length === 0) errors.divisions = "This field is required";
-    if (!formData.description.trim()) errors.description = "This field is required";
-    if (!formData.file) errors.file = "This field is required";
-    if (formData.images.length === 0) errors.images = "This field is required";
-
-    setFieldErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const { mutate: submitResource } = useMutation({
-    mutationFn: async (currentFormData: FormDataState) => {
-      if (currentFormData.productStatus === "pending") setIsPublishing(true);
-      if (currentFormData.productStatus === "draft") setIsDrafting(true);
-
-      const submitData = new FormData();
-      submitData.append("title", currentFormData.title);
-      submitData.append("description", currentFormData.description);
-      submitData.append("discountPrice", currentFormData.discountPrice);
-      submitData.append("format", currentFormData.format);
-      submitData.append("quantity", currentFormData.quantity);
-      submitData.append("country", currentFormData.country);
-      submitData.append("productStatus", currentFormData.productStatus);
-      currentFormData.states.forEach((state) => {
-        submitData.append("states[]", state);
-      });
-      currentFormData.divisions.forEach((division) => {
-        submitData.append("divisions[]", division);
-      });
-      selectedSubAreas.forEach((subAreaId) => {
-        submitData.append("subPracticeAreas[]", subAreaId);
-      });
-      const practiceAreaObj = practiceAreasData?.find(
-        (p) => p._id === currentFormData.practiceArea
-      );
-      if (practiceAreaObj) {
-        submitData.append("practiceAreas[]", practiceAreaObj.name);
-      } else if (currentFormData.practiceArea) {
-        submitData.append("practiceAreas[]", currentFormData.practiceArea);
-      }
-
-      const resourceTypeObj = resourceTypesData?.find(
-        (rt) => rt._id === currentFormData.resourceType
-      );
-      if (resourceTypeObj) {
-        submitData.append("resourceType[]", resourceTypeObj.resourceTypeName);
-      } else if (currentFormData.resourceType) {
-        submitData.append("resourceType[]", currentFormData.resourceType);
-      }
-
-      submitData.append("thumbnail", currentFormData.thumbnail);
-
-      if (currentFormData.file) {
-        submitData.append("file", currentFormData.file);
-      }
-
-      currentFormData.images.forEach((imageFile) => {
-        submitData.append("images", imageFile);
-      });
-
-      const response = await fetch(`${API_BASE_URL}/resource`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
-        body: submitData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          `Failed to publish resource: ${errorData.message || response.statusText}`
-        );
-      }
-      return response.json();
-    },
-    onSuccess: (data) => {
-      console.log("Resource published successfully:", data);
-      toast({
-        title: "Success!",
-        description: "Resource has been published successfully.",
-        variant: "default",
-      });
-      if (isPublishing) {
-        setIsPublishing(false);
-        router.push("/dashboard/resources/list");
-        queryClient.invalidateQueries({ queryKey: ["resources"] });
-      } else if (isDrafting) {
-        setIsDrafting(false);
-        router.push("/dashboard/resources/list");
-        queryClient.invalidateQueries({ queryKey: ["resources"] });
-      }
-    },
-    onError: (error: Error) => {
-      console.error("Error publishing resource:", error);
-      toast({
-        title: "Error",
-        description:
-          error.message || "Failed to publish resource. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleInputChange = (field: keyof FormDataState, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (field === "practiceArea") {
-      setPracticeArea(value);
-    }
-  };
-
-  const handleCountrySelect = (country: Country) => {
-    setSelectedCountry(country);
-    setSelectedStates([]);
-    setSelectedDivisions([]);
-    setFormData((prev) => ({
-      ...prev,
-      country: country.countryName,
-      states: [],
-      divisions: [],
-    }));
-    setCountryOpen(false);
-  };
-
-  const handleStateToggle = (stateName: string) => {
-    const newStates = selectedStates.includes(stateName)
-      ? selectedStates.filter((s) => s !== stateName)
-      : [...selectedStates, stateName];
-    setSelectedStates(newStates);
-    setSelectedDivisions([]);
-    setFormData((prev) => ({
-      ...prev,
-      states: newStates,
-      divisions: [],
-    }));
-  };
-
-  const handleDivisionToggle = (divisionName: string) => {
-    const newDivisions = selectedDivisions.includes(divisionName)
-      ? selectedDivisions.filter((d) => d !== divisionName)
-      : [...selectedDivisions, divisionName];
-    setSelectedDivisions(newDivisions);
-    setFormData((prev) => ({ ...prev, divisions: newDivisions }));
-  };
-
-  const handleThumbnailSelect = (file: File) => {
-    if (thumbnailPreview && typeof formData.thumbnail !== "string") {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
-    setFormData((prev) => ({ ...prev, thumbnail: file }));
-    setThumbnailPreview(URL.createObjectURL(file));
-    if (thumbnailInputRef.current) {
-      thumbnailInputRef.current.value = "";
-    }
-    if (updateThumbnailInputRef.current) {
-      updateThumbnailInputRef.current.value = "";
-    }
-  };
-
-  const handleThumbnailUpload = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (thumbnailPreview && typeof formData.thumbnail !== "string") {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload only image files for thumbnail.",
-          variant: "destructive",
-        });
-        setFormData((prev) => ({
-          ...prev,
-          thumbnail: thumbnailFiles[0] || new File([], "bs1.png"),
-        }));
-        setThumbnailPreview(
-          URL.createObjectURL(thumbnailFiles[0] || new File([], "bs1.png"))
-        );
-        if (thumbnailInputRef.current) {
-          thumbnailInputRef.current.value = "";
-        }
-        if (updateThumbnailInputRef.current) {
-          updateThumbnailInputRef.current.value = "";
-        }
-        return;
-      }
-      setFormData((prev) => ({ ...prev, thumbnail: file }));
-      setThumbnailPreview(URL.createObjectURL(file));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail: thumbnailFiles[0] || new File([], "bs1.png"),
-      }));
-      setThumbnailPreview(
-        URL.createObjectURL(thumbnailFiles[0] || new File([], "bs1.png"))
-      );
-      if (thumbnailInputRef.current) {
-        thumbnailInputRef.current.value = "";
-      }
-      if (updateThumbnailInputRef.current) {
-        updateThumbnailInputRef.current.value = "";
-      }
-    }
-  };
-
-  const handleRemoveThumbnail = () => {
-    if (thumbnailPreview && typeof formData.thumbnail !== "string") {
-      URL.revokeObjectURL(thumbnailPreview);
-    }
-    setThumbnailPreview(
-      URL.createObjectURL(thumbnailFiles[0] || new File([], "bs1.png"))
-    );
-    setFormData((prev) => ({
-      ...prev,
-      thumbnail: thumbnailFiles[0] || new File([], "bs1.png"),
-    }));
-    if (thumbnailInputRef.current) {
-      thumbnailInputRef.current.value = "";
-    }
-    if (updateThumbnailInputRef.current) {
-      updateThumbnailInputRef.current.value = "";
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = event.target.files?.[0] || null;
-    setFormData((prev) => ({
-      ...prev,
-      file: uploadedFile,
-    }));
-  };
-
-  const handleImagesUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files) {
-      const newFiles = Array.from(files);
-      const currentImageCount = formData.images.length;
-      const maxImages = 4;
-      const remainingSlots = maxImages - currentImageCount;
-
-      if (remainingSlots <= 0) {
-        toast({
-          title: "Image limit reached",
-          description: "You can only upload a maximum of 4 images.",
-          variant: "destructive",
-        });
-        if (event.target) {
-          event.target.value = "";
-        }
-        return;
-      }
-
-      const imageFiles = newFiles.filter((file) =>
-        file.type.startsWith("image/")
-      );
-      if (imageFiles.length !== newFiles.length) {
-        toast({
-          title: "Invalid file type",
-          description: "Some files were not images and were not added.",
-          variant: "destructive",
-        });
-      }
-
-      const filesToAdd = imageFiles.slice(0, remainingSlots);
-
-      if (filesToAdd.length < imageFiles.length) {
-        toast({
-          title: "Image limit reached",
-          description: `Only ${filesToAdd.length} image(s) were added. Maximum of 4 images allowed.`,
-          variant: "destructive",
-        });
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...filesToAdd],
-      }));
-      setImagePreviews((prev) => [
-        ...prev,
-        ...filesToAdd.map((file) => URL.createObjectURL(file)),
-      ]);
-    }
-    if (event.target) {
-      event.target.value = "";
-    }
-  };
-
-  const handleRemoveImage = (indexToRemove: number) => {
-    URL.revokeObjectURL(imagePreviews[indexToRemove]);
-    setImagePreviews((prev) =>
-      prev.filter((_, index) => index !== indexToRemove)
-    );
-    setFormData((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, index) => index !== indexToRemove),
-    }));
-  };
-
-  const handleSubmit = (action: "publish" | "draft") => {
-    setFormSubmitted(true);
-
-    const isValid = validateForm();
-
-    if (!isValid) {
-      toast({
-        title: "Missing required fields",
-        description: "Please fill all required fields before publishing.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const practiceAreaObj = practiceAreasData?.find(
-      (p) => p._id === formData.practiceArea
-    );
-    const resourceTypeObj = resourceTypesData?.find(
-      (rt) => rt._id === formData.resourceType
-    );
-
-    const formDataToSubmit: FormDataState = {
-      ...formData,
-      productStatus: action === "publish" ? "pending" : "draft",
-    };
-
-    const dataToLog = {
-      title: formDataToSubmit.title,
-      description: formDataToSubmit.description,
-      discountPrice: formDataToSubmit.discountPrice,
-      format: formDataToSubmit.format,
-      quantity: formDataToSubmit.quantity,
-      country: formDataToSubmit.country,
-      states: formDataToSubmit.states,
-      divisions: formDataToSubmit.divisions,
-      subPracticeAreas: selectedSubAreas,
-      productStatus: formDataToSubmit.productStatus,
-      practiceAreas: practiceAreaObj
-        ? [practiceAreaObj.name]
-        : formData.practiceArea
-          ? [formData.practiceArea]
-          : [],
-      resourceType: resourceTypeObj
-        ? [resourceTypeObj.resourceTypeName]
-        : formData.resourceType
-          ? [formData.resourceType]
-          : [],
-      thumbnail: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/thumbnails/thumb_${formDataToSubmit.thumbnail.name}`,
-      file: formData.file
-        ? {
-          url: `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/files/doc_${formData.file.name}`,
-          type: formData.file.type,
-        }
-        : null,
-      images: formData.images.map(
-        (img) =>
-          `https://res.cloudinary.com/dyxwchbmh/image/upload/v_placeholder/resources/images/img_${img.name}`
-      ),
-    };
-
-    console.log("Form Data (for logging):", dataToLog);
-
-    submitResource(formDataToSubmit);
-  };
-
-  const filteredStates =
-    selectedCountry?.states.filter((state) =>
-      state.stateName.toLowerCase().includes(stateSearch.toLowerCase())
-    ) || [];
-
-  const availableDivisions =
-    selectedCountry?.states
-      .filter((state) => selectedStates.includes(state.stateName))
-      .flatMap((state) => state.divisions)
-      .filter((division) =>
-        division.divisionName
-          .toLowerCase()
-          .includes(divisionSearch.toLowerCase())
-      ) || [];
-
-  useEffect(() => {
-    return () => {
-      if (thumbnailPreview && typeof formData.thumbnail !== "string") {
-        URL.revokeObjectURL(thumbnailPreview);
-      }
-      imagePreviews.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-    };
-  }, [thumbnailPreview, imagePreviews, formData.thumbnail]);
-
-  return (
-    <div>
-      <div className="max-w-9xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold">
-                  Add Resources
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="title" className="text-base">
-                    Add Title
-                  </Label>
-                  <Input
-                    id="title"
-                    className={cn(
-                      "h-[49px] border border-gray-500",
-                      formSubmitted && fieldErrors.title && "border-red-500"
-                    )}
-                    placeholder="Add your title..."
-                    value={formData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
-                  />
-                  {formSubmitted && fieldErrors.title && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.title}</p>
-                  )}
-                    
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label
-                      className="text-base font-semibold"
-                      htmlFor="discountPrice"
-                    >
-                      Discount Price *
-                    </Label>
-                    <Input
-                      id="discountPrice"
-                      className={cn(
-                        "h-[49px] border border-gray-500",
-                        formSubmitted && fieldErrors.discountPrice && "border-red-500"
-                      )}
-                      placeholder="Add Discount Price..."
-                      value={formData.discountPrice}
-                      onChange={(e) =>
-                        handleInputChange("discountPrice", e.target.value)
-                      }
-                    />
-                    {formSubmitted && fieldErrors.discountPrice && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.discountPrice}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label
-                      className="text-base font-semibold"
-                      htmlFor="quantity"
-                    >
-                      Quantity
-                    </Label>
-                    <Input
-                      id="quantity"
-                      className={cn(
-                        "h-[49px] border border-gray-500",
-                        formSubmitted && fieldErrors.quantity && "border-red-500"
-                      )}
-                      placeholder="Add Quantity..."
-                      value={formData.quantity}
-                      onChange={(e) =>
-                        handleInputChange("quantity", e.target.value)
-                      }
-                    />
-                      {formSubmitted && fieldErrors.quantity && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.quantity}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-base font-semibold" htmlFor="format">
-                      Format *
-                    </Label>
-                    <Select
-                      value={formData.format}
-                      onValueChange={(value) =>
-                        handleInputChange("format", value)
-                      }
-                    >
-                      <SelectTrigger className={cn(
-                        "h-[49px] border border-gray-500",
-                        formSubmitted && fieldErrors.format && "border-red-500"
-                      )}>
-                        <SelectValue placeholder="Select format..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PDF">PDF</SelectItem>
-                        <SelectItem value="Document">Doc</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {formSubmitted && fieldErrors.format && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.format}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label>Country *</Label>
-                    <Popover open={countryOpen} onOpenChange={setCountryOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={countryOpen}
-                          className={cn(
-                            "w-full justify-between h-[49px] border",
-                            formSubmitted && fieldErrors.country && "border-red-500"
-                          )}
-                          disabled={isLoadingCountries}
-                        >
-                          {selectedCountry
-                            ? selectedCountry.countryName
-                            : "Select country..."}
-                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput placeholder="Search country..." />
-                          <CommandList>
-                            <CommandEmpty>No country found.</CommandEmpty>
-                            <CommandGroup>
-                              {countriesData?.map((country: Country) => (
-                                <CommandItem
-                                  key={country._id}
-                                  value={country.countryName}
-                                  onSelect={() => handleCountrySelect(country)}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      selectedCountry?._id === country._id
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {country.countryName}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    {formSubmitted && fieldErrors.country && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.country}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>States *</Label>
-                    <Popover open={stateOpen} onOpenChange={setStateOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={stateOpen}
-                          className={cn(
-                            "w-full justify-between h-[49px] border",
-                            formSubmitted && fieldErrors.states && "border-red-500"
-                          )}
-                          disabled={!selectedCountry}
-                        >
-                          {selectedStates.length > 0
-                            ? `${selectedStates.length} state(s) selected`
-                            : "Select states..."}
-                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search states..."
-                            value={stateSearch}
-                            onValueChange={setStateSearch}
-                          />
-                          <CommandList>
-                            <CommandEmpty>No state found.</CommandEmpty>
-                            <CommandGroup>
-                              {filteredStates.map((state) => (
-                                <CommandItem
-                                  key={state.stateName}
-                                  value={state.stateName}
-                                  onSelect={() =>
-                                    handleStateToggle(state.stateName)
-                                  }
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      selectedStates.includes(state.stateName)
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {state.stateName}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    {formSubmitted && fieldErrors.states && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.states}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Divisions *</Label>
-                    <Popover open={divisionOpen} onOpenChange={setDivisionOpen}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={divisionOpen}
-                          className={cn(
-                            "w-full justify-between h-[49px] border",
-                            formSubmitted && fieldErrors.divisions && "border-red-500"
-                          )}
-                          disabled={selectedStates.length === 0}
-                        >
-                          {selectedDivisions.length > 0
-                            ? `${selectedDivisions.length} division(s) selected`
-                            : "Select divisions..."}
-                          <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search divisions..."
-                            value={divisionSearch}
-                            onValueChange={setDivisionSearch}
-                          />
-                          <CommandList>
-                            <CommandEmpty>No division found.</CommandEmpty>
-                            <CommandGroup>
-                              {availableDivisions.map((division) => (
-                                <CommandItem
-                                  key={division.divisionName}
-                                  value={division.divisionName}
-                                  onSelect={() =>
-                                    handleDivisionToggle(division.divisionName)
-                                  }
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      selectedDivisions.includes(
-                                        division.divisionName
-                                      )
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {division.divisionName}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    {formSubmitted && fieldErrors.divisions && (
-                      <p className="text-red-600 text-sm mt-1">{fieldErrors.divisions}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description *</Label>
-                  <div className={cn(
-                    "rounded-md border border-gray-300 h-[300px] overflow-hidden",
-                    formSubmitted && fieldErrors.description && "border-red-500"
-                  )}>
-                    {isClient && (
-                      <ReactQuill
-                        theme="snow"
-                        value={formData.description}
-                        onChange={(content) =>
-                          handleInputChange("description", content)
-                        }
-                        modules={modules}
-                        formats={formats}
-                        className="h-[300px] rounded-md"
-                        style={{ height: "300px" }}
-                      />
-                    )}
-                  </div>
-                  {formSubmitted && fieldErrors.description && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.description}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <Label className="text-base font-semibold">
-                    Practice Area *
-                  </Label>
-                  <Select
-                    value={formData.practiceArea}
-                    onValueChange={(value) => {
-                      handleInputChange("practiceArea", value);
-                      const selectedArea = practiceAreasData?.find(
-                        (area) => area._id === value
-                      );
-                      setPracticeArea(selectedArea ? selectedArea.name : value);
-                    }}
-                  >
-                    <SelectTrigger className={cn(
-                      "h-[49px] border border-gray-400",
-                      formSubmitted && fieldErrors.practiceArea && "border-red-500"
-                    )}>
-                      <SelectValue placeholder="Select a practice area" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingPracticeAreas ? (
-                        <SelectItem value="loading" disabled>
-                          Loading...
-                        </SelectItem>
-                      ) : (
-                        practiceAreasData?.map((area: PracticeArea) => (
-                          <SelectItem key={area._id} value={area._id}>
-                            {area.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  {formSubmitted && fieldErrors.practiceArea && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.practiceArea}</p>
-                  )}
-                </div>
-
-                <div>
-                  {singelPracticeArea?.subPracticeAreas?.map((subArea) => (
-                    <div
-                      key={subArea._id}
-                      className="flex items-center space-x-2 mt-2"
-                    >
-                      <Checkbox
-                        id={subArea.name}
-                        checked={selectedSubAreas.includes(subArea.name)}
-                        onCheckedChange={(checked) =>
-                          handleCheckboxChange(subArea.name, Boolean(checked))
-                        }
-                      />
-                      <Label
-                        htmlFor={subArea.name}
-                        className="text-sm font-medium"
-                      >
-                        {subArea.name}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="space-y-2 mt-4">
-                  <Label className="text-base font-semibold">
-                    Resource Type *
-                  </Label>
-                  <Select
-                    value={formData.resourceType}
-                    onValueChange={(value) => {
-                      handleInputChange("resourceType", value);
-                    }}
-                  >
-                    <SelectTrigger className={cn(
-                      "h-[49px] border border-gray-400",
-                      formSubmitted && fieldErrors.resourceType && "border-red-500"
-                    )}>
-                      <SelectValue placeholder="Select a resource type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingResourceTypes ? (
-                        <SelectItem value="loading" disabled>
-                          Loading...
-                        </SelectItem>
-                      ) : (
-                        resourceTypesData?.map((type: ResourceType) => (
-                          <SelectItem key={type._id} value={type._id}>
-                            {type.resourceTypeName}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                  {formSubmitted && fieldErrors.resourceType && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.resourceType}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold">
-                  Select Thumbnail
-                </CardTitle>
-                <CardDescription>
-                  Choose a default image or upload a custom one
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-3 gap-3">
-                  {thumbnailFiles.map((file, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "relative cursor-pointer rounded-md overflow-hidden border-2 transition-all duration-200",
-                        formData.thumbnail === file
-                          ? "border-blue-500 shadow-lg scale-105"
-                          : "border-gray-200 hover:border-blue-300 hover:shadow-md"
-                      )}
-                      onClick={() => handleThumbnailSelect(file)}
-                    >
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt={`Thumbnail ${index + 1}`}
-                        width={100}
-                        height={100}
-                        className="w-full h-[80px] object-cover"
-                      />
-                      {formData.thumbnail === file && (
-                        <Check className="absolute top-1 right-1 h-5 w-5 text-blue-500 bg-white rounded-full p-0.5" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="update-thumbnail-upload"
-                      className="text-base font-semibold"
-                    >
-                      Update Thumbnail from Device
-                    </Label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleThumbnailUpload}
-                        className="hidden"
-                        id="update-thumbnail-upload"
-                        ref={updateThumbnailInputRef}
-                      />
-                      <label
-                        htmlFor="update-thumbnail-upload"
-                        className="cursor-pointer flex flex-col items-center justify-center space-y-2 py-4"
-                      >
-                        <ImageIcon className="h-10 w-10 text-gray-400" />
-                        <p className="text-sm font-medium text-gray-700">
-                          Upload from Device
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          PNG, JPG, GIF up to 5MB
-                        </p>
-                      </label>
-                    </div>
-                  </div>
-                  {formData.thumbnail && thumbnailPreview ? (
-                    <div className="space-y-3">
-                      <Image
-                        width={100}
-                        height={100}
-                        src={thumbnailPreview}
-                        alt="Thumbnail preview"
-                        className="max-h-40 w-auto mx-auto rounded-md object-contain"
-                      />
-                      <p
-                        className="text-sm text-gray-600 truncate"
-                        title={formData.thumbnail.name}
-                      >
-                        {formData.thumbnail.name}
-                      </p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleRemoveThumbnail}
-                        className="w-full text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700"
-                      >
-                        <X className="mr-2 h-4 w-4" /> Remove Custom Image
-                      </Button>
-                    </div>
-                  ) : null}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <Label>File (PDF, Word, etc.) *</Label>
-                  <div className={cn(
-                    "border-2 border-dashed border-gray-300 rounded-lg p-8 text-center",
-                    formSubmitted && fieldErrors.file && "border-red-500 bg-red-50"
-                  )}>
-                    <input
-                      type="file"
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="file-upload"
-                    />
-                    <label htmlFor="file-upload" className="cursor-pointer">
-                      <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                      <p className="mt-2 text-sm text-gray-600">
-                        {formData.file
-                          ? formData.file.name
-                          : "Click to upload file *"}
-                      </p>
-                    </label>
-                  </div>
-                  {formSubmitted && fieldErrors.file && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.file}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Images *</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="space-y-2">
-                  <Label htmlFor="images-upload">
-                    Additional Images ({formData.images.length}/4 maximum) *
-                  </Label>
-                  <div
-                    className={cn(
-                      "border-2 border-dashed rounded-lg p-6 text-center",
-                      formSubmitted && fieldErrors.images && "border-red-500 bg-red-50",
-                      formData.images.length >= 4
-                        ? "border-gray-200 bg-gray-50"
-                        : "border-gray-300"
-                    )}
-                  >
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImagesUpload}
-                      className="hidden"
-                      id="images-upload"
-                      disabled={formData.images.length >= 4}
-                    />
-                    <label
-                      htmlFor="images-upload"
-                      className={cn(
-                        "flex flex-col items-center justify-center space-y-2 py-4",
-                        formData.images.length >= 4
-                          ? "cursor-not-allowed opacity-50"
-                          : "cursor-pointer"
-                      )}
-                    >
-                      <ImageIcon className="h-12 w-12 text-gray-400" />
-                      <p className="text-sm text-gray-600">
-                        {formData.images.length >= 4
-                          ? "Maximum 4 images reached"
-                          : "Click or drag to upload images *"}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formData.images.length >= 4
-                          ? "Remove an image to add more"
-                          : "PNG, JPG, GIF up to 5MB each (Max 4 images)"}
-                      </p>
-                    </label>
-                  </div>
-                  {formSubmitted && fieldErrors.images && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.images}</p>
-                  )}
-                  {imagePreviews.length > 0 && (
-                    <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      {imagePreviews.map((previewUrl, index) => (
-                        <div key={index} className="relative group">
-                          <Image
-                            src={previewUrl || "/placeholder.svg"}
-                            alt={`Preview ${index + 1}`}
-                            width={100}
-                            height={100}
-                            className="w-full h-24 object-cover rounded-md"
-                          />
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleRemoveImage(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                          <p
-                            className="text-xs text-gray-500 truncate mt-1"
-                            title={formData.images[index]?.name}
-                          >
-                            {formData.images[index]?.name}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Button className="w-full" onClick={() => setPreviewOpen(true)}>
-              Preview
-            </Button>
-            <div className="flex gap-4 items-center justify-center">
-              <Button
-                onClick={() => handleSubmit("publish")}
-                className={`w-full ${isPublishing ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={isPublishing || !me?.data?.stripeAccountId}
-              >
-                {isPublishing ? "Requesting..." : "Add Resources"}
-              </Button>
-              <Button
-                onClick={() => handleSubmit("draft")}
-                className={`w-full ${isDrafting ? "opacity-70 cursor-not-allowed" : ""}`}
-                disabled={isDrafting}
-              >
-                {isDrafting ? "Drafting..." : "Draft"}
-              </Button>
-            </div>
-          </div>
-        </div>
-        <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Preview Data</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              <p>
-                <strong>Title:</strong> {formData.title}
-              </p>
-              <p>
-                <strong>Discount Price:</strong> {formData.discountPrice}
-              </p>
-              <p>
-                <strong>Quantity:</strong> {formData.quantity}
-              </p>
-              <p>
-                <strong>Format:</strong> {formData.format}
-              </p>
-              <p>
-                <strong>Country:</strong> {formData.country}
-              </p>
-              <p>
-                <strong>States:</strong> {formData.states.join(", ")}
-              </p>
-              <p>
-                <strong>Divisions:</strong> {formData.divisions.join(", ")}
-              </p>
-              <p>
-                <strong>Practice Area:</strong> {practiceArea}
-              </p>
-              <div>
-                <strong>Thumbnail:</strong>
-                <Image
-                  width={100}
-                  height={100}
-                  src={thumbnailPreview}
-                  alt="Thumbnail Preview"
-                  className="w-32 h-32 object-cover border"
-                />
-              </div>
-              {formData.file && (
-                <p>
-                  <strong>File:</strong> {formData.file.name}
-                </p>
-              )}
-              {formData.images.length > 0 && (
-                <div>
-                  <strong>Images:</strong>
-                  <div className="flex gap-2 flex-wrap">
-                    {formData.images.map((img, idx) => (
-                      <Image
-                        width={100}
-                        height={100}
-                        key={idx}
-                        src={URL.createObjectURL(img)}
-                        alt={`Image ${idx + 1}`}
-                        className="w-24 h-24 object-cover border"
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  );
-}
