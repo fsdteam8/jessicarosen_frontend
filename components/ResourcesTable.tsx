@@ -197,6 +197,7 @@ export default function ResourcesTable() {
               <TableHead className=" ">Price</TableHead>
               <TableHead className=" ">Quantity</TableHead>
               <TableHead className=" ">Format</TableHead>
+              <TableHead className=" ">Status</TableHead>
               <TableHead className=" ">Date</TableHead>
               <TableHead className=" ">Action</TableHead>
             </TableRow>
@@ -230,9 +231,11 @@ export default function ResourcesTable() {
                 </TableCell>
                 <TableCell className=" ">{resource.quantity}</TableCell>
                 <TableCell className=" ">{resource.format}</TableCell>
+                  <TableCell className=" "> {resource.status}</TableCell>
                 <TableCell className=" ">
                   {format(new Date(resource.createdAt), "MM/dd/yyyy hh:mma")}
                 </TableCell>
+
                 <TableCell>
                   <Button
                     variant="ghost"

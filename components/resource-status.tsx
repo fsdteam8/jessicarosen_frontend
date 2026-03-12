@@ -15,9 +15,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-// import type { Resource, ApiResponse } from "@/lib/types"
 import { ResourceSkeleton } from "./resource-skeleton";
-// import { MessageModal } from "./message-modal"
 import { EditResourceModal } from "./edit-resource-modal";
 import {
   AlertDialog,

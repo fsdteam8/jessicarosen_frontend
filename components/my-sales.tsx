@@ -7,8 +7,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Loader2, Search, X } from "lucide-react";
+import {  Eye, Loader2, Search, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface SalesData {
   productId: string;
@@ -16,41 +22,93 @@ interface SalesData {
   totalSellAmount: number;
   adminCharge: number;
   sellerRevenue: number;
+  productTitle?: string;
+  orderId?: string;
+  createdAt?: string;
+  customer?: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
 }
 
-interface ApiSalesData {
-  quantity: number;
-  amount: number;
-  productId: string;
+interface ApiOrderItem {
+  _id: string;
+  totalAmount: number;
+  paymentStatus: string;
+  orderStatus: string;
+  createdAt: string;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+  };
+  orderId: string;
+  item: {
+    quantity: number;
+    price: number;
+    sellerAmount: number;
+    product: {
+      productId: string;
+      title: string;
+      image: string;
+    };
+  };
 }
 
 interface ApiResponse {
-  status: boolean;
+  success: boolean;
   message: string;
-  data: ApiSalesData[];
+  data: {
+    totalSales: number;
+    orders: ApiOrderItem[];
+  };
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
 }
 
 export function MySales() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCustomer, setSelectedCustomer] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    orderId: string;
+  } | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const itemsPerPage = 10;
 
   const session = useSession();
   const TOKEN = session?.data?.user?.accessToken;
 
   // Transform API data to match component structure
-  const transformApiData = (apiData: ApiSalesData[]): SalesData[] => {
-    return apiData.map((item) => {
-      const adminCharge = Math.floor(item.amount * 0.5); // 50% admin charge
-      const sellerRevenue = item.amount - adminCharge;
-
+  const transformApiData = (orders: ApiOrderItem[]): SalesData[] => {
+    return orders.map((order) => {
+      const adminCharge = order.totalAmount - order.item.sellerAmount;
+      
       return {
-        productId: item.productId,
-        quantity: item.quantity,
-        totalSellAmount: item.amount,
+        productId: order.item.product.productId,
+        quantity: order.item.quantity,
+        totalSellAmount: order.totalAmount,
         adminCharge: adminCharge,
-        sellerRevenue: sellerRevenue,
+        sellerRevenue: order.item.sellerAmount,
+        productTitle: order.item.product.title,
+        orderId: order.orderId,
+        createdAt: order.createdAt,
+        customer: {
+          id: order.customer.id,
+          name: order.customer.name,
+          email: order.customer.email,
+          phone: order.customer.phone || "N/A",
+        },
       };
     });
   };
@@ -73,12 +131,13 @@ export function MySales() {
     }
 
     const result: ApiResponse = await response.json();
+    console.log("API Response:", result);
 
-    if (!result.status || !result.data) {
+    if (!result.success || !result.data) {
       throw new Error(result.message || "Failed to fetch sales data");
     }
 
-    return transformApiData(result.data);
+    return transformApiData(result.data.orders);
   };
 
   // Search sales data
@@ -103,20 +162,21 @@ export function MySales() {
     }
 
     const result: ApiResponse = await response.json();
+    console.log("Search API Response:", result);
 
-    if (!result.status || !result.data) {
+    if (!result.success || !result.data) {
       throw new Error(result.message || "Failed to search sales data");
     }
 
-    return transformApiData(result.data);
+    return transformApiData(result.data.orders);
   };
 
   // Main sales data query
   const {
     data: allSalesData = [],
     isLoading: isLoadingAll,
-    // error: allSalesError,
-    // refetch: refetchAll,
+    error: allSalesError,
+    refetch: refetchAll,
   } = useQuery({
     queryKey: ["sales", "all"],
     queryFn: fetchAllSales,
@@ -129,7 +189,7 @@ export function MySales() {
   const {
     data: searchResults = [],
     isLoading: isLoadingSearch,
-    // error: searchError,
+    error: searchError,
     refetch: refetchSearch,
   } = useQuery({
     queryKey: ["sales", "search", searchTerm],
@@ -144,7 +204,7 @@ export function MySales() {
     isSearching && searchTerm.trim() ? searchResults : allSalesData;
   const isLoading =
     isSearching && searchTerm.trim() ? isLoadingSearch : isLoadingAll;
-  // const error = isSearching && searchTerm.trim() ? searchError : allSalesError;
+  const error = isSearching && searchTerm.trim() ? searchError : allSalesError;
 
   // Pagination
   const paginatedData = displayData.slice(
@@ -171,17 +231,29 @@ export function MySales() {
     setCurrentPage(1);
   };
 
-  // const handleRefresh = () => {
-  //   if (isSearching && searchTerm.trim()) {
-  //     refetchSearch();
-  //   } else {
-  //     refetchAll();
-  //   }
-  // };
+  const handleRefresh = () => {
+    if (isSearching && searchTerm.trim()) {
+      refetchSearch();
+    } else {
+      refetchAll();
+    }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch();
+    }
+  };
+
+  const handleViewCustomer = (item: SalesData) => {
+    if (item.customer) {
+      setSelectedCustomer({
+        name: item.customer.name,
+        email: item.customer.email,
+        phone: item.customer.phone,
+        orderId: item.orderId || "N/A",
+      });
+      setIsDialogOpen(true);
     }
   };
 
@@ -198,23 +270,23 @@ export function MySales() {
     );
   }
 
-  // if (error) {
-  //   return (
-  //     <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-  //       <div className="text-red-600 text-center">
-  //         <p className="font-semibold">
-  //           {isSearching
-  //             ? "Error searching sales data"
-  //             : "Error loading sales data"}
-  //         </p>
-  //         <p className="text-sm">{error.message}</p>
-  //       </div>
-  //       <Button onClick={handleRefresh} variant="outline">
-  //         Try Again
-  //       </Button>
-  //     </div>
-  //   );
-  // }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <div className="text-red-600 text-center">
+          <p className="font-semibold">
+            {isSearching
+              ? "Error searching sales data"
+              : "Error loading sales data"}
+          </p>
+          <p className="text-sm">{error.message}</p>
+        </div>
+        <Button onClick={handleRefresh} variant="outline">
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -228,21 +300,21 @@ export function MySales() {
             <span>wallet</span>
           </div>
         </div>
-        <div className="flex space-x-2">
-          {/* <Button onClick={handleRefresh} variant="outline" size="sm" disabled={isLoading}>
+        {/* <div className="flex space-x-2">
+          <Button onClick={handleRefresh} variant="outline" size="sm" disabled={isLoading}>
             {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
             Refresh
-          </Button> */}
+          </Button>
           <Button className="bg-slate-700 hover:bg-slate-800">
             <Download className="w-4 h-4 mr-2" />
             Withdraw
           </Button>
-        </div>
+        </div> */}
       </div>
 
       {/* Total Sales Card */}
       <div className="grid grid-cols-3">
-        <Card className="bg-[#525773]  text-white">
+        <Card className="bg-[#525773] text-white">
           <CardContent className="p-6">
             <div>
               <p className="text-sm opacity-80">Total Sales</p>
@@ -326,17 +398,22 @@ export function MySales() {
                         Product ID
                       </th>
                       <th className="text-left p-4 font-medium text-[#131313]">
+                        Product Title
+                      </th>
+                      <th className="text-left p-4 font-medium text-[#131313]">
                         Quantity
                       </th>
                       <th className="text-left p-4 font-medium text-[#131313]">
                         Total Sell Amount
                       </th>
                       <th className="text-left p-4 font-medium text-[#131313]">
-                        Admin Charge{" "}
-                        <span className="text-orange-500">(50%)</span>
+                        Admin Charge
                       </th>
                       <th className="text-left p-4 font-medium text-[#131313]">
                         Seller Revenue
+                      </th>
+                      <th className="text-left p-4 font-medium text-[#131313]">
+                        Customer Details
                       </th>
                     </tr>
                   </thead>
@@ -349,6 +426,9 @@ export function MySales() {
                         <td className="py-[30px] px-[50px] text-[#131313]">
                           {item.productId}
                         </td>
+                        <td className="p-4 text-[#424242]">
+                          {item.productTitle || 'N/A'}
+                        </td>
                         <td className="p-4 text-[#424242]">{item.quantity}</td>
                         <td className="p-4 text-[#424242]">
                           ${item.totalSellAmount.toFixed(2)}
@@ -358,6 +438,17 @@ export function MySales() {
                         </td>
                         <td className="p-4 text-[#424242]">
                           ${item.sellerRevenue.toFixed(2)}
+                        </td>
+                        <td className="p-4">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleViewCustomer(item)}
+                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -401,6 +492,40 @@ export function MySales() {
           )}
         </CardContent>
       </Card>
+
+      {/* Customer Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customer Details</DialogTitle>
+          </DialogHeader>
+          {selectedCustomer && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-3 gap-4 py-2 border-b">
+                <span className="font-medium text-gray-600">Order ID:</span>
+                <span className="col-span-2 text-gray-900">{selectedCustomer.orderId}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4 py-2 border-b">
+                <span className="font-medium text-gray-600">Name:</span>
+                <span className="col-span-2 text-gray-900">{selectedCustomer.name}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4 py-2 border-b">
+                <span className="font-medium text-gray-600">Email:</span>
+                <span className="col-span-2 text-gray-900 break-all">{selectedCustomer.email}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-4 py-2">
+                <span className="font-medium text-gray-600">Phone:</span>
+                <span className="col-span-2 text-gray-900">{selectedCustomer.phone}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

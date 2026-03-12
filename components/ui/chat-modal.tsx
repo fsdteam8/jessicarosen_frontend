@@ -82,7 +82,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
       setMessages([]);
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/message/${resourceId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -128,7 +128,7 @@ export function ChatModal({ isOpen, onClose, resourceId }: ChatModalProps) {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/message`,
+        `${process.env.NEXT_PUBLIC_API_URL}/qa/${resourceId}`,
         {
           method: "POST",
           headers: {
