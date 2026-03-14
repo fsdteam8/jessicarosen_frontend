@@ -131,7 +131,6 @@ export function MySales() {
     }
 
     const result: ApiResponse = await response.json();
-    console.log("API Response:", result);
 
     if (!result.success || !result.data) {
       throw new Error(result.message || "Failed to fetch sales data");
@@ -162,7 +161,6 @@ export function MySales() {
     }
 
     const result: ApiResponse = await response.json();
-    console.log("Search API Response:", result);
 
     if (!result.success || !result.data) {
       throw new Error(result.message || "Failed to search sales data");

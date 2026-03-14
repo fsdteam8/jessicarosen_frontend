@@ -31,7 +31,6 @@ export function CartSheet() {
   const [open, setOpenModal] = useState(false);
 
   const cartData = items;
-  console.log("total Data:", getSubtotal());
 
   // Delete item from API
   const deleteItemMutation = useMutation({

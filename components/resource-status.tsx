@@ -181,21 +181,9 @@ export function ResourceStatus() {
     }
   };
 
-  // handle message
-  // const handleMessageClick = (resource: Resource) => {
-  //   setSelectedResourceForMessage(resource)
-  //   setMessageModalOpen(true)
-  // }
-
-  // const handleEdit = (resource: Resource) => {
-  //   setEditingResource(resource);
-  //   setEditModalOpen(true);
-  // };
 
   const handleUpdateResource = (updatedResource: Resource) => {
-    // This would typically involve another mutation to update the resource on the backend
     // For now, we'll just close the modal and rely on query invalidation if an update mutation was made
-    console.log("Updated resource (client-side placeholder):", updatedResource);
     queryClient.invalidateQueries({ queryKey: ["resources"] }); // Invalidate if you had an update mutation
     setEditModalOpen(false);
     setEditingResource(null);

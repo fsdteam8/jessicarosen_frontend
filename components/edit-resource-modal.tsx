@@ -379,7 +379,6 @@ export function EditResourceModal({
         },
         body: JSON.stringify(metadataUpdatePayload),
       });
-      console.log(response)
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -564,7 +563,6 @@ export function EditResourceModal({
       return;
     }
     updateResource(formData);
-    console.log('fromData', formData)
   };
 
   const filteredStates =

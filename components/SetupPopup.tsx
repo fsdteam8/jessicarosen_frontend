@@ -65,7 +65,6 @@ const SetupPopup: React.FC<SetupPopupProps> = ({ open, onOpenChange }) => {
   });
 
   const onSubmit = (data: SetupFormData) => {
-    console.log("Form Data:", data);
     mutation.mutate(data);
   };
 

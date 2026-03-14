@@ -43,7 +43,6 @@ export default function ProductList({
   format,
   states
 }: ProductListProps) {
-  console.log("states", states, "format", format, "price", price, "resourceType", resourceType, "practiceArea", practiceArea, "sortBy", sortBy);
 
 
 
@@ -66,7 +65,6 @@ export default function ProductList({
   const searchParams = useSearchParams();
   const practiceAreas = searchParams.get("practiceArea");
   const subPracticeArea = searchParams.get("subPracticeAreas");
-  console.log("searchParams kongkon", practiceAreas, subPracticeArea);
 
   const { addItem } = useCart();
 
@@ -196,7 +194,6 @@ export default function ProductList({
 });
 
   const products = data?.data || [];
-  console.log("short-product", products);
 
   let content;
 

@@ -78,7 +78,6 @@ export default function QuestionsAnswers({
   const TOKEN = session?.data?.user?.accessToken;
   const queryClient = useQueryClient();
 
-  console.log("resourceId & userId", resourceId, userId);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["question", resourceId],
@@ -118,14 +117,12 @@ export default function QuestionsAnswers({
     },
   });
   const handleSendQuestion = () => {
-    console.log("Question submitted:", question);
     // Here you can add API call to submit the question
     postQuestion.mutate(question);
     setQuestion("");
     setIsModalOpen(false);
   };
 
-  console.log("question ", data?.data);
   const sampleQuestions = data?.data || [];
 
   if (isLoading) {

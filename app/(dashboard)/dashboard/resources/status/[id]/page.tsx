@@ -254,8 +254,6 @@ export default function EditPage() {
   // Update other states after data fetch
   useEffect(() => {
     if (resourceData && countriesData) {
-      console.log(countriesData)
-      console.log(resourceData)
       setSelectedCountry(countriesData.find((c) => c.countryName === resourceData.country) || null);
       setSelectedStates(resourceData.states || []);
       setExistingImages(resourceData.images || []);
@@ -517,7 +515,6 @@ export default function EditPage() {
       });
     },
     onSuccess: (data) => {
-      console.log('Resource updated successfully:', data);
       queryClient.invalidateQueries({ queryKey: ['resource', slug] });
       queryClient.invalidateQueries({ queryKey: ['resources', 'approved'] });
       queryClient.invalidateQueries({ queryKey: ['resources'] });

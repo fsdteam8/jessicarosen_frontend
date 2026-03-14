@@ -401,11 +401,6 @@ export default function EditPage() {
         submitData.append("existingImages[]", imageUrl);
       });
 
-      // Log FormData for debugging
-      for (const [key, value] of submitData?.entries()) {
-        console.log(`${key}: ${value instanceof File ? value.name : value}`);
-      }
-
       const response = await fetch(`${API_BASE_URL}/resource/${slug}`, {
         method: "PUT",
         headers: {
@@ -500,7 +495,6 @@ export default function EditPage() {
       });
     },
     onSuccess: (data) => {
-      console.log("Resource updated successfully:", data);
       toast({
         title: "Success!",
         description: "Resource has been updated successfully.",

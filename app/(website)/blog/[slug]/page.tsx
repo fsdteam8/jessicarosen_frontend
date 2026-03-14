@@ -20,8 +20,6 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
 
   const post = blogsResponse?.data;
 
-  console.log("singleData", post);
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">

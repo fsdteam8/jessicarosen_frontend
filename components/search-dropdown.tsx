@@ -117,7 +117,6 @@ export const SearchDropdown = ({ query, onClose }: Props) => {
         ).then((res) => res.json()),
     });
 
-    console.log(allProductData?.data)
 
   return (
     <div

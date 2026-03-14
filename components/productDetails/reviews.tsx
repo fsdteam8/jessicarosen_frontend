@@ -131,7 +131,6 @@ function WriteReviewModal({ resourceId, userId }: { resourceId: string; userId: 
       return
     }
 
-    console.log("userId", userId)
 
     const formData: ReviewFormData = {
       rating,
@@ -140,7 +139,6 @@ function WriteReviewModal({ resourceId, userId }: { resourceId: string; userId: 
       userId,
     }
 
-    console.log("Form data:", formData)
     mutation.mutate(formData)
   }
 
@@ -191,8 +189,7 @@ function WriteReviewModal({ resourceId, userId }: { resourceId: string; userId: 
 }
 
 export default function Reviews({ resourceId, userId }: ReviewsProps) {
-  console.log("resourceId", resourceId)
-  console.log("userId", userId)
+
 
   const { data, isLoading, error } = useQuery<ReviewsApiResponse>({
     queryKey: ["reviews", resourceId],

@@ -90,7 +90,6 @@ export default function HomeHero() {
     }
 
     if (session.data.user.role === "SELLER") {
-      console.log("User is a seller, redirecting to dashboard");
       router.push("/dashboard");
     } else {
       router.push("/account");

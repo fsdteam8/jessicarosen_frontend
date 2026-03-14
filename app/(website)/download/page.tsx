@@ -45,10 +45,6 @@ export default function DownloadPage() {
   }, [orderId, items, clearCart]);
 
   const handleDownload = (item: PurchasedItem) => {
-    // In a real app, this would trigger the actual download
-    // For demo purposes, we'll just show a toast
-    console.log(`Downloading ${item.title}`);
-
     // Create a temporary link to simulate download
     const link = document.createElement("a");
     link.href = item.downloadUrl;

@@ -35,15 +35,10 @@ export default function BlogPage() {
     },
   });
 
-  // console.log("blogs", blogsResponse?.data)
 
   // Get the actual blogs array from the response
   const allBlogs = blogsResponse?.data || [];
   const latestThreeBlogs = allBlogs.slice(0, 3);
-  console.log("latestThreeBlogs", latestThreeBlogs);
-  console.log("allBlogs ", allBlogs);
-
-  console.log("images", latestThreeBlogs);
 
   return (
     <div className="min-h-screen flex flex-col">

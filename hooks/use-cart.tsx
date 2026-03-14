@@ -57,8 +57,6 @@ export const useCart = create<CartState>()(
           (i) => i.id === item.id
         );
 
-        console.log("Adding item to cart:", item);
-
         if (existingItemIndex >= 0) {
           // If item exists, update quantity
           const updatedItems = [...currentItems];

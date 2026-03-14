@@ -24,12 +24,6 @@ import { useCart } from "@/hooks/use-cart";
 export default function CartPageAPI() {
   // const { status } = useSession();
   const { getSubtotal, getItemCount, getTotal, items, removeItem, updateQuantity } = useCart();
-  // const updateCartMutation = useUpdateCartItem();
-  // const removeCartMutation = useRemoveFromCart();
-  // const clearCartMutation = useClearCart();
-  // const { subtotal, itemCount, shippingCost, total, items } = useCartTotals();
-
-  console.log(items);
 
   return (
     <div className="flex flex-col">

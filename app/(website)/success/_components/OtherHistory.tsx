@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect } from "react";
+import { useCart } from "@/hooks/use-cart";
 
 // Types
 export type OrderFile = {
@@ -86,9 +87,10 @@ export type OrderItem = {
 const OtherHistory = () => {
   const { data: session } = useSession();
   const token = session?.user?.accessToken;
+  const clearCart = useCart((state) => state.clearCart);
   useEffect(() => {
-    localStorage.removeItem("cart-storage");
-  }, []);
+    clearCart();
+  }, [clearCart]);
 
   const {
     data: orderListData,
@@ -125,8 +127,6 @@ const OtherHistory = () => {
       ).then((res) => res.json()),
     enabled: !!token && !!orderId,
   });
-
-  console.log("download", singleOrderData)
 
   // Loading state
   if (!token || isOrderListLoading || (orderId && isSingleOrderLoading)) {
@@ -174,11 +174,6 @@ const OtherHistory = () => {
         <h2 className="text-3xl md:text-[39px] lg:text-[48px] font-semibold text-[#131313] text-center font-manrope">
           Download Page
         </h2>
-        {/* <p className="text-base text-[#616161] text-center font-manrope pt-4">
-          From everyday essentials to the latest trends, we bring you a seamless
-          shopping experience <br /> with unbeatable deals. Discover
-          convenience, quality, and style all in one place.
-        </p> */}
       </div>
 
       <div className="pt-10 md:pt-14 lg:pt-[88px]">

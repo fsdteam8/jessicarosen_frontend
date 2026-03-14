@@ -14,7 +14,6 @@ interface BlogCardProps {
 }
 
 export function BlogCard({  title, date, image, slug, className, featured = false }: BlogCardProps) {
-  console.log("image", image)
   return (
     <div className={cn("group", className)}>
       <Link href={`/blog/${slug}`} className="block">

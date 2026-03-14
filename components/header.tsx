@@ -205,7 +205,6 @@ export function Header() {
   
 
    const handleLogout = () => {
-    console.log("hello shishir")
     setIsLogoutModalOpen(true);
   };
 

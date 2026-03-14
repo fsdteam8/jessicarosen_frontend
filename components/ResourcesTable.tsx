@@ -78,7 +78,6 @@ export default function ResourcesTable() {
   const router = useRouter();
 
   const session = useSession();
-  console.log("session", session);
 
   const token = session?.data?.user?.accessToken;
 
@@ -109,7 +108,6 @@ export default function ResourcesTable() {
     enabled: true,
   });
 
-  // console.log("Resources Data:", data);
   // Delete resource mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {

@@ -58,8 +58,6 @@ export default function OrderHistoryPage() {
     enabled: isLoggedIn && !!token, // Only run query when user is authenticated and token exists
   });
 
-  // console.log('orders', apiResponse)
-
   // Extract orders from API response
   const orders = apiResponse?.data || [];
   const totalPages = Math.ceil(orders.length / itemsPerPage);
@@ -68,10 +66,6 @@ export default function OrderHistoryPage() {
     currentPage * itemsPerPage
   );
 
-  console.log("orders", orders);
-
-  console.log("orders", orders);
-
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
@@ -79,7 +73,6 @@ export default function OrderHistoryPage() {
 
   const handleViewDetails = (orderId: string) => {
     setSelectedOrderId(orderId);
-    console.log("orderid", orderId);
   };
 
   const handleDownload = (
@@ -87,7 +80,6 @@ export default function OrderHistoryPage() {
     resourceName: string,
     price: string
   ) => {
-    console.log("download id ", orderId);
 
     // Find the specific order item that matches the orderId, resourceName, and price
     const orderItem = orders.find(
@@ -100,7 +92,6 @@ export default function OrderHistoryPage() {
     if (orderItem && orderItem.file && orderItem.file.url) {
       // Open the file URL in a new tab
       window.open(orderItem.file.url, "_blank");
-      console.log("Downloading file from:", orderItem.file.url);
     } else {
       console.error("File URL not found for this order");
       // You could show a toast notification here if needed

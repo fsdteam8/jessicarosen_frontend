@@ -107,12 +107,10 @@ const ContactPage = () => {
       ).then((res) => res.json()),
   });
 
-  console.log(data);
 
   const contactMutation = useMutation({
     mutationFn: postContactData,
     onSuccess: (data) => {
-      console.log("Message sent successfully:", data);
       reset();
       toast.success("Message sent successfully!");
     },

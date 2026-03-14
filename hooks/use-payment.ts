@@ -2,7 +2,6 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-// import { useAuth } from "@/hooks/use-auth";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -24,17 +23,6 @@ interface CouponResponse {
     discountAmount: string | number;
   };
 }
-
-// interface PaymentRequest {
-//   items: Array<{
-//     id: string;
-//     title: string;
-//     price: number;
-//     quantity: number;
-//   }>;
-//   total: number;
-//   couponCode?: string;
-// }
 
 interface PaymentResponse {
   success: boolean;
@@ -125,7 +113,6 @@ export function usePayment(paymentData: PaymentRequest) {
   const { data: session, status } = useSession();
   const token = session?.user?.accessToken || null;
   const router = useRouter();
-  // console.log(token)
 
   return useMutation({
     mutationFn: () => {
@@ -136,16 +123,6 @@ export function usePayment(paymentData: PaymentRequest) {
     },
 
     onSuccess: (data) => {
-      // Store order info for download page
-      // localStorage.setItem(
-      //   "pendingOrder",
-      //   JSON.stringify({
-      //     orderId: data.data.orderId,
-      //     sessionId: data.data.sessionId,
-      //   })
-      // );
-
-      // Redirect to payment URL or handle payment flow
       if (data.data.url) {
         window.location.href = data.data.url;
       } else {
