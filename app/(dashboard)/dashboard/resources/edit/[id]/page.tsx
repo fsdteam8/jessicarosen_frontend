@@ -494,7 +494,7 @@ export default function EditPage() {
         variant: "destructive",
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
         title: "Success!",
         description: "Resource has been updated successfully.",
