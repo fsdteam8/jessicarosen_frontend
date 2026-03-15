@@ -78,6 +78,8 @@ export default function QuestionsAnswers({
   const TOKEN = session?.data?.user?.accessToken;
   const queryClient = useQueryClient();
 
+  console.log(userId);
+
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["question", resourceId],
