@@ -182,7 +182,7 @@ export function ResourceStatus() {
   };
 
 
-  const handleUpdateResource = (updatedResource: Resource) => {
+  const handleUpdateResource = () => {
     // For now, we'll just close the modal and rely on query invalidation if an update mutation was made
     queryClient.invalidateQueries({ queryKey: ["resources"] }); // Invalidate if you had an update mutation
     setEditModalOpen(false);

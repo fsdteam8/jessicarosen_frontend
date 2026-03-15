@@ -514,7 +514,7 @@ export default function EditPage() {
         variant: 'destructive',
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['resource', slug] });
       queryClient.invalidateQueries({ queryKey: ['resources', 'approved'] });
       queryClient.invalidateQueries({ queryKey: ['resources'] });
