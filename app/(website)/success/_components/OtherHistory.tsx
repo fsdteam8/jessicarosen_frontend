@@ -2,14 +2,12 @@
 
 import Loading from "@/app/loading";
 import { useQuery } from "@tanstack/react-query";
-import { Download } from "lucide-react";
+import { Download, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useCart } from "@/hooks/use-cart";
-import { Mail } from "lucide-react";
-
 
 // Types
 export type OrderFile = {
@@ -96,53 +94,17 @@ const OtherHistory = () => {
     clearCart();
   }, [clearCart]);
 
-  // If user not authenticated
-if (!token) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
-      <div className="bg-white shadow-lg rounded-xl p-10 text-center max-w-md w-full animate-[fadeIn_0.6s_ease-in-out]">
+  /* ===============================
+      ORDER LIST QUERY
+  =============================== */
 
-        <div className="flex justify-center mb-6">
-          <div className="bg-[#23547B]/10 p-6 rounded-full">
-            <Mail
-              size={48}
-              className="text-[#23547B] animate-bounce"
-            />
-          </div>
-        </div>
-
-        <h2 className="text-2xl font-bold text-[#131313] mb-3">
-          Check Your Email
-        </h2>
-
-        <p className="text-gray-600 text-lg leading-relaxed">
-          Please check your email.  
-          You will receive your purchased resource there.
-        </p>
-      </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          0% {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
   const {
     data: orderListData,
     isLoading: isOrderListLoading,
   } = useQuery<OrdersResponse>({
     queryKey: ["order-history"],
     queryFn: async () =>
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -152,6 +114,10 @@ if (!token) {
 
   const orderId = orderListData?.data?.[0]?.orderId;
 
+  /* ===============================
+      SINGLE ORDER QUERY
+  =============================== */
+
   const {
     data: singleOrderData,
     isLoading: isSingleOrderLoading,
@@ -160,27 +126,72 @@ if (!token) {
   } = useQuery<OrderDetailsResponse>({
     queryKey: ["single-order-history", orderId],
     queryFn: async () =>
-      await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/orders/${orderId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      ).then((res) => res.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((res) => res.json()),
     enabled: !!token && !!orderId,
   });
 
-  // Loading
+  /* ===============================
+      UNAUTHENTICATED UI
+  =============================== */
+
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
+        <div className="bg-white shadow-lg rounded-xl p-10 text-center max-w-md w-full animate-[fadeIn_0.6s_ease-in-out]">
+
+          <div className="flex justify-center mb-6">
+            <div className="bg-[#23547B]/10 p-6 rounded-full">
+              <Mail size={48} className="text-[#23547B] animate-bounce" />
+            </div>
+          </div>
+
+          <h2 className="text-2xl font-bold text-[#131313] mb-3">
+            Check Your Email
+          </h2>
+
+          <p className="text-gray-600 text-lg leading-relaxed">
+            Please check your email.
+            <br />
+            You will receive your purchased resource there.
+          </p>
+        </div>
+
+        <style jsx>{`
+          @keyframes fadeIn {
+            0% {
+              opacity: 0;
+              transform: translateY(20px) scale(0.95);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  /* ===============================
+      LOADING STATE
+  =============================== */
+
   if (isOrderListLoading || (orderId && isSingleOrderLoading)) {
     return (
-      <div className="h-full w-full flex items-center justify-center gap-4">
+      <div className="min-h-screen flex items-center justify-center gap-4">
         <Loading /> Loading...
       </div>
     );
   }
 
-  // Error
+  /* ===============================
+      ERROR STATE
+  =============================== */
+
   if (isError || !singleOrderData?.data) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex items-center justify-center">
@@ -192,13 +203,17 @@ if (!token) {
     );
   }
 
-  // No orders
+  /* ===============================
+      NO ORDERS
+  =============================== */
+
   if (orderListData?.data?.length === 0) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex flex-col items-center justify-center">
         <h2 className="text-3xl font-bold text-black text-center pb-4">
           No data found
         </h2>
+
         <Link href="/products">
           <button className="py-3 px-10 text-base font-bold text-white bg-[#23547B] rounded-[8px]">
             Continue Shopping
@@ -208,8 +223,12 @@ if (!token) {
     );
   }
 
+  /* ===============================
+      MAIN DOWNLOAD PAGE
+  =============================== */
+
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto min-h-screen">
       <div className="pt-10 md:pt-14 lg:pt-[88px]">
         <h2 className="text-3xl md:text-[39px] lg:text-[48px] font-semibold text-[#131313] text-center font-manrope">
           Download Page
@@ -222,6 +241,7 @@ if (!token) {
             {singleOrderData?.data?.items?.map((item, index) => (
               <tr key={index} className="flex items-center justify-between">
                 <div className="flex items-center gap-8 md:gap-10 lg:gap-12">
+
                   <td className="px-4 py-2">
                     <Image
                       src={item?.resource?.thumbnail || "/images/no-image.jpg"}
@@ -235,6 +255,7 @@ if (!token) {
                   <td className="text-xl font-medium text-[#2A2A2A] font-manrope">
                     {item?.resource?.title}
                   </td>
+
                 </div>
 
                 <td className="px-4 py-2">
@@ -247,6 +268,7 @@ if (!token) {
                     <Download /> Download
                   </Link>
                 </td>
+
               </tr>
             ))}
           </tbody>
