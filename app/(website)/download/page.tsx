@@ -25,6 +25,7 @@ export default function DownloadPage() {
   useEffect(() => {
     // In a real app, you would fetch the purchased items from your API using the orderId
     // For demo purposes, we'll use the cart items and simulate download URLs
+
     if (orderId && items.length > 0) {
       const simulatedPurchasedItems: PurchasedItem[] = items.map((item) => ({
         id: item.id,

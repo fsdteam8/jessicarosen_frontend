@@ -4,8 +4,8 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "Lawbie | Website",
-  description: "Multi-role ecommerce dashboard",
+  title: "Lawbie | Lawyers and law firms",
+  description: "An AI-powered legal assistant for lawyers and law firms.",
 };
 
 export default function RootLayout({

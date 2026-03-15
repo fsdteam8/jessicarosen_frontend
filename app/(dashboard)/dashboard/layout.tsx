@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { DashboardLayout } from "@/components/dashboard-layout";
 
 export const metadata: Metadata = {
-  title: "Lawbie Dashboard",
+  title: "Lawbie | Lawyers and law firms",
   description: "Multi-role ecommerce dashboard",
 };
 

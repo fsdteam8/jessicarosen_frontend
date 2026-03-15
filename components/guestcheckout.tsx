@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -23,12 +23,77 @@ export default function GuestCheckoutModal({
     const [address, setAddress] = useState("");
 
     const [loading, setLoading] = useState(false);
+    
+    // Tax calculation states
+    const [taxAmount, setTaxAmount] = useState(0);
+    const [taxRate, setTaxRate] = useState(0);
+    const [loadingTax, setLoadingTax] = useState(false);
+
+    // Constants
+    const PLATFORM_FEE_PERCENT = 0.13; // 13% platform fee
 
     // Calculate subtotal price (sum of item price * qty)
     const subtotal = items.reduce(
         (sum, item) => sum + (item.discountPrice || item.price) * item.quantity,
         0
     );
+
+    // Calculate platform fee (13%)
+    const platformFee = subtotal * PLATFORM_FEE_PERCENT;
+    
+    // Amount before tax (subtotal + platform fee)
+    const amountBeforeTax = subtotal + platformFee;
+    
+    // Final total (with tax)
+    const total = amountBeforeTax + taxAmount;
+
+    // Fetch tax estimate when items change or amount before tax changes
+    useEffect(() => {
+        const fetchTaxEstimate = async () => {
+            if (amountBeforeTax <= 0 || !address) return;
+            
+            setLoadingTax(true);
+            try {
+                // You can create a backend endpoint to calculate tax
+                // Or use Stripe's tax calculation API directly
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/payment/calculate-tax`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            amount: amountBeforeTax,
+                            country: "BD", // You can get this from address or user selection
+                            postal_code: address.match(/\d{4,}/)?.[0] || "", // Extract postal code from address
+                        }),
+                    }
+                );
+                
+                const data = await response.json();
+                if (response.ok) {
+                    setTaxAmount(data.taxAmount || 0);
+                    setTaxRate(data.taxRate || 0);
+                }
+            } catch (error) {
+                console.error("Error fetching tax:", error);
+                // Default to 0 if tax calculation fails
+                setTaxAmount(0);
+            } finally {
+                setLoadingTax(false);
+            }
+        };
+
+        // Debounce tax calculation to avoid too many requests
+        const timer = setTimeout(() => {
+            if (address) {
+                fetchTaxEstimate();
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [amountBeforeTax, address]);
 
     const isValidEmail = (email: string) =>
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -58,6 +123,9 @@ export default function GuestCheckoutModal({
                     resource: item.id,
                     quantity: item.quantity,
                 })),
+                // Send tax information to backend
+                taxAmount: taxAmount,
+                customerCountry: "BD", // You can make this dynamic based on address
             };
 
             const res = await fetch(
@@ -132,11 +200,55 @@ export default function GuestCheckoutModal({
                     ))}
                 </div>
 
-                {/* Pricing Summary */}
-                <div className="mb-4 p-4 border rounded">
-                    <div className="flex justify-between font-bold text-lg">
-                        <span>Total:</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                {/* Detailed Pricing Summary with Tax Breakdown */}
+                <div className="mb-4 p-4 border rounded bg-gray-50">
+                    <h3 className="font-semibold mb-2">Price Breakdown</h3>
+                    
+                    <div className="space-y-2 text-sm">
+                        {/* Subtotal */}
+                        <div className="flex justify-between">
+                            <span>Subtotal:</span>
+                            <span>${subtotal.toFixed(2)}</span>
+                        </div>
+                        
+                        {/* Platform Fee (13%) */}
+                        <div className="flex justify-between text-gray-600">
+                            <span>Platform Fee (13%):</span>
+                            <span>+${platformFee.toFixed(2)}</span>
+                        </div>
+                        
+                        {/* Amount before tax */}
+                        <div className="flex justify-between font-medium border-t pt-2 mt-2">
+                            <span>Amount before tax:</span>
+                            <span>${amountBeforeTax.toFixed(2)}</span>
+                        </div>
+                        
+                        {/* Tax (with loading state) */}
+                        <div className="flex justify-between text-gray-600">
+                            <span>
+                                Tax {taxRate > 0 ? `(${taxRate}%)` : ''}:
+                                {loadingTax && <span className="ml-2 text-xs">Calculating...</span>}
+                            </span>
+                            <span className={loadingTax ? "text-gray-400" : ""}>
+                                {loadingTax ? "..." : `+$${taxAmount.toFixed(2)}`}
+                            </span>
+                        </div>
+                        
+                        {/* Total - Highlighted */}
+                        <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+                            <span>Total:</span>
+                            <span className="text-green-600">
+                                ${total.toFixed(2)}
+                                {loadingTax && <span className="text-xs text-gray-400 ml-2">(estimating...)</span>}
+                            </span>
+                        </div>
+                        
+                        {/* Tax info note */}
+                        {taxAmount > 0 && (
+                            <div className="text-xs text-gray-500 mt-2">
+                                *Tax is calculated based on your location. Final tax amount may vary.
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -164,7 +276,7 @@ export default function GuestCheckoutModal({
                     />
                     <Input
                         type="text"
-                        placeholder="Address"
+                        placeholder="Address (for tax calculation)"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         required
@@ -178,8 +290,12 @@ export default function GuestCheckoutModal({
                         >
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading ? "Processing..." : "Confirm & Pay"}
+                        <Button 
+                            type="submit" 
+                            disabled={loading || loadingTax}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            {loading ? "Processing..." : `Pay $${total.toFixed(2)}`}
                         </Button>
                     </div>
                 </form>

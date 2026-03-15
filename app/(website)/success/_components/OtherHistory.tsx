@@ -8,6 +8,8 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect } from "react";
 import { useCart } from "@/hooks/use-cart";
+import { Mail } from "lucide-react";
+
 
 // Types
 export type OrderFile = {
@@ -87,15 +89,56 @@ export type OrderItem = {
 const OtherHistory = () => {
   const { data: session } = useSession();
   const token = session?.user?.accessToken;
+
   const clearCart = useCart((state) => state.clearCart);
+
   useEffect(() => {
     clearCart();
   }, [clearCart]);
 
+  // If user not authenticated
+if (!token) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
+      <div className="bg-white shadow-lg rounded-xl p-10 text-center max-w-md w-full animate-[fadeIn_0.6s_ease-in-out]">
+
+        <div className="flex justify-center mb-6">
+          <div className="bg-[#23547B]/10 p-6 rounded-full">
+            <Mail
+              size={48}
+              className="text-[#23547B] animate-bounce"
+            />
+          </div>
+        </div>
+
+        <h2 className="text-2xl font-bold text-[#131313] mb-3">
+          Check Your Email
+        </h2>
+
+        <p className="text-gray-600 text-lg leading-relaxed">
+          Please check your email.  
+          You will receive your purchased resource there.
+        </p>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          0% {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
   const {
     data: orderListData,
     isLoading: isOrderListLoading,
-    // error: orderListError,
   } = useQuery<OrdersResponse>({
     queryKey: ["order-history"],
     queryFn: async () =>
@@ -128,8 +171,8 @@ const OtherHistory = () => {
     enabled: !!token && !!orderId,
   });
 
-  // Loading state
-  if (!token || isOrderListLoading || (orderId && isSingleOrderLoading)) {
+  // Loading
+  if (isOrderListLoading || (orderId && isSingleOrderLoading)) {
     return (
       <div className="h-full w-full flex items-center justify-center gap-4">
         <Loading /> Loading...
@@ -137,7 +180,7 @@ const OtherHistory = () => {
     );
   }
 
-  // Error state
+  // Error
   if (isError || !singleOrderData?.data) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex items-center justify-center">
@@ -149,7 +192,7 @@ const OtherHistory = () => {
     );
   }
 
-  // No orders found
+  // No orders
   if (orderListData?.data?.length === 0) {
     return (
       <div className="container mx-auto my-10 h-[300px] w-full bg-gray-300 rounded-lg flex flex-col items-center justify-center">
@@ -164,9 +207,6 @@ const OtherHistory = () => {
       </div>
     );
   }
-
-
-
 
   return (
     <div className="container mx-auto">
@@ -191,15 +231,17 @@ const OtherHistory = () => {
                       className="w-[80px] h-[80px] object-cover rounded-[16px]"
                     />
                   </td>
+
                   <td className="text-xl font-medium text-[#2A2A2A] font-manrope">
                     {item?.resource?.title}
                   </td>
                 </div>
+
                 <td className="px-4 py-2">
                   <Link
                     target="_blank"
                     href={item?.resource?.file?.url || "#"}
-                    download={item?.resource?.file?.url?.split("/").pop()} // filename
+                    download={item?.resource?.file?.url?.split("/").pop()}
                     className="flex items-center gap-2 bg-[#23547B] py-2 px-4 rounded text-white font-bold"
                   >
                     <Download /> Download
