@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Lawbie | Lawyers and law firms",
   description: "An AI-powered legal assistant for lawyers and law firms.",
   icons: {
-    icon: "/images/authImg.svg",
+    // icon: "/images/authImg.svg",
     // apple: "/apple-touch-icon.png",
   },
 };
