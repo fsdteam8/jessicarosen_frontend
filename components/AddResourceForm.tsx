@@ -47,7 +47,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-import "react-quill/dist/quill.snow.css";
+// import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
@@ -439,7 +439,6 @@ export default function ResourceForm() {
       errors.description = "This field is required";
     if (!formData.thumbnail) errors.thumbnail = "Thumbnail is required";
     if (!formData.file) errors.file = "This field is required";
-    if (formData.images.length === 0) errors.images = "This field is required";
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -1036,17 +1035,16 @@ export default function ResourceForm() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Upload Images *</CardTitle>
+                <CardTitle>Upload Images</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="images-upload">
-                    Additional Images ({formData.images.length}/4 maximum) *
+                    Additional Images ({formData.images.length}/4 maximum)
                   </Label>
                   <div
                     className={cn(
                       "border-2 border-dashed rounded-lg p-6 text-center",
-                      formSubmitted && fieldErrors.images && "border-red-500 bg-red-50",
                       formData.images.length >= 4 ? "border-gray-200 bg-gray-50" : "border-gray-300"
                     )}
                   >
@@ -1070,7 +1068,7 @@ export default function ResourceForm() {
                       <p className="text-sm text-gray-600">
                         {formData.images.length >= 4
                           ? "Maximum 4 images reached"
-                          : "Click or drag to upload images *"}
+                          : "Click or drag to upload images"}
                       </p>
                       <p className="text-xs text-gray-500">
                         {formData.images.length >= 4
@@ -1079,10 +1077,6 @@ export default function ResourceForm() {
                       </p>
                     </label>
                   </div>
-
-                  {formSubmitted && fieldErrors.images && (
-                    <p className="text-red-600 text-sm mt-1">{fieldErrors.images}</p>
-                  )}
 
                   {imagePreviews.length > 0 && (
                     <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
